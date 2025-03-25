@@ -47,11 +47,45 @@
     button:hover, select:hover {
       background-color: #45a049;
     }
+    #showAnswer {
+      background-color: #2196F3; /* Blue for Show Answer */
+      display: none; /* Hidden by default */
+    }
+    #showAnswer:hover {
+      background-color: #1e88e5;
+    }
+    #feedback {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 30px;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 1000;
+      animation: popIn 0.5s ease-out;
+    }
+    #feedback.correct {
+      background-color: #4CAF50;
+    }
+    #feedback.wrong {
+      background-color: #f44336;
+    }
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
     @media (max-width: 768px) {
       h1 { font-size: 28px; }
       #part, #definition { font-size: 18px; }
       #input { font-size: 18px; padding: 12px; }
       button, select { font-size: 20px; padding: 15px; }
+      #feedback { font-size: 24px; padding: 20px; }
     }
   </style>
 </head>
@@ -68,6 +102,8 @@
   <input type="text" id="input" placeholder="Type the word">
   <button onclick="checkSpelling()">Check</button>
   <button onclick="nextWord()">Next</button>
+  <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
+  <div id="feedback"></div>
 
   <script>
     const words = [
@@ -108,6 +144,7 @@
 
     let currentLevel = 0;
     let currentIndex = 0;
+    let failCount = 0; // Track failed attempts
 
     function getLevelWords() {
       const start = currentLevel * 10; // 10 words per level
@@ -120,49 +157,98 @@
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
       document.getElementById("input").value = "";
+      document.getElementById("showAnswer").style.display = failCount >= 5 ? "block" : "none";
     }
 
     function pronounceWord() {
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
-      
-      // First utterance: Word twice, slower
-      const wordUtterance = new SpeechSynthesisUtterance(`${w.word}. ${w.word}`);
-      wordUtterance.lang = "en-US";
-      wordUtterance.rate = 0.5; // Slow it down to half speed
-      
-      // Second utterance: Part of speech and definition once
-      const infoUtterance = new SpeechSynthesisUtterance(`Part of speech: ${w.part}. Definition: ${w.definition}`);
-      infoUtterance.lang = "en-US";
-      infoUtterance.rate = 0.5; // Same slow speed for consistency
 
-      // Speak word twice, then part and definition
-      speechSynthesis.speak(wordUtterance);
-      wordUtterance.onend = () => {
-        speechSynthesis.speak(infoUtterance);
+      // First word pronunciation
+      const firstWord = new SpeechSynthesisUtterance(w.word);
+      firstWord.lang = "en-US";
+      firstWord.rate = 0.5;
+
+      // Second word pronunciation (after 2-second delay)
+      const secondWord = new SpeechSynthesisUtterance(w.word);
+      secondWord.lang = "en-US";
+      secondWord.rate = 0.5;
+
+      // Part of speech
+      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+      partSpeech.lang = "en-US";
+      partSpeech.rate = 0.5;
+
+      // Definition
+      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+      definition.lang = "en-US";
+      definition.rate = 0.5;
+
+      // Chain the sequence
+      speechSynthesis.speak(firstWord);
+      firstWord.onend = () => {
+        setTimeout(() => {
+          speechSynthesis.speak(secondWord);
+          secondWord.onend = () => {
+            speechSynthesis.speak(partSpeech);
+            partSpeech.onend = () => {
+              speechSynthesis.speak(definition);
+            };
+          };
+        }, 2000); // 2-second pause
       };
     }
 
     function nextWord() {
       const levelWords = getLevelWords();
       currentIndex = (currentIndex + 1) % levelWords.length;
+      failCount = 0; // Reset fail count on new word
       showWord();
       pronounceWord();
+    }
+
+    function showFeedback(message, isCorrect) {
+      const feedback = document.getElementById("feedback");
+      feedback.innerText = message;
+      feedback.className = isCorrect ? "correct" : "wrong";
+      feedback.style.display = "block";
+      setTimeout(() => {
+        feedback.style.display = "none";
+      }, 1500); // Hide after 1.5 seconds
     }
 
     function checkSpelling() {
       const levelWords = getLevelWords();
       const userInput = document.getElementById("input").value.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
-        alert("Correct!");
+        showFeedback("🎉 Awesome! Correct! 🎉", true);
+        failCount = 0; // Reset fail count
+        setTimeout(() => {
+          nextWord();
+        }, 1500); // Move to next word
       } else {
-        alert("Try again!");
+        failCount++;
+        showFeedback("❌ Oops! Try Again! ❌", false);
+        if (failCount >= 5) {
+          document.getElementById("showAnswer").style.display = "block";
+        }
       }
+      document.getElementById("input").value = ""; // Clear input box
+    }
+
+    function showAnswer() {
+      const levelWords = getLevelWords();
+      const w = levelWords[currentIndex];
+      showFeedback(`Answer: ${w.word}`, false); // Show answer in feedback style
+      setTimeout(() => {
+        nextWord(); // Move to next word after showing answer
+      }, 1500);
     }
 
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
       currentIndex = 0;
+      failCount = 0; // Reset fail count on level change
       showWord();
       pronounceWord();
     }
