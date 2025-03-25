@@ -124,9 +124,23 @@
 
     function pronounceWord() {
       const levelWords = getLevelWords();
-      const utterance = new SpeechSynthesisUtterance(levelWords[currentIndex].word);
-      utterance.lang = "en-US";
-      speechSynthesis.speak(utterance);
+      const w = levelWords[currentIndex];
+      
+      // First utterance: Word twice, slower
+      const wordUtterance = new SpeechSynthesisUtterance(`${w.word}. ${w.word}`);
+      wordUtterance.lang = "en-US";
+      wordUtterance.rate = 0.5; // Slow it down to half speed
+      
+      // Second utterance: Part of speech and definition once
+      const infoUtterance = new SpeechSynthesisUtterance(`Part of speech: ${w.part}. Definition: ${w.definition}`);
+      infoUtterance.lang = "en-US";
+      infoUtterance.rate = 0.5; // Same slow speed for consistency
+
+      // Speak word twice, then part and definition
+      speechSynthesis.speak(wordUtterance);
+      wordUtterance.onend = () => {
+        speechSynthesis.speak(infoUtterance);
+      };
     }
 
     function nextWord() {
