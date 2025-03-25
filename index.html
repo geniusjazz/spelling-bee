@@ -1,9 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Page</title>
+  <title>Spelling Bee Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 15px;
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+    h1 {
+      font-size: 32px;
+      color: #333;
+    }
+    #part, #definition {
+      font-size: 22px;
+      margin: 15px 0;
+      color: #555;
+    }
+    #input {
+      width: 90%;
+      max-width: 400px;
+      padding: 15px;
+      font-size: 20px;
+      margin: 20px auto;
+      display: block;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+    }
+    button, select {
+      width: 90%;
+      max-width: 300px;
+      padding: 20px;
+      font-size: 24px;
+      margin: 10px auto;
+      display: block;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    button:hover, select:hover {
+      background-color: #45a049;
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 28px; }
+      #part, #definition { font-size: 18px; }
+      #input { font-size: 18px; padding: 12px; }
+      button, select { font-size: 20px; padding: 15px; }
+    }
+  </style>
 </head>
 <body>
-    <h1>It works!</h1>
+  <h1>Spelling Bee Practice</h1>
+  <select id="levelSelect" onchange="changeLevel()">
+    <option value="0">Level 1</option>
+    <option value="1">Level 2</option>
+    <option value="2">Level 3</option>
+  </select>
+  <div id="part"></div>
+  <div id="definition"></div>
+  <button onclick="pronounceWord()">Pronounce</button>
+  <input type="text" id="input" placeholder="Type the word">
+  <button onclick="checkSpelling()">Check</button>
+  <button onclick="nextWord()">Next</button>
+
+  <script>
+    const words = [
+      // Level 1
+      { word: "deep", part: "adjective", definition: "extending downward to a considerable degree" },
+      { word: "happy", part: "adjective", definition: "having the feeling arising from well-being" },
+      { word: "bump", part: "verb", definition: "to hit or knock with force" },
+      { word: "bear", part: "noun", definition: "an animal with long shaggy hair" },
+      { word: "count", part: "verb", definition: "to find the total number of units" },
+      { word: "dunk", part: "verb", definition: "to dip into liquid while eating" },
+      { word: "feet", part: "noun", definition: "terminal parts of the legs" },
+      { word: "cold", part: "adjective", definition: "having a low temperature" },
+      { word: "alone", part: "adjective", definition: "away from other people" },
+      { word: "click", part: "verb", definition: "to select something on a computer" },
+      // Level 2
+      { word: "eagle", part: "noun", definition: "a large bird of prey" },
+      { word: "berries", part: "noun", definition: "small pulpy edible fruits" },
+      { word: "caves", part: "noun", definition: "hollowed-out chambers in the earth" },
+      { word: "blanket", part: "noun", definition: "a warm fabric bed covering" },
+      { word: "catch", part: "verb", definition: "to take hold of suddenly" },
+      { word: "glow", part: "verb", definition: "to shine with light" },
+      { word: "quick", part: "adjective", definition: "done with rapidity" },
+      { word: "cotton", part: "noun", definition: "a soft fibrous substance" },
+      { word: "seats", part: "noun", definition: "assigned sitting places" },
+      { word: "baseball", part: "noun", definition: "a game with a bat and ball" },
+      // Level 3
+      { word: "giraffe", part: "noun", definition: "a large mammal with a long neck" },
+      { word: "groceries", part: "noun", definition: "staple foodstuffs" },
+      { word: "huddling", part: "verb", definition: "gathering in a group" },
+      { word: "jigsaw", part: "noun", definition: "a puzzle with small pieces" },
+      { word: "neighbors", part: "noun", definition: "ones living nearby" },
+      { word: "mansion", part: "noun", definition: "an impressive large home" },
+      { word: "powwow", part: "noun", definition: "a North American Indian ceremony" },
+      { word: "bazaar", part: "noun", definition: "a market with shops" },
+      { word: "astray", part: "adverb", definition: "into a wrong way" },
+      { word: "liquid", part: "noun", definition: "a fluid substance" }
+    ];
+
+    let currentLevel = 0;
+    let currentIndex = 0;
+
+    function getLevelWords() {
+      const start = currentLevel * 10; // 10 words per level
+      return words.slice(start, start + 10);
+    }
+
+    function showWord() {
+      const levelWords = getLevelWords();
+      const w = levelWords[currentIndex];
+      document.getElementById("part").innerText = "Part of Speech: " + w.part;
+      document.getElementById("definition").innerText = "Definition: " + w.definition;
+      document.getElementById("input").value = "";
+    }
+
+    function pronounceWord() {
+      const levelWords = getLevelWords();
+      const utterance = new SpeechSynthesisUtterance(levelWords[currentIndex].word);
+      utterance.lang = "en-US";
+      speechSynthesis.speak(utterance);
+    }
+
+    function nextWord() {
+      const levelWords = getLevelWords();
+      currentIndex = (currentIndex + 1) % levelWords.length;
+      showWord();
+      pronounceWord();
+    }
+
+    function checkSpelling() {
+      const levelWords = getLevelWords();
+      const userInput = document.getElementById("input").value.trim().toLowerCase();
+      if (userInput === levelWords[currentIndex].word) {
+        alert("Correct!");
+      } else {
+        alert("Try again!");
+      }
+    }
+
+    function changeLevel() {
+      currentLevel = parseInt(document.getElementById("levelSelect").value);
+      currentIndex = 0;
+      showWord();
+      pronounceWord();
+    }
+
+    showWord();
+    pronounceWord();
+  </script>
 </body>
 </html>
