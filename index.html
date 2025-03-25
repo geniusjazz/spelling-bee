@@ -48,8 +48,8 @@
       background-color: #45a049;
     }
     #showAnswer {
-      background-color: #2196F3; /* Blue for Show Answer */
-      display: none; /* Hidden by default */
+      background-color: #2196F3;
+      display: none;
     }
     #showAnswer:hover {
       background-color: #1e88e5;
@@ -103,7 +103,7 @@
   <button onclick="checkSpelling()">Check</button>
   <button onclick="nextWord()">Next</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
-  <div id="feedback"></div>
+  <div id="feedback" onclick="hideFeedback()"></div>
 
   <script>
     const words = [
@@ -144,10 +144,10 @@
 
     let currentLevel = 0;
     let currentIndex = 0;
-    let failCount = 0; // Track failed attempts
+    let failCount = 0;
 
     function getLevelWords() {
-      const start = currentLevel * 10; // 10 words per level
+      const start = currentLevel * 10;
       return words.slice(start, start + 10);
     }
 
@@ -157,52 +157,68 @@
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
       document.getElementById("input").value = "";
-      document.getElementById("showAnswer").style.display = failCount >= 5 ? "block" : "none";
+      document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
     }
 
     function pronounceWord() {
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
-      // First word pronunciation
       const firstWord = new SpeechSynthesisUtterance(w.word);
       firstWord.lang = "en-US";
       firstWord.rate = 0.5;
 
-      // Second word pronunciation (after 2-second delay)
       const secondWord = new SpeechSynthesisUtterance(w.word);
       secondWord.lang = "en-US";
       secondWord.rate = 0.5;
 
-      // Part of speech
       const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
       partSpeech.lang = "en-US";
       partSpeech.rate = 0.5;
 
-      // Definition
       const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
       definition.lang = "en-US";
       definition.rate = 0.5;
 
-      // Chain the sequence
+      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+      pleaseSpell.lang = "en-US";
+      pleaseSpell.rate = 0.5;
+
+      const finalWord = new SpeechSynthesisUtterance(w.word);
+      finalWord.lang = "en-US";
+      finalWord.rate = 0.5;
+
+      // Chain with 1.5s pauses
       speechSynthesis.speak(firstWord);
       firstWord.onend = () => {
         setTimeout(() => {
           speechSynthesis.speak(secondWord);
           secondWord.onend = () => {
-            speechSynthesis.speak(partSpeech);
-            partSpeech.onend = () => {
-              speechSynthesis.speak(definition);
-            };
+            setTimeout(() => {
+              speechSynthesis.speak(partSpeech);
+              partSpeech.onend = () => {
+                speechSynthesis.speak(definition);
+                definition.onend = () => {
+                  setTimeout(() => {
+                    speechSynthesis.speak(pleaseSpell);
+                    pleaseSpell.onend = () => {
+                      setTimeout(() => {
+                        speechSynthesis.speak(finalWord);
+                      }, 1500);
+                    };
+                  }, 1500);
+                };
+              };
+            }, 1500);
           };
-        }, 2000); // 2-second pause
+        }, 1500);
       };
     }
 
     function nextWord() {
       const levelWords = getLevelWords();
       currentIndex = (currentIndex + 1) % levelWords.length;
-      failCount = 0; // Reset fail count on new word
+      failCount = 0;
       showWord();
       pronounceWord();
     }
@@ -212,9 +228,15 @@
       feedback.innerText = message;
       feedback.className = isCorrect ? "correct" : "wrong";
       feedback.style.display = "block";
-      setTimeout(() => {
-        feedback.style.display = "none";
-      }, 1500); // Hide after 1.5 seconds
+      if (isCorrect) {
+        setTimeout(() => {
+          feedback.style.display = "none";
+        }, 1500); // Auto-hide only for correct
+      }
+    }
+
+    function hideFeedback() {
+      document.getElementById("feedback").style.display = "none";
     }
 
     function checkSpelling() {
@@ -222,33 +244,30 @@
       const userInput = document.getElementById("input").value.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
         showFeedback("🎉 Awesome! Correct! 🎉", true);
-        failCount = 0; // Reset fail count
+        failCount = 0;
         setTimeout(() => {
           nextWord();
-        }, 1500); // Move to next word
+        }, 1500);
       } else {
         failCount++;
         showFeedback("❌ Oops! Try Again! ❌", false);
-        if (failCount >= 5) {
+        if (failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
         }
       }
-      document.getElementById("input").value = ""; // Clear input box
+      document.getElementById("input").value = "";
     }
 
     function showAnswer() {
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
-      showFeedback(`Answer: ${w.word}`, false); // Show answer in feedback style
-      setTimeout(() => {
-        nextWord(); // Move to next word after showing answer
-      }, 1500);
+      showFeedback(`Answer: ${w.word}`, false); // Stays until clicked
     }
 
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
       currentIndex = 0;
-      failCount = 0; // Reset fail count on level change
+      failCount = 0;
       showWord();
       pronounceWord();
     }
