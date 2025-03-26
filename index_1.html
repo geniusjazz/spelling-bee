@@ -139,6 +139,7 @@
     let currentIndex = 0;
     let failCount = 0;
     let lastPronouncedIndex = -1; // Track last pronounced word
+    let isSpeaking = false; // Track speaking state
 
     function getLevelWords() {
       const start = currentLevel * 50;
@@ -155,16 +156,23 @@
     }
 
     function pronounceWord() {
+      if (isSpeaking) return;
+      isSpeaking = true;
+      disableButtons();
+
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
-      // Check if this word was already pronounced
       if (currentIndex === lastPronouncedIndex) {
         // Second click: Pronounce only the word
         const wordOnly = new SpeechSynthesisUtterance(w.word);
         wordOnly.lang = "en-US";
         wordOnly.rate = 0.5;
         speechSynthesis.speak(wordOnly);
+        wordOnly.onend = () => {
+          isSpeaking = false;
+          enableButtons();
+        };
       } else {
         // First click: Full sequence with 1s pauses
         const firstWord = new SpeechSynthesisUtterance(w.word);
@@ -208,6 +216,8 @@
                           speechSynthesis.speak(finalWord);
                           finalWord.onend = () => {
                             lastPronouncedIndex = currentIndex; // Mark as pronounced
+                            isSpeaking = false;
+                            enableButtons();
                           };
                         }, 1000);
                       };
@@ -219,6 +229,18 @@
           }, 1000);
         };
       }
+    }
+
+    function disableButtons() {
+      document.getElementById("pronounce").disabled = true;
+      document.getElementById("checkAnswer").disabled = true;
+      document.getElementById("showAnswer").disabled = true;
+    }
+
+    function enableButtons() {
+      document.getElementById("pronounce").disabled = false;
+      document.getElementById("checkAnswer").disabled = false;
+      document.getElementById("showAnswer").disabled = failCount < 3;
     }
 
     function nextWord() {
@@ -245,6 +267,7 @@
     }
 
     function checkSpelling() {
+      if (isSpeaking) return;
       const levelWords = getLevelWords();
       const userInput = document.getElementById("input").value.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
