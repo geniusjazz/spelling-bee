@@ -15,7 +15,7 @@
       margin: 0;
       color: #333;
       min-height: 100vh;
-      position: relative; /* For positioning the button */
+      position: relative;
     }
     h1 {
       font-size: 48px;
@@ -136,18 +136,25 @@
       background: #2196f3;
       display: none;
     }
+    #pronounce-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      text-align: left;
+      font-size: 20px;
+    }
     #wordListButton {
       position: absolute;
-      bottom: 20px;
-      right: 20px; /* Moved to bottom-right corner */
-      width: 120px; /* Smaller width */
+      top: 20px;
+      right: 20px; /* Top-right corner, mirroring pronounce-toggle */
+      width: 120px;
       background: #9c27b0;
-      padding: 10px 15px; /* Smaller padding */
-      font-size: 16px; /* Smaller font */
-      opacity: 0.7; /* Slightly less prominent */
+      padding: 10px 15px;
+      font-size: 16px;
+      opacity: 0.7;
     }
     #wordListButton:hover {
-      opacity: 1; /* Full opacity on hover */
+      opacity: 1;
     }
     #keyboard {
       display: flex;
@@ -321,6 +328,39 @@
       width: 200px;
       margin: 20px auto;
     }
+    #confirmPopup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 235, 59, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      z-index: 1000;
+      text-align: center;
+      max-width: 80%;
+      animation: popIn 0.5s ease-out;
+    }
+    #confirmPopup p {
+      font-size: 28px;
+      color: #d81b60;
+      margin: 0 0 20px 0;
+    }
+    #confirmPopup button {
+      width: 120px;
+      padding: 15px;
+      font-size: 20px;
+      margin: 10px;
+      display: inline-block;
+    }
+    #confirmYes {
+      background: #4caf50;
+    }
+    #confirmNo {
+      background: #f44336;
+    }
     @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-15px); }
@@ -370,8 +410,10 @@
       #mascot { width: 60px; height: 60px; bottom: 10px; right: 10px; }
       .bee { width: 30px; height: 30px; }
       #progress-text { font-size: 18px; }
-      #pronounce-toggle { font-size: 18px; }
-      #wordListButton { width: 100px; font-size: 14px; padding: 8px 12px; bottom: 10px; right: 10px; }
+      #pronounce-toggle { font-size: 18px; top: 10px; left: 10px; }
+      #wordListButton { width: 100px; font-size: 14px; padding: 8px 12px; top: 10px; right: 10px; }
+      #confirmPopup p { font-size: 24px; }
+      #confirmPopup button { width: 100px; font-size: 18px; padding: 12px; }
     }
   </style>
 </head>
@@ -409,7 +451,12 @@
   <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
   <div id="level-complete"><div class="level-complete-text">🎉 Level Complete! 🎉</div></div>
   <div id="mascot"></div>
-  <button id="wordListButton" onclick="confirmWordList()">Word List</button>
+  <button id="wordListButton" onclick="showConfirmPopup()">Word List</button>
+  <div id="confirmPopup">
+    <p>Want to peek at the word list?</p>
+    <button id="confirmYes" onclick="goToWordList()">Yes</button>
+    <button id="confirmNo" onclick="hideConfirmPopup()">No</button>
+  </div>
 
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script>
@@ -885,11 +932,17 @@
       saveGameState();
     }
 
-    // Confirmation for Word List navigation
-    function confirmWordList() {
-      if (confirm("Are you sure you want to view the word list?")) {
-        window.location.href = 'wordlist.html';
-      }
+    // Custom confirmation popup
+    function showConfirmPopup() {
+      document.getElementById("confirmPopup").style.display = "block";
+    }
+
+    function hideConfirmPopup() {
+      document.getElementById("confirmPopup").style.display = "none";
+    }
+
+    function goToWordList() {
+      window.location.href = 'wordlist.html';
     }
 
     document.addEventListener('keydown', (event) => {
