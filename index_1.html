@@ -138,6 +138,7 @@
     let currentLevel = 0;
     let currentIndex = 0;
     let failCount = 0;
+    let lastPronouncedIndex = -1; // Track last pronounced word
 
     function getLevelWords() {
       const start = currentLevel * 50;
@@ -157,55 +158,67 @@
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
-      const firstWord = new SpeechSynthesisUtterance(w.word);
-      firstWord.lang = "en-US";
-      firstWord.rate = 0.5;
+      // Check if this word was already pronounced
+      if (currentIndex === lastPronouncedIndex) {
+        // Second click: Pronounce only the word
+        const wordOnly = new SpeechSynthesisUtterance(w.word);
+        wordOnly.lang = "en-US";
+        wordOnly.rate = 0.5;
+        speechSynthesis.speak(wordOnly);
+      } else {
+        // First click: Full sequence with 1s pauses
+        const firstWord = new SpeechSynthesisUtterance(w.word);
+        firstWord.lang = "en-US";
+        firstWord.rate = 0.5;
 
-      const secondWord = new SpeechSynthesisUtterance(w.word);
-      secondWord.lang = "en-US";
-      secondWord.rate = 0.5;
+        const secondWord = new SpeechSynthesisUtterance(w.word);
+        secondWord.lang = "en-US";
+        secondWord.rate = 0.5;
 
-      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-      partSpeech.lang = "en-US";
-      partSpeech.rate = 0.5;
+        const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+        partSpeech.lang = "en-US";
+        partSpeech.rate = 0.5;
 
-      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-      definition.lang = "en-US";
-      definition.rate = 0.5;
+        const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+        definition.lang = "en-US";
+        definition.rate = 0.5;
 
-      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-      pleaseSpell.lang = "en-US";
-      pleaseSpell.rate = 0.5;
+        const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+        pleaseSpell.lang = "en-US";
+        pleaseSpell.rate = 0.5;
 
-      const finalWord = new SpeechSynthesisUtterance(w.word);
-      finalWord.lang = "en-US";
-      finalWord.rate = 0.5;
+        const finalWord = new SpeechSynthesisUtterance(w.word);
+        finalWord.lang = "en-US";
+        finalWord.rate = 0.5;
 
-      // Chain with 1.5s pauses
-      speechSynthesis.speak(firstWord);
-      firstWord.onend = () => {
-        setTimeout(() => {
-          speechSynthesis.speak(secondWord);
-          secondWord.onend = () => {
-            setTimeout(() => {
-              speechSynthesis.speak(partSpeech);
-              partSpeech.onend = () => {
-                speechSynthesis.speak(definition);
-                definition.onend = () => {
-                  setTimeout(() => {
-                    speechSynthesis.speak(pleaseSpell);
-                    pleaseSpell.onend = () => {
-                      setTimeout(() => {
-                        speechSynthesis.speak(finalWord);
-                      }, 1500);
-                    };
-                  }, 1500);
+        speechSynthesis.speak(firstWord);
+        firstWord.onend = () => {
+          setTimeout(() => {
+            speechSynthesis.speak(secondWord);
+            secondWord.onend = () => {
+              setTimeout(() => {
+                speechSynthesis.speak(partSpeech);
+                partSpeech.onend = () => {
+                  speechSynthesis.speak(definition);
+                  definition.onend = () => {
+                    setTimeout(() => {
+                      speechSynthesis.speak(pleaseSpell);
+                      pleaseSpell.onend = () => {
+                        setTimeout(() => {
+                          speechSynthesis.speak(finalWord);
+                          finalWord.onend = () => {
+                            lastPronouncedIndex = currentIndex; // Mark as pronounced
+                          };
+                        }, 1000);
+                      };
+                    }, 1000);
+                  };
                 };
-              };
-            }, 1500);
-          };
-        }, 1500);
-      };
+              }, 1000);
+            };
+          }, 1000);
+        };
+      }
     }
 
     function nextWord() {
