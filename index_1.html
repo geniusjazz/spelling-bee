@@ -132,7 +132,7 @@
   <div id="part"></div>
   <div id="definition"></div>
   <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" aria-autocomplete="none" onfocus="disableSuggestions()">
+  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" aria-autocomplete="none" onfocus="disableSuggestions(this)" oninput="preventSuggestions(this)">
   <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
   <div id="feedback" onclick="hideFeedback()"></div>
@@ -145,20 +145,35 @@
     let lastPronouncedIndex = -1; // Track last pronounced word
     let isSpeaking = false; // Track speaking state
 
-    // Workaround to disable suggestions on mobile
-    function disableSuggestions() {
-      const input = document.getElementById("input");
+    // Aggressive workaround to disable suggestions on mobile
+    function disableSuggestions(input) {
+      // Reapply attributes to ensure they stick
       input.setAttribute("autocomplete", "off");
       input.setAttribute("autocorrect", "off");
       input.setAttribute("spellcheck", "false");
       input.setAttribute("autocapitalize", "none");
       input.setAttribute("inputmode", "text");
       input.setAttribute("aria-autocomplete", "none");
-      // Temporary type change to force keyboard reset
-      input.type = "search"; // Briefly change to search
+      
+      // Trick: Temporarily make it a non-text input to reset keyboard
+      input.type = "tel"; // Use 'tel' to avoid suggestions
       setTimeout(() => {
-        input.type = "text"; // Change back to text
-        input.focus(); // Refocus
+        input.type = "text"; // Restore to text
+        input.focus(); // Keep focus
+      }, 0);
+    }
+
+    // Prevent suggestions during typing
+    function preventSuggestions(input) {
+      // Force reapplication of attributes on every input
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("autocorrect", "off");
+      input.setAttribute("spellcheck", "false");
+      const value = input.value; // Store current value
+      input.type = "tel"; // Briefly switch
+      setTimeout(() => {
+        input.type = "text"; // Switch back
+        input.value = value; // Restore value
       }, 0);
     }
 
