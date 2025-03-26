@@ -22,6 +22,7 @@
     #progress {
       display: flex;
       justify-content: center;
+      align-items: center;
       margin: 20px 0;
     }
     .bee {
@@ -29,12 +30,16 @@
       height: 40px;
       background: url('https://img.icons8.com/ios-filled/50/cccccc/bee.png') no-repeat center;
       background-size: contain;
-      margin: 0 10px;
+      margin-right: 10px;
       transition: background 0.5s;
     }
     .bee.filled {
       background: url('https://img.icons8.com/ios-filled/50/ffeb3b/bee.png') no-repeat center;
       background-size: contain;
+    }
+    #score {
+      font-size: 24px;
+      color: #d81b60;
     }
     #part, #definition, #wordIndex {
       font-size: 24px;
@@ -275,17 +280,13 @@
       .firework { width: 8px; height: 8px; }
       #mascot { width: 80px; height: 80px; }
       .bee { width: 30px; height: 30px; }
+      #score { font-size: 20px; }
       #pronounce-toggle { font-size: 18px; }
     }
   </style>
 </head>
 <body>
   <h1>Spelling Bee Adventure</h1>
-  <div id="progress">
-    <div class="bee"></div>
-    <div class="bee"></div>
-    <div class="bee"></div>
-  </div>
   <div id="pronounce-toggle">
     <input type="checkbox" id="fullPronounce" checked>
     <label for="fullPronounce">Full Pronunciation</label>
@@ -300,6 +301,10 @@
       <option value="5">Level 6</option>
       <option value="6">Level 7</option>
     </select>
+    <div id="progress">
+      <div class="bee"></div>
+      <span id="score">Buzz Score: 0</span>
+    </div>
     <div id="part"></div>
     <div id="definition"></div>
     <div id="wordIndex"></div>
@@ -330,29 +335,20 @@
       const btn = document.createElement("button");
       btn.className = "key";
       btn.innerText = letter;
-      btn.onclick = () => {
-        appendLetter(letter.toLowerCase());
-        playSound('type');
-      };
+      btn.onclick = () => appendLetter(letter.toLowerCase());
       keyboard.appendChild(btn);
     });
     const backspace = document.createElement("button");
     backspace.id = "backspace";
     backspace.className = "key";
     backspace.innerText = "Back";
-    backspace.onclick = () => {
-      removeLetter();
-      playSound('type');
-    };
+    backspace.onclick = removeLetter;
     keyboard.appendChild(backspace);
     const clear = document.createElement("button");
     clear.id = "clear";
     clear.className = "key";
     clear.innerText = "Clear";
-    clear.onclick = () => {
-      clearWord();
-      playSound('type');
-    };
+    clear.onclick = clearWord;
     keyboard.appendChild(clear);
 
     // Sound effects
@@ -360,8 +356,7 @@
       const audio = new Audio();
       if (type === 'correct') audio.src = 'https://www.soundjay.com/human/sounds/applause-01.mp3'; // Cheer sound
       else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
-      else if (type === 'type') audio.src = 'https://www.soundjay.com/buttons/sounds/button-09a.mp3'; // Soft click
-      audio.volume = type === 'type' ? 0.3 : 0.7; // Lower volume for typing
+      audio.volume = 0.7;
       audio.play().catch(() => {}); // Ignore errors if sound fails
     }
 
@@ -388,11 +383,10 @@
     }
 
     function updateProgress() {
-      const bees = document.querySelectorAll('.bee');
-      const filledCount = Math.min(correctCount, 3); // 1 correct = 1 bee
-      bees.forEach((bee, i) => {
-        bee.classList.toggle('filled', i < filledCount);
-      });
+      const bee = document.querySelector('.bee');
+      const score = document.getElementById("score");
+      bee.classList.toggle('filled', correctCount > 0); // Bee turns yellow on first correct
+      score.innerText = `Buzz Score: ${correctCount}`;
     }
 
     function getLevelWords() {
