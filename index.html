@@ -83,6 +83,12 @@
     #showAnswer:hover:not(:disabled) {
       background-color: #1e88e5;
     }
+    #changeVoice {
+      background-color: #9C27B0;
+    }
+    #changeVoice:hover:not(:disabled) {
+      background-color: #8e24aa;
+    }
     #feedback {
       display: none;
       position: fixed;
@@ -135,6 +141,7 @@
   <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
   <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
+  <button id="changeVoice" onclick="changeVoice()">Change Voice</button>
   <div id="feedback" onclick="hideFeedback()"></div>
 
   <script src="words.js"></script>
@@ -144,20 +151,39 @@
     let failCount = 0;
     let lastPronouncedIndex = -1; // Track last pronounced word
     let isSpeaking = false; // Track speaking state
+    let voices = [];
+    let voiceIndex = 0; // Track current voice index
 
     // Load voices and log them
-    let voices = [];
     function loadVoices() {
-      voices = speechSynthesis.getVoices();
-      console.log("Available voices:", voices);
+      voices = speechSynthesis.getVoices().filter(v => v.lang === "en-US");
+      console.log("Available en-US voices:", voices);
+      if (voices.length > 0) {
+        console.log("Starting with voice:", voices[voiceIndex].name);
+      }
     }
     speechSynthesis.onvoiceschanged = loadVoices;
     loadVoices(); // Try loading immediately too
 
     function getVoice() {
-      // Prefer an en-US voice that's not the first default, if available
-      const enUSVoices = voices.filter(v => v.lang === "en-US");
-      return enUSVoices.length > 1 ? enUSVoices[1] : (enUSVoices[0] || null);
+      return voices.length > 0 ? voices[voiceIndex] : null;
+    }
+
+    function changeVoice() {
+      if (voices.length === 0) {
+        console.log("No voices available yet");
+        return;
+      }
+      voiceIndex = (voiceIndex + 1) % voices.length; // Cycle through voices
+      const newVoice = getVoice();
+      console.log("Switched to voice:", newVoice.name);
+      
+      // Test the new voice immediately
+      const testUtterance = new SpeechSynthesisUtterance("Testing new voice");
+      testUtterance.lang = "en-US";
+      testUtterance.rate = 0.5;
+      testUtterance.voice = newVoice;
+      speechSynthesis.speak(testUtterance);
     }
 
     function getLevelWords() {
@@ -181,7 +207,7 @@
 
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
-      const voice = getVoice(); // Get alternate voice
+      const voice = getVoice(); // Use current voice
 
       if (currentIndex === lastPronouncedIndex) {
         // Second click: Pronounce only the word
@@ -263,6 +289,7 @@
       document.getElementById("checkAnswer").disabled = true;
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
+      document.getElementById("changeVoice").disabled = true;
     }
 
     function enableButtons() {
@@ -270,6 +297,7 @@
       document.getElementById("checkAnswer").disabled = false;
       document.getElementById("showAnswer").disabled = failCount < 3;
       document.getElementById("levelSelect").disabled = false;
+      document.getElementById("changeVoice").disabled = false;
     }
 
     function nextWord() {
