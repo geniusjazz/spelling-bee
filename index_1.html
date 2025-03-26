@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spelling Bee Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 15px;
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+    h1 {
+      font-size: 32px;
+      color: #333;
+    }
+    #part, #definition {
+      font-size: 22px;
+      margin: 15px 0;
+      color: #555;
+    }
+    #input {
+      width: 90%;
+      max-width: 400px;
+      padding: 15px;
+      font-size: 20px;
+      margin: 20px auto;
+      display: block;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 90%;
+      max-width: 300px;
+      padding: 20px;
+      font-size: 24px;
+      margin: 10px auto;
+      display: block;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    select {
+      width: 90%;
+      max-width: 300px;
+      padding: 15px;
+      font-size: 20px;
+      margin: 10px auto;
+      display: block;
+      background-color: white;
+      color: #333;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    #pronounce {
+      background-color: #4CAF50;
+    }
+    #pronounce:hover:not(:disabled) {
+      background-color: #45a049;
+    }
+    #checkAnswer {
+      background-color: #FF9800;
+    }
+    #checkAnswer:hover:not(:disabled) {
+      background-color: #e68a00;
+    }
+    #showAnswer {
+      background-color: #2196F3;
+      display: none;
+    }
+    #showAnswer:hover:not(:disabled) {
+      background-color: #1e88e5;
+    }
+    #feedback {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 30px;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 1000;
+      animation: popIn 0.5s ease-out;
+    }
+    #feedback.correct {
+      background-color: #4CAF50;
+    }
+    #feedback.wrong {
+      background-color: #f44336;
+    }
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 28px; }
+      #part, #definition { font-size: 18px; }
+      #input { font-size: 18px; padding: 12px; }
+      button, select { font-size: 20px; padding: 15px; }
+      #feedback { font-size: 24px; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Spelling Bee Practice</h1>
+  <select id="levelSelect" onchange="changeLevel()">
+    <option value="0">Level 1</option>
+    <option value="1">Level 2</option>
+    <option value="2">Level 3</option>
+    <option value="3">Level 4</option>
+    <option value="4">Level 5</option>
+    <option value="5">Level 6</option>
+    <option value="6">Level 7</option>
+  </select>
+  <div id="part"></div>
+  <div id="definition"></div>
+  <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
+  <input type="text" id="input" placeholder="Type the word">
+  <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
+  <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
+  <div id="feedback" onclick="hideFeedback()"></div>
+
+  <script src="words.js"></script>
+  <script>
+    let currentLevel = 0;
+    let currentIndex = 0;
+    let failCount = 0;
+
+    function getLevelWords() {
+      const start = currentLevel * 50;
+      return words.slice(start, start + 50);
+    }
+
+    function showWord() {
+      const levelWords = getLevelWords();
+      const w = levelWords[currentIndex];
+      document.getElementById("part").innerText = "Part of Speech: " + w.part;
+      document.getElementById("definition").innerText = "Definition: " + w.definition;
+      document.getElementById("input").value = "";
+      document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
+    }
+
+    function pronounceWord() {
+      const levelWords = getLevelWords();
+      const w = levelWords[currentIndex];
+
+      const firstWord = new SpeechSynthesisUtterance(w.word);
+      firstWord.lang = "en-US";
+      firstWord.rate = 0.5;
+
+      const secondWord = new SpeechSynthesisUtterance(w.word);
+      secondWord.lang = "en-US";
+      secondWord.rate = 0.5;
+
+      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+      partSpeech.lang = "en-US";
+      partSpeech.rate = 0.5;
+
+      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+      definition.lang = "en-US";
+      definition.rate = 0.5;
+
+      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+      pleaseSpell.lang = "en-US";
+      pleaseSpell.rate = 0.5;
+
+      const finalWord = new SpeechSynthesisUtterance(w.word);
+      finalWord.lang = "en-US";
+      finalWord.rate = 0.5;
+
+      // Chain with 1.5s pauses
+      speechSynthesis.speak(firstWord);
+      firstWord.onend = () => {
+        setTimeout(() => {
+          speechSynthesis.speak(secondWord);
+          secondWord.onend = () => {
+            setTimeout(() => {
+              speechSynthesis.speak(partSpeech);
+              partSpeech.onend = () => {
+                speechSynthesis.speak(definition);
+                definition.onend = () => {
+                  setTimeout(() => {
+                    speechSynthesis.speak(pleaseSpell);
+                    pleaseSpell.onend = () => {
+                      setTimeout(() => {
+                        speechSynthesis.speak(finalWord);
+                      }, 1500);
+                    };
+                  }, 1500);
+                };
+              };
+            }, 1500);
+          };
+        }, 1500);
+      };
+    }
+
+    function nextWord() {
+      const levelWords = getLevelWords();
+      currentIndex = (currentIndex + 1) % levelWords.length;
+      failCount = 0;
+      showWord();
+    }
+
+    function showFeedback(message, isCorrect) {
+      const feedback = document.getElementById("feedback");
+      feedback.innerText = message;
+      feedback.className = isCorrect ? "correct" : "wrong";
+      feedback.style.display = "block";
+      if (isCorrect) {
+        setTimeout(() => {
+          feedback.style.display = "none";
+        }, 1500);
+      }
+    }
+
+    function hideFeedback() {
+      document.getElementById("feedback").style.display = "none";
+    }
+
+    function checkSpelling() {
+      const levelWords = getLevelWords();
+      const userInput = document.getElementById("input").value.trim().toLowerCase();
+      if (userInput === levelWords[currentIndex].word) {
+        showFeedback("🎉 Awesome! Correct! 🎉", true);
+        failCount = 0;
+        setTimeout(() => {
+          nextWord();
+        }, 1500);
+      } else {
+        failCount++;
+        showFeedback("❌ Oops! Try Again! ❌", false);
+        if (failCount >= 3) {
+          document.getElementById("showAnswer").style.display = "block";
+        }
+      }
+      document.getElementById("input").value = "";
+    }
+
+    function showAnswer() {
+      const levelWords = getLevelWords();
+      const w = levelWords[currentIndex];
+      showFeedback(`Answer: ${w.word}`, false);
+    }
+
+    function changeLevel() {
+      currentLevel = parseInt(document.getElementById("levelSelect").value);
+      currentIndex = Math.floor(Math.random() * 50);
+      failCount = 0;
+      showWord();
+    }
+
+    currentIndex = Math.floor(Math.random() * 50);
+    showWord();
+  </script>
+</body>
+</html>
