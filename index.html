@@ -83,12 +83,6 @@
     #showAnswer:hover:not(:disabled) {
       background-color: #1e88e5;
     }
-    #changeVoice {
-      background-color: #9C27B0;
-    }
-    #changeVoice:hover:not(:disabled) {
-      background-color: #8e24aa;
-    }
     #feedback {
       display: none;
       position: fixed;
@@ -138,10 +132,9 @@
   <div id="part"></div>
   <div id="definition"></div>
   <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" aria-autocomplete="none" onfocus="disableSuggestions(this)" oninput="preventSuggestions(this)">
   <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
-  <button id="changeVoice" onclick="changeVoice()">Change Voice</button>
   <div id="feedback" onclick="hideFeedback()"></div>
 
   <script src="words.js"></script>
@@ -151,39 +144,37 @@
     let failCount = 0;
     let lastPronouncedIndex = -1; // Track last pronounced word
     let isSpeaking = false; // Track speaking state
-    let voices = [];
-    let voiceIndex = 0; // Track current voice index
 
-    // Load voices and log them
-    function loadVoices() {
-      voices = speechSynthesis.getVoices().filter(v => v.lang === "en-US");
-      console.log("Available en-US voices:", voices);
-      if (voices.length > 0) {
-        console.log("Starting with voice:", voices[voiceIndex].name);
-      }
-    }
-    speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices(); // Try loading immediately too
-
-    function getVoice() {
-      return voices.length > 0 ? voices[voiceIndex] : null;
-    }
-
-    function changeVoice() {
-      if (voices.length === 0) {
-        console.log("No voices available yet");
-        return;
-      }
-      voiceIndex = (voiceIndex + 1) % voices.length; // Cycle through voices
-      const newVoice = getVoice();
-      console.log("Switched to voice:", newVoice.name);
+    // Aggressive workaround to disable suggestions on mobile
+    function disableSuggestions(input) {
+      // Reapply attributes to ensure they stick
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("autocorrect", "off");
+      input.setAttribute("spellcheck", "false");
+      input.setAttribute("autocapitalize", "none");
+      input.setAttribute("inputmode", "text");
+      input.setAttribute("aria-autocomplete", "none");
       
-      // Test the new voice immediately
-      const testUtterance = new SpeechSynthesisUtterance("Testing new voice");
-      testUtterance.lang = "en-US";
-      testUtterance.rate = 0.5;
-      testUtterance.voice = newVoice;
-      speechSynthesis.speak(testUtterance);
+      // Trick: Temporarily make it a non-text input to reset keyboard
+      input.type = "tel"; // Use 'tel' to avoid suggestions
+      setTimeout(() => {
+        input.type = "text"; // Restore to text
+        input.focus(); // Keep focus
+      }, 0);
+    }
+
+    // Prevent suggestions during typing
+    function preventSuggestions(input) {
+      // Force reapplication of attributes on every input
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("autocorrect", "off");
+      input.setAttribute("spellcheck", "false");
+      const value = input.value; // Store current value
+      input.type = "tel"; // Briefly switch
+      setTimeout(() => {
+        input.type = "text"; // Switch back
+        input.value = value; // Restore value
+      }, 0);
     }
 
     function getLevelWords() {
@@ -207,14 +198,13 @@
 
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
-      const voice = getVoice(); // Use current voice
 
       if (currentIndex === lastPronouncedIndex) {
         // Second click: Pronounce only the word
         const wordOnly = new SpeechSynthesisUtterance(w.word);
         wordOnly.lang = "en-US";
-        wordOnly.rate = 0.5;
-        if (voice) wordOnly.voice = voice;
+        wordOnly.rate = 0.8;
+        wordOnly.pitch = 1.2;
         speechSynthesis.speak(wordOnly);
         wordOnly.onend = () => {
           isSpeaking = false;
@@ -226,37 +216,31 @@
         firstWord.lang = "en-US";
         firstWord.rate = 0.8;
         firstWord.pitch = 1.2;
-        if (voice) firstWord.voice = voice;
 
         const secondWord = new SpeechSynthesisUtterance(w.word);
         secondWord.lang = "en-US";
         secondWord.rate = 0.8;
         secondWord.pitch = 1.2;
-        if (voice) secondWord.voice = voice;
 
         const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
         partSpeech.lang = "en-US";
         partSpeech.rate = 0.8;
         partSpeech.pitch = 1.2;
-        if (voice) partSpeech.voice = voice;
 
         const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
         definition.lang = "en-US";
         definition.rate = 0.8;
         definition.pitch = 1.2;
-        if (voice) definition.voice = voice;
 
         const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
         pleaseSpell.lang = "en-US";
         pleaseSpell.rate = 0.8;
         pleaseSpell.pitch = 1.2;
-        if (voice) pleaseSpell.voice = voice;
 
         const finalWord = new SpeechSynthesisUtterance(w.word);
         finalWord.lang = "en-US";
         finalWord.rate = 0.8;
         finalWord.pitch = 1.2;
-        if (voice) finalWord.voice = voice;
 
         speechSynthesis.speak(firstWord);
         firstWord.onend = () => {
@@ -295,7 +279,6 @@
       document.getElementById("checkAnswer").disabled = true;
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
-      document.getElementById("changeVoice").disabled = true;
     }
 
     function enableButtons() {
@@ -303,7 +286,6 @@
       document.getElementById("checkAnswer").disabled = false;
       document.getElementById("showAnswer").disabled = failCount < 3;
       document.getElementById("levelSelect").disabled = false;
-      document.getElementById("changeVoice").disabled = false;
     }
 
     function nextWord() {
