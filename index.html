@@ -138,7 +138,6 @@
     let currentLevel = 0;
     let currentIndex = 0;
     let failCount = 0;
-    let isSpeaking = false;
 
     function getLevelWords() {
       const start = currentLevel * 50;
@@ -155,10 +154,6 @@
     }
 
     function pronounceWord() {
-      if (isSpeaking) return;
-      isSpeaking = true;
-      disableButtons();
-
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
@@ -202,10 +197,6 @@
                     pleaseSpell.onend = () => {
                       setTimeout(() => {
                         speechSynthesis.speak(finalWord);
-                        finalWord.onend = () => {
-                          isSpeaking = false;
-                          enableButtons();
-                        };
                       }, 1500);
                     };
                   }, 1500);
@@ -215,18 +206,6 @@
           };
         }, 1500);
       };
-    }
-
-    function disableButtons() {
-      document.getElementById("pronounce").disabled = true;
-      document.getElementById("checkAnswer").disabled = true;
-      document.getElementById("showAnswer").disabled = true;
-    }
-
-    function enableButtons() {
-      document.getElementById("pronounce").disabled = false;
-      document.getElementById("checkAnswer").disabled = false;
-      document.getElementById("showAnswer").disabled = failCount < 3;
     }
 
     function nextWord() {
@@ -254,7 +233,6 @@
     }
 
     function checkSpelling() {
-      if (isSpeaking) return;
       const levelWords = getLevelWords();
       const userInput = document.getElementById("input").value.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
