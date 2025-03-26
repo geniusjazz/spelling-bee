@@ -1,173 +1,186 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Spelling Bee Practice</title>
+  <title>Spelling Bee Adventure</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Bubblegum Sans', cursive;
       text-align: center;
-      padding: 15px;
-      background-color: #f5f5f5;
+      padding: 20px;
+      background: url('https://www.transparenttextures.com/patterns/stardust.png') #fff59d;
       margin: 0;
-    }
-    h1 {
-      font-size: 32px;
       color: #333;
     }
+    h1 {
+      font-size: 48px;
+      color: #e91e63;
+      text-shadow: 2px 2px #ffeb3b;
+      animation: bounce 2s infinite;
+    }
     #part, #definition, #wordIndex {
-      font-size: 22px;
+      font-size: 24px;
       margin: 15px 0;
-      color: #555;
+      color: #d81b60;
+      background: rgba(255, 235, 59, 0.7);
+      padding: 10px;
+      border-radius: 15px;
+      display: inline-block;
     }
     #wordDisplay {
       width: 90%;
-      max-width: 400px;
-      padding: 15px;
-      font-size: 20px;
+      max-width: 450px;
+      padding: 20px;
+      font-size: 28px;
       margin: 20px auto;
-      display: block;
-      border: 2px solid #ccc;
-      border-radius: 5px;
-      background-color: white;
-      min-height: 20px;
+      background: #ffffff;
+      border: 4px dashed #2196f3;
+      border-radius: 20px;
+      min-height: 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     button {
-      padding: 20px;
-      font-size: 24px;
-      margin: 10px auto;
+      padding: 20px 30px;
+      font-size: 26px;
+      margin: 15px auto;
       display: block;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 25px;
       cursor: pointer;
       touch-action: manipulation;
+      transition: transform 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    button:hover:not(:disabled) {
+      transform: scale(1.1);
+    }
+    button:active:not(:disabled) {
+      transform: scale(0.95);
     }
     select {
       width: 90%;
       max-width: 300px;
       padding: 15px;
-      font-size: 20px;
-      margin: 10px auto;
+      font-size: 24px;
+      margin: 15px auto;
       display: block;
-      background-color: white;
-      color: #333;
-      border: 2px solid #ccc;
-      border-radius: 5px;
+      background: #ffeb3b;
+      color: #d81b60;
+      border: 3px solid #f06292;
+      border-radius: 20px;
       cursor: pointer;
     }
-    button:disabled {
+    button:disabled, select:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
-    }
-    select:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
+      box-shadow: none;
     }
     #pronounce {
       width: 90%;
-      max-width: 300px;
-      background-color: #4CAF50;
-    }
-    #pronounce:hover:not(:disabled) {
-      background-color: #45a049;
+      max-width: 350px;
+      background: #4caf50;
     }
     #checkAnswer {
       width: 90%;
-      max-width: 300px;
-      background-color: #FF9800;
-    }
-    #checkAnswer:hover:not(:disabled) {
-      background-color: #e68a00;
+      max-width: 350px;
+      background: #ff9800;
     }
     #showAnswer {
       width: 90%;
-      max-width: 300px;
-      background-color: #2196F3;
+      max-width: 350px;
+      background: #2196f3;
       display: none;
-    }
-    #showAnswer:hover:not(:disabled) {
-      background-color: #1e88e5;
     }
     #keyboard {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      max-width: 600px;
+      max-width: 700px;
       margin: 20px auto;
     }
     .key {
-      width: 50px;
-      height: 50px;
-      margin: 5px;
-      font-size: 20px;
-      background-color: #2196F3;
+      width: 60px;
+      height: 60px;
+      margin: 8px;
+      font-size: 24px;
+      background: linear-gradient(135deg, #2196f3, #42a5f5);
       color: white;
-      border: none;
-      border-radius: 5px;
+      border: 3px solid #1976d2;
+      border-radius: 15px;
       cursor: pointer;
       touch-action: manipulation;
+      transition: transform 0.1s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
     }
     .key:hover:not(:disabled) {
-      background-color: #1e88e5;
+      transform: scale(1.1);
+    }
+    .key:active:not(:disabled) {
+      transform: scale(0.9);
     }
     .key:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
+      background: #cccccc;
+      border-color: #aaaaaa;
+      box-shadow: none;
     }
     #backspace {
-      width: 70px;
-      background-color: #f44336;
-    }
-    #backspace:hover:not(:disabled) {
-      background-color: #d32f2f;
+      width: 90px;
+      background: linear-gradient(135deg, #f44336, #ef5350);
+      border-color: #d32f2f;
     }
     #clear {
-      width: 70px;
-      background-color: #9C27B0;
-    }
-    #clear:hover:not(:disabled) {
-      background-color: #7b1fa2;
+      width: 90px;
+      background: linear-gradient(135deg, #9c27b0, #ab47bc);
+      border-color: #7b1fa2;
     }
     #feedback {
       display: none;
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 30px;
-      font-size: 28px;
+      transform: translate(-50%, -50%) scale(1);
+      padding: 40px;
+      font-size: 36px;
       font-weight: bold;
       color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      border-radius: 30px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
       z-index: 1000;
       animation: popIn 0.5s ease-out;
     }
     #feedback.correct {
-      background-color: #4CAF50;
+      background: #4caf50;
+      border: 5px solid #2e7d32;
     }
     #feedback.wrong {
-      background-color: #f44336;
+      background: #f44336;
+      border: 5px solid #c62828;
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-15px); }
+      60% { transform: translateY(-10px); }
     }
     @keyframes popIn {
       0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
       100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     }
     @media (max-width: 768px) {
-      h1 { font-size: 28px; }
-      #part, #definition, #wordIndex { font-size: 18px; }
-      #wordDisplay { font-size: 18px; padding: 12px; }
-      button, select { font-size: 20px; padding: 15px; }
-      .key { width: 40px; height: 40px; font-size: 16px; margin: 3px; }
-      #backspace, #clear { width: 60px; }
-      #feedback { font-size: 24px; padding: 20px; }
+      h1 { font-size: 36px; }
+      #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
+      #wordDisplay { font-size: 24px; padding: 15px; }
+      button, select { font-size: 22px; padding: 15px 25px; }
+      .key { width: 50px; height: 50px; font-size: 20px; margin: 5px; }
+      #backspace, #clear { width: 70px; }
+      #feedback { font-size: 28px; padding: 30px; }
     }
   </style>
 </head>
 <body>
-  <h1>Spelling Bee Practice</h1>
+  <h1>Spelling Bee Adventure</h1>
   <select id="levelSelect" onchange="changeLevel()">
     <option value="0">Level 1</option>
     <option value="1">Level 2</option>
@@ -369,6 +382,7 @@
       if (isCorrect) {
         setTimeout(() => {
           feedback.style.display = "none";
+          nextWord();
         }, 1500);
       }
     }
@@ -383,22 +397,19 @@
       const userInput = currentWord.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
         showFeedback("🎉 Awesome! Correct! 🎉", true);
-        failCount = 0;
-        setTimeout(() => {
-          nextWord();
-        }, 1500);
       } else {
         failCount++;
         showFeedback("❌ Oops! Try Again! ❌", false);
         if (failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
         }
+        currentWord = "";
+        updateDisplay();
       }
-      currentWord = "";
-      updateDisplay();
     }
 
     function showAnswer() {
+      if (isSpeaking) return;
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
       showFeedback(`Answer: ${w.word}`, false);
