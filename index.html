@@ -22,7 +22,7 @@
       color: #e91e63;
       text-shadow: 2px 2px #ffeb3b;
       animation: bounce 2s infinite;
-      margin-top: 70px; /* Space below top buttons */
+      margin-top: 70px;
     }
     #progress {
       display: flex;
@@ -139,14 +139,14 @@
     }
     #pronounce-toggle {
       position: absolute;
-      top: 10px; /* Very top */
+      top: 10px;
       left: 10px;
       text-align: left;
       font-size: 20px;
     }
     #wordListButton {
       position: absolute;
-      top: 10px; /* Very top */
+      top: 10px;
       right: 10px;
       width: 120px;
       background: #9c27b0;
@@ -362,7 +362,7 @@
     @media (max-width: 768px) {
       h1 { 
         font-size: 36px; 
-        margin-top: 60px; /* Adjusted for smaller buttons */
+        margin-top: 60px;
       }
       #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
       #wordDisplay { font-size: 24px; padding: 15px; }
@@ -380,14 +380,14 @@
       #progress-text { font-size: 18px; }
       #pronounce-toggle { 
         font-size: 18px; 
-        top: 5px; /* Very top, slightly inset */
+        top: 5px;
         left: 5px; 
       }
       #wordListButton { 
         width: 100px; 
         font-size: 14px; 
         padding: 8px 12px; 
-        top: 5px; /* Very top, slightly inset */
+        top: 5px;
         right: 5px; 
       }
       #confirmPopup p { font-size: 24px; }
@@ -524,19 +524,19 @@
     }
 
     function appendLetter(letter) {
-      if (isSpeaking) return;
+      // Removed isSpeaking check to allow typing during pronunciation
       currentWord += letter;
       updateDisplay();
     }
 
     function removeLetter() {
-      if (isSpeaking) return;
+      // Removed isSpeaking check to allow backspace during pronunciation
       currentWord = currentWord.slice(0, -1);
       updateDisplay();
     }
 
     function clearWord() {
-      if (isSpeaking) return;
+      // Removed isSpeaking check to allow clear during pronunciation
       currentWord = "";
       updateDisplay();
     }
@@ -674,7 +674,7 @@
       document.getElementById("checkAnswer").disabled = true;
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
-      document.querySelectorAll(".key").forEach(btn => btn.disabled = true);
+      // Removed keyboard disabling to allow typing during pronunciation
     }
 
     function enableButtons() {
@@ -682,7 +682,7 @@
       document.getElementById("checkAnswer").disabled = false;
       document.getElementById("showAnswer").disabled = failCount < 3;
       document.getElementById("levelSelect").disabled = false;
-      document.querySelectorAll(".key").forEach(btn => btn.disabled = false);
+      // Keyboard buttons remain enabled at all times
     }
 
     function nextWord() {
