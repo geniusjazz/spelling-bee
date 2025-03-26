@@ -51,7 +51,7 @@
       margin: 10px auto;
       display: block;
       background-color: white;
-      color: #333; /* Ensure text is visible */
+      color: #333;
       border: 2px solid #ccc;
       border-radius: 5px;
       cursor: pointer;
@@ -160,84 +160,74 @@
       if (isSpeaking) return;
       isSpeaking = true;
       disableButtons();
+      console.log("Pronouncing..."); // Debug log
 
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
-      // Ensure voices are loaded
-      let voices = speechSynthesis.getVoices();
-      if (!voices.length) {
-        speechSynthesis.onvoiceschanged = () => {
-          voices = speechSynthesis.getVoices();
-          startPronunciation(voices);
-        };
-      } else {
-        startPronunciation(voices);
-      }
+      const voices = speechSynthesis.getVoices();
+      const voice1 = voices.find(v => v.lang === "en-US") || voices[0];
+      const voice2 = voices.find(v => v.lang === "en-GB") || voices[1] || voice1;
 
-      function startPronunciation(voices) {
-        const voice1 = voices[0] || voices.find(v => v.lang === "en-US");
-        const voice2 = voices[1] || voices.find(v => v.lang === "en-GB") || voice1;
+      const firstWord = new SpeechSynthesisUtterance(w.word);
+      firstWord.lang = "en-US";
+      firstWord.rate = 0.5;
+      firstWord.voice = voice1;
 
-        const firstWord = new SpeechSynthesisUtterance(w.word);
-        firstWord.lang = "en-US";
-        firstWord.rate = 0.5;
-        firstWord.voice = voice1;
+      const secondWord = new SpeechSynthesisUtterance(w.word);
+      secondWord.lang = "en-US";
+      secondWord.rate = 0.5;
+      secondWord.voice = voice2;
 
-        const secondWord = new SpeechSynthesisUtterance(w.word);
-        secondWord.lang = "en-US";
-        secondWord.rate = 0.5;
-        secondWord.voice = voice2;
+      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+      partSpeech.lang = "en-US";
+      partSpeech.rate = 0.5;
+      partSpeech.voice = voice1;
 
-        const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-        partSpeech.lang = "en-US";
-        partSpeech.rate = 0.5;
-        partSpeech.voice = voice1;
+      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+      definition.lang = "en-US";
+      definition.rate = 0.5;
+      definition.voice = voice1;
 
-        const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-        definition.lang = "en-US";
-        definition.rate = 0.5;
-        definition.voice = voice1;
+      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+      pleaseSpell.lang = "en-US";
+      pleaseSpell.rate = 0.5;
+      pleaseSpell.voice = voice1;
 
-        const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-        pleaseSpell.lang = "en-US";
-        pleaseSpell.rate = 0.5;
-        pleaseSpell.voice = voice1;
+      const finalWord = new SpeechSynthesisUtterance(w.word);
+      finalWord.lang = "en-US";
+      finalWord.rate = 0.5;
+      finalWord.voice = voice1;
 
-        const finalWord = new SpeechSynthesisUtterance(w.word);
-        finalWord.lang = "en-US";
-        finalWord.rate = 0.5;
-        finalWord.voice = voice1;
-
-        speechSynthesis.speak(firstWord);
-        firstWord.onend = () => {
-          setTimeout(() => {
-            speechSynthesis.speak(secondWord);
-            secondWord.onend = () => {
-              setTimeout(() => {
-                speechSynthesis.speak(partSpeech);
-                partSpeech.onend = () => {
-                  speechSynthesis.speak(definition);
-                  definition.onend = () => {
-                    setTimeout(() => {
-                      speechSynthesis.speak(pleaseSpell);
-                      pleaseSpell.onend = () => {
-                        setTimeout(() => {
-                          speechSynthesis.speak(finalWord);
-                          finalWord.onend = () => {
-                            isSpeaking = false;
-                            enableButtons();
-                          };
-                        }, 1000);
-                      };
-                    }, 1000);
-                  };
+      speechSynthesis.speak(firstWord);
+      firstWord.onend = () => {
+        setTimeout(() => {
+          speechSynthesis.speak(secondWord);
+          secondWord.onend = () => {
+            setTimeout(() => {
+              speechSynthesis.speak(partSpeech);
+              partSpeech.onend = () => {
+                speechSynthesis.speak(definition);
+                definition.onend = () => {
+                  setTimeout(() => {
+                    speechSynthesis.speak(pleaseSpell);
+                    pleaseSpell.onend = () => {
+                      setTimeout(() => {
+                        speechSynthesis.speak(finalWord);
+                        finalWord.onend = () => {
+                          isSpeaking = false;
+                          enableButtons();
+                          console.log("Pronunciation finished");
+                        };
+                      }, 1000);
+                    };
+                  }, 1000);
                 };
-              }, 1000);
-            };
-          }, 1000);
-        };
-      }
+              };
+            }, 1000);
+          };
+        }, 1000);
+      };
     }
 
     function disableButtons() {
@@ -310,9 +300,15 @@
       pronounceWord();
     }
 
+    // Initial load
     currentIndex = Math.floor(Math.random() * 50);
     showWord();
     pronounceWord();
+
+    // Ensure voices load (some browsers need this)
+    speechSynthesis.onvoiceschanged = () => {
+      console.log("Voices loaded:", speechSynthesis.getVoices());
+    };
   </script>
 </body>
 </html>
