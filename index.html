@@ -3,7 +3,7 @@
 <head>
   <title>Spelling Bee Adventure</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your_Telescope&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Annie Use Your Telescope', cursive;
@@ -12,6 +12,7 @@
       background: url('https://www.transparenttextures.com/patterns/stardust.png') #fff59d;
       margin: 0;
       color: #333;
+      transition: background 0.5s;
     }
     h1 {
       font-size: 48px;
@@ -28,14 +29,9 @@
     .bee {
       width: 40px;
       height: 40px;
-      background: url('https://img.icons8.com/ios-filled/50/cccccc/bee.png') no-repeat center;
-      background-size: contain;
-      margin-right: 10px;
-      transition: background 0.5s;
-    }
-    .bee.filled {
       background: url('https://img.icons8.com/ios-filled/50/ffeb3b/bee.png') no-repeat center;
       background-size: contain;
+      margin-left: 10px;
     }
     #progress-bar-container {
       width: 90%;
@@ -44,7 +40,7 @@
       background: #ccc;
       border-radius: 10px;
       overflow: hidden;
-      margin: 0 auto 20px auto;
+      margin: 0 auto 10px auto;
     }
     #progress-bar {
       height: 100%;
@@ -55,6 +51,9 @@
     #progress-text {
       font-size: 20px;
       color: #d81b60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     #part, #definition, #wordIndex {
       font-size: 24px;
@@ -212,8 +211,9 @@
       text-shadow: 2px 2px 4px #000000;
     }
     .level-complete-text {
-      font-size: 60px;
+      font-size: 72px;
       color: #ffeb3b;
+      animation: pulse 1s infinite;
     }
     .star {
       position: absolute;
@@ -248,6 +248,7 @@
       background: url('https://img.icons8.com/ios-filled/100/000000/bee.png') no-repeat center;
       background-size: contain;
       transition: transform 0.5s;
+      cursor: pointer;
     }
     #mascot.happy {
       transform: scale(1.2) rotate(10deg);
@@ -285,6 +286,11 @@
       0% { transform: scale(1); opacity: 1; }
       100% { transform: scale(10); opacity: 0; }
     }
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
     @media (max-width: 768px) {
       h1 { font-size: 36px; }
       #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
@@ -321,13 +327,11 @@
       <option value="5">Level 6</option>
       <option value="6">Level 7</option>
     </select>
-    <div id="progress">
-      <div class="bee"></div>
-    </div>
+    <div id="progress"></div>
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
     </div>
-    <div id="progress-text">Words Completed: 0/50</div>
+    <div id="progress-text">Words Completed: 0/50 <div class="bee"></div></div>
     <div id="part"></div>
     <div id="definition"></div>
     <div id="wordIndex"></div>
@@ -353,6 +357,8 @@
     let wordIndices = [];
     let indexPointer = 0;
     let wordsCompleted = 0;
+    let tapCount = 0;
+    let tapTimeout;
 
     // Build keyboard
     const keyboard = document.getElementById("keyboard");
@@ -380,8 +386,9 @@
     // Sound effects
     function playSound(type) {
       const audio = new Audio();
-      if (type === 'correct') audio.src = 'https://www.soundjay.com/human/sounds/applause-01.mp3';
+      if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/button-3.mp3'; // Short cheer
       else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
+      else if (type === 'levelComplete') audio.src = 'https://www.soundjay.com/human/sounds/cheering-01.mp3'; // Big cheer
       audio.volume = 0.7;
       audio.play().catch(() => {});
     }
@@ -426,12 +433,23 @@
     }
 
     function updateProgress() {
-      const bee = document.querySelector('.bee');
       const progressBar = document.getElementById("progress-bar");
       const progressText = document.getElementById("progress-text");
-      bee.classList.toggle('filled', wordsCompleted > 0);
       progressBar.style.width = `${(wordsCompleted / 50) * 100}%`;
-      progressText.innerText = `Words Completed: ${wordsCompleted}/50`;
+      progressText.innerHTML = `Words Completed: ${wordsCompleted}/50 <div class="bee"></div>`;
+    }
+
+    function updateBackground() {
+      const backgrounds = [
+        'https://www.transparenttextures.com/patterns/stardust.png',           // Level 1
+        'https://www.transparenttextures.com/patterns/honeycomb.png',          // Level 2
+        'https://www.transparenttextures.com/patterns/flowers.png',            // Level 3
+        'https://www.transparenttextures.com/patterns/wavey-fingerprint.png',  // Level 4
+        'https://www.transparenttextures.com/patterns/tree-bark.png',          // Level 5
+        'https://www.transparenttextures.com/patterns/brick-wall.png',         // Level 6
+        'https://www.transparenttextures.com/patterns/gplay.png'               // Level 7
+      ];
+      document.body.style.background = `url('${backgrounds[currentLevel]}') #fff59d`;
     }
 
     function getLevelWords() {
@@ -453,6 +471,7 @@
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
       updateProgress();
+      updateBackground();
     }
 
     function pronounceWord() {
@@ -623,11 +642,12 @@
       const levelComplete = document.getElementById("level-complete");
       document.getElementById("mainContent").style.display = "none";
       levelComplete.style.display = "block";
-      for (let i = 0; i < 30; i++) {
+      playSound('levelComplete');
+      for (let i = 0; i < 50; i++) { // More effects
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
         el.style.top = `${Math.random() * 100}%`;
-        el.style.animationDelay = `${Math.random() * 1}s`;
+        el.style.animationDelay = `${Math.random() * 1.5}s`;
         const type = Math.floor(Math.random() * 3);
         if (type === 0) {
           el.className = "star";
@@ -652,7 +672,7 @@
           initializeWordIndices();
           showWord();
         }
-      }, 3000);
+      }, 4000); // Longer duration
     }
 
     function hideLevelComplete() {
@@ -698,7 +718,7 @@
       showWord();
     }
 
-    // Backdoor: Ctrl+Shift+Z to auto-answer correctly
+    // Backdoor: Ctrl+Shift+Z (desktop) and triple-tap mascot (mobile)
     document.addEventListener('keydown', (event) => {
       if (event.ctrlKey && event.shiftKey && event.key === 'Z') {
         if (isSpeaking) return;
@@ -706,6 +726,20 @@
         currentWord = levelWords[currentIndex].word;
         updateDisplay();
         checkSpelling();
+      }
+    });
+
+    const mascot = document.getElementById("mascot");
+    mascot.addEventListener('touchstart', () => {
+      tapCount++;
+      clearTimeout(tapTimeout);
+      tapTimeout = setTimeout(() => tapCount = 0, 500); // Reset after 500ms
+      if (tapCount === 3 && !isSpeaking) {
+        const levelWords = getLevelWords();
+        currentWord = levelWords[currentIndex].word;
+        updateDisplay();
+        checkSpelling();
+        tapCount = 0;
       }
     });
 
