@@ -140,14 +140,6 @@
     let failCount = 0;
     let isSpeaking = false;
 
-    // Wake up speech synthesis on first interaction
-    window.addEventListener("click", () => {
-      if (!speechSynthesis.speaking) {
-        const wakeUp = new SpeechSynthesisUtterance("");
-        speechSynthesis.speak(wakeUp);
-      }
-    }, { once: true });
-
     function getLevelWords() {
       const start = currentLevel * 50;
       return words.slice(start, start + 50);
@@ -170,13 +162,32 @@
 
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
-      const voices = speechSynthesis.getVoices();
-      const voiceUS = voices.find(v => v.lang === "en-US") || voices[0];
 
       const firstWord = new SpeechSynthesisUtterance(w.word);
       firstWord.lang = "en-US";
       firstWord.rate = 0.5;
-      firstWord.voice = voiceUS;
+
+      const secondWord = new SpeechSynthesisUtterance(w.word);
+      secondWord.lang = "en-US";
+      secondWord.rate = 0.5;
+
+      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+      partSpeech.lang = "en-US";
+      partSpeech.rate = 0.5;
+
+      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+      definition.lang = "en-US";
+      definition.rate = 0.5;
+
+      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+      pleaseSpell.lang = "en-US";
+      pleaseSpell.rate = 0.5;
+
+      const finalWord = new SpeechSynthesisUtterance(w.word);
+      finalWord.lang = "en-US";
+      finalWord.rate = 0.5;
+
+      speechSynthesis.speak(firstWord);
       firstWord.onend = () => {
         console.log("First word done");
         setTimeout(() => {
@@ -184,10 +195,6 @@
         }, 1000);
       };
 
-      const secondWord = new SpeechSynthesisUtterance(w.word);
-      secondWord.lang = "en-US";
-      secondWord.rate = 0.5;
-      secondWord.voice = voiceUS;
       secondWord.onend = () => {
         console.log("Second word done");
         setTimeout(() => {
@@ -195,19 +202,11 @@
         }, 1000);
       };
 
-      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-      partSpeech.lang = "en-US";
-      partSpeech.rate = 0.5;
-      partSpeech.voice = voiceUS;
       partSpeech.onend = () => {
         console.log("Part of speech done");
         speechSynthesis.speak(definition);
       };
 
-      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-      definition.lang = "en-US";
-      definition.rate = 0.5;
-      definition.voice = voiceUS;
       definition.onend = () => {
         console.log("Definition done");
         setTimeout(() => {
@@ -215,10 +214,6 @@
         }, 1000);
       };
 
-      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-      pleaseSpell.lang = "en-US";
-      pleaseSpell.rate = 0.5;
-      pleaseSpell.voice = voiceUS;
       pleaseSpell.onend = () => {
         console.log("Please spell done");
         setTimeout(() => {
@@ -226,18 +221,11 @@
         }, 1000);
       };
 
-      const finalWord = new SpeechSynthesisUtterance(w.word);
-      finalWord.lang = "en-US";
-      finalWord.rate = 0.5;
-      finalWord.voice = voiceUS;
       finalWord.onend = () => {
         console.log("Pronunciation finished");
         isSpeaking = false;
         enableButtons();
       };
-
-      console.log("Starting first word");
-      speechSynthesis.speak(firstWord);
     }
 
     function disableButtons() {
@@ -313,10 +301,6 @@
     currentIndex = Math.floor(Math.random() * 50);
     showWord();
     pronounceWord();
-
-    speechSynthesis.onvoiceschanged = () => {
-      console.log("Voices loaded:", speechSynthesis.getVoices());
-    };
   </script>
 </body>
 </html>
