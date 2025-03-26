@@ -128,7 +128,7 @@
   <div id="part"></div>
   <div id="definition"></div>
   <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-  <input type="text" id="input" placeholder="Type the word">
+  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
   <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
   <div id="feedback" onclick="hideFeedback()"></div>
@@ -138,6 +138,8 @@
     let currentLevel = 0;
     let currentIndex = 0;
     let failCount = 0;
+    let lastPronouncedIndex = -1; // Track last pronounced word
+    let isSpeaking = false; // Track speaking state
 
     function getLevelWords() {
       const start = currentLevel * 50;
@@ -154,58 +156,91 @@
     }
 
     function pronounceWord() {
+      if (isSpeaking) return;
+      isSpeaking = true;
+      disableButtons();
+
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
-      const firstWord = new SpeechSynthesisUtterance(w.word);
-      firstWord.lang = "en-US";
-      firstWord.rate = 0.5;
+      if (currentIndex === lastPronouncedIndex) {
+        // Second click: Pronounce only the word
+        const wordOnly = new SpeechSynthesisUtterance(w.word);
+        wordOnly.lang = "en-US";
+        wordOnly.rate = 0.5;
+        speechSynthesis.speak(wordOnly);
+        wordOnly.onend = () => {
+          isSpeaking = false;
+          enableButtons();
+        };
+      } else {
+        // First click: Full sequence with 1s pauses
+        const firstWord = new SpeechSynthesisUtterance(w.word);
+        firstWord.lang = "en-US";
+        firstWord.rate = 0.5;
 
-      const secondWord = new SpeechSynthesisUtterance(w.word);
-      secondWord.lang = "en-US";
-      secondWord.rate = 0.5;
+        const secondWord = new SpeechSynthesisUtterance(w.word);
+        secondWord.lang = "en-US";
+        secondWord.rate = 0.5;
 
-      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-      partSpeech.lang = "en-US";
-      partSpeech.rate = 0.5;
+        const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+        partSpeech.lang = "en-US";
+        partSpeech.rate = 0.5;
 
-      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-      definition.lang = "en-US";
-      definition.rate = 0.5;
+        const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+        definition.lang = "en-US";
+        definition.rate = 0.5;
 
-      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-      pleaseSpell.lang = "en-US";
-      pleaseSpell.rate = 0.5;
+        const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+        pleaseSpell.lang = "en-US";
+        pleaseSpell.rate = 0.5;
 
-      const finalWord = new SpeechSynthesisUtterance(w.word);
-      finalWord.lang = "en-US";
-      finalWord.rate = 0.5;
+        const finalWord = new SpeechSynthesisUtterance(w.word);
+        finalWord.lang = "en-US";
+        finalWord.rate = 0.5;
 
-      // Chain with 1.5s pauses
-      speechSynthesis.speak(firstWord);
-      firstWord.onend = () => {
-        setTimeout(() => {
-          speechSynthesis.speak(secondWord);
-          secondWord.onend = () => {
-            setTimeout(() => {
-              speechSynthesis.speak(partSpeech);
-              partSpeech.onend = () => {
-                speechSynthesis.speak(definition);
-                definition.onend = () => {
-                  setTimeout(() => {
-                    speechSynthesis.speak(pleaseSpell);
-                    pleaseSpell.onend = () => {
-                      setTimeout(() => {
-                        speechSynthesis.speak(finalWord);
-                      }, 1500);
-                    };
-                  }, 1500);
+        speechSynthesis.speak(firstWord);
+        firstWord.onend = () => {
+          setTimeout(() => {
+            speechSynthesis.speak(secondWord);
+            secondWord.onend = () => {
+              setTimeout(() => {
+                speechSynthesis.speak(partSpeech);
+                partSpeech.onend = () => {
+                  speechSynthesis.speak(definition);
+                  definition.onend = () => {
+                    setTimeout(() => {
+                      speechSynthesis.speak(pleaseSpell);
+                      pleaseSpell.onend = () => {
+                        setTimeout(() => {
+                          speechSynthesis.speak(finalWord);
+                          finalWord.onend = () => {
+                            lastPronouncedIndex = currentIndex; // Mark as pronounced
+                            isSpeaking = false;
+                            enableButtons();
+                          };
+                        }, 1000);
+                      };
+                    }, 1000);
+                  };
                 };
-              };
-            }, 1500);
-          };
-        }, 1500);
-      };
+              }, 1000);
+            };
+          }, 1000);
+        };
+      }
+    }
+
+    function disableButtons() {
+      document.getElementById("pronounce").disabled = true;
+      document.getElementById("checkAnswer").disabled = true;
+      document.getElementById("showAnswer").disabled = true;
+    }
+
+    function enableButtons() {
+      document.getElementById("pronounce").disabled = false;
+      document.getElementById("checkAnswer").disabled = false;
+      document.getElementById("showAnswer").disabled = failCount < 3;
     }
 
     function nextWord() {
@@ -213,7 +248,6 @@
       currentIndex = (currentIndex + 1) % levelWords.length;
       failCount = 0;
       showWord();
-      pronounceWord();
     }
 
     function showFeedback(message, isCorrect) {
@@ -233,6 +267,7 @@
     }
 
     function checkSpelling() {
+      if (isSpeaking) return;
       const levelWords = getLevelWords();
       const userInput = document.getElementById("input").value.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
@@ -262,12 +297,10 @@
       currentIndex = Math.floor(Math.random() * 50);
       failCount = 0;
       showWord();
-      pronounceWord();
     }
 
     currentIndex = Math.floor(Math.random() * 50);
     showWord();
-    pronounceWord();
   </script>
 </body>
 </html>
