@@ -24,37 +24,17 @@
       justify-content: center;
       margin: 20px 0;
     }
-    .hexagon {
-      width: 50px;
-      height: 29px;
-      background: #cccccc;
-      position: relative;
+    .bee {
+      width: 40px;
+      height: 40px;
+      background: url('https://img.icons8.com/ios-filled/50/cccccc/bee.png') no-repeat center;
+      background-size: contain;
       margin: 0 10px;
       transition: background 0.5s;
     }
-    .hexagon:before, .hexagon:after {
-      content: "";
-      position: absolute;
-      width: 0;
-      border-left: 25px solid transparent;
-      border-right: 25px solid transparent;
-    }
-    .hexagon:before {
-      bottom: 100%;
-      border-bottom: 14.5px solid #cccccc;
-    }
-    .hexagon:after {
-      top: 100%;
-      border-top: 14.5px solid #cccccc;
-    }
-    .hexagon.filled {
-      background: #ffeb3b;
-    }
-    .hexagon.filled:before {
-      border-bottom-color: #ffeb3b;
-    }
-    .hexagon.filled:after {
-      border-top-color: #ffeb3b;
+    .bee.filled {
+      background: url('https://img.icons8.com/ios-filled/50/ffeb3b/bee.png') no-repeat center;
+      background-size: contain;
     }
     #part, #definition, #wordIndex {
       font-size: 24px;
@@ -187,10 +167,6 @@
       z-index: 1000;
       animation: popIn 0.5s ease-out;
     }
-    #feedback.correct {
-      background: #4caf50;
-      border: 5px solid #2e7d32;
-    }
     #feedback.wrong {
       background: #f44336;
       border: 5px solid #c62828;
@@ -245,7 +221,7 @@
       right: 20px;
       width: 100px;
       height: 100px;
-      background: url('https://via.placeholder.com/100?text=Buzz') no-repeat center;
+      background: url('https://img.icons8.com/ios-filled/100/000000/bee.png') no-repeat center;
       background-size: contain;
       transition: transform 0.5s;
     }
@@ -298,9 +274,7 @@
       .balloon { width: 20px; height: 30px; }
       .firework { width: 8px; height: 8px; }
       #mascot { width: 80px; height: 80px; }
-      .hexagon { width: 40px; height: 23px; }
-      .hexagon:before { border-bottom-width: 11.5px; }
-      .hexagon:after { border-top-width: 11.5px; }
+      .bee { width: 30px; height: 30px; }
       #pronounce-toggle { font-size: 18px; }
     }
   </style>
@@ -308,9 +282,9 @@
 <body>
   <h1>Spelling Bee Adventure</h1>
   <div id="progress">
-    <div class="hexagon"></div>
-    <div class="hexagon"></div>
-    <div class="hexagon"></div>
+    <div class="bee"></div>
+    <div class="bee"></div>
+    <div class="bee"></div>
   </div>
   <div id="pronounce-toggle">
     <input type="checkbox" id="fullPronounce" checked>
@@ -356,27 +330,38 @@
       const btn = document.createElement("button");
       btn.className = "key";
       btn.innerText = letter;
-      btn.onclick = () => appendLetter(letter.toLowerCase());
+      btn.onclick = () => {
+        appendLetter(letter.toLowerCase());
+        playSound('type');
+      };
       keyboard.appendChild(btn);
     });
     const backspace = document.createElement("button");
     backspace.id = "backspace";
     backspace.className = "key";
     backspace.innerText = "Back";
-    backspace.onclick = removeLetter;
+    backspace.onclick = () => {
+      removeLetter();
+      playSound('type');
+    };
     keyboard.appendChild(backspace);
     const clear = document.createElement("button");
     clear.id = "clear";
     clear.className = "key";
     clear.innerText = "Clear";
-    clear.onclick = clearWord;
+    clear.onclick = () => {
+      clearWord();
+      playSound('type');
+    };
     keyboard.appendChild(clear);
 
     // Sound effects
     function playSound(type) {
       const audio = new Audio();
-      if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-01a.mp3';
+      if (type === 'correct') audio.src = 'https://www.soundjay.com/human/sounds/applause-01.mp3'; // Cheer sound
       else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
+      else if (type === 'type') audio.src = 'https://www.soundjay.com/buttons/sounds/button-09a.mp3'; // Soft click
+      audio.volume = type === 'type' ? 0.3 : 0.7; // Lower volume for typing
       audio.play().catch(() => {}); // Ignore errors if sound fails
     }
 
@@ -403,10 +388,10 @@
     }
 
     function updateProgress() {
-      const hexagons = document.querySelectorAll('.hexagon');
-      const filledCount = Math.min(Math.floor(correctCount / 5), 3);
-      hexagons.forEach((hex, i) => {
-        hex.classList.toggle('filled', i < filledCount);
+      const bees = document.querySelectorAll('.bee');
+      const filledCount = Math.min(correctCount, 3); // 1 correct = 1 bee
+      bees.forEach((bee, i) => {
+        bee.classList.toggle('filled', i < filledCount);
       });
     }
 
@@ -426,7 +411,7 @@
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
-      updateProgress(); // Ensure progress updates on new word
+      updateProgress();
     }
 
     function pronounceWord() {
@@ -538,8 +523,8 @@
       const feedback = document.getElementById("feedback");
       const mascot = document.getElementById("mascot");
       feedback.innerText = message;
-      feedback.className = isCorrect ? "correct" : "wrong";
-      feedback.style.display = "block";
+      feedback.className = isCorrect ? "" : "wrong"; // No styling for correct
+      feedback.style.display = isCorrect ? "none" : "block"; // Hide for correct
       mascot.className = isCorrect ? "happy" : "sad";
       if (!isCorrect) {
         setTimeout(() => {
@@ -579,7 +564,6 @@
       }
       setTimeout(() => {
         hideCelebration();
-        document.getElementById("feedback").style.display = "none"; // Hide "Awesome" after celebration
         nextWord();
       }, 2000);
     }
@@ -595,9 +579,9 @@
       const levelWords = getLevelWords();
       const userInput = currentWord.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
-        correctCount++; // Fixed: Increment here for correct answers
+        correctCount++;
         playSound('correct');
-        showFeedback("🎉 Awesome! Correct! 🎉", true);
+        showFeedback("", true); // No "Awesome" box
         showCelebration();
       } else {
         failCount++;
