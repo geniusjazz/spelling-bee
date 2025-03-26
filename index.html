@@ -224,32 +224,38 @@
         // First click: Full sequence with 1s pauses
         const firstWord = new SpeechSynthesisUtterance(w.word);
         firstWord.lang = "en-US";
-        firstWord.rate = 0.5;
+        firstWord.rate = 0.8;
+        firstWord.pitch = 1.2;
         if (voice) firstWord.voice = voice;
 
         const secondWord = new SpeechSynthesisUtterance(w.word);
         secondWord.lang = "en-US";
-        secondWord.rate = 0.5;
+        secondWord.rate = 0.8;
+        secondWord.pitch = 1.2;
         if (voice) secondWord.voice = voice;
 
         const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
         partSpeech.lang = "en-US";
-        partSpeech.rate = 0.5;
+        partSpeech.rate = 0.8;
+        partSpeech.pitch = 1.2;
         if (voice) partSpeech.voice = voice;
 
         const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
         definition.lang = "en-US";
-        definition.rate = 0.5;
+        definition.rate = 0.8;
+        definition.pitch = 1.2;
         if (voice) definition.voice = voice;
 
         const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
         pleaseSpell.lang = "en-US";
-        pleaseSpell.rate = 0.5;
+        pleaseSpell.rate = 0.8;
+        pleaseSpell.pitch = 1.2;
         if (voice) pleaseSpell.voice = voice;
 
         const finalWord = new SpeechSynthesisUtterance(w.word);
         finalWord.lang = "en-US";
-        finalWord.rate = 0.5;
+        finalWord.rate = 0.8;
+        finalWord.pitch = 1.2;
         if (voice) finalWord.voice = voice;
 
         speechSynthesis.speak(firstWord);
