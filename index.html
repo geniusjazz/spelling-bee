@@ -15,7 +15,7 @@
       font-size: 32px;
       color: #333;
     }
-    #part, #definition, #speechSettings {
+    #part, #definition, #wordIndex {
       font-size: 22px;
       margin: 15px 0;
       color: #555;
@@ -83,30 +83,6 @@
     #showAnswer:hover:not(:disabled) {
       background-color: #1e88e5;
     }
-    #speedUp {
-      background-color: #E91E63;
-    }
-    #speedUp:hover:not(:disabled) {
-      background-color: #d81b60;
-    }
-    #speedDown {
-      background-color: #F06292;
-    }
-    #speedDown:hover:not(:disabled) {
-      background-color: #ec407a;
-    }
-    #pitchUp {
-      background-color: #673AB7;
-    }
-    #pitchUp:hover:not(:disabled) {
-      background-color: #5e35b1;
-    }
-    #pitchDown {
-      background-color: #9575CD;
-    }
-    #pitchDown:hover:not(:disabled) {
-      background-color: #7e57c2;
-    }
     #feedback {
       display: none;
       position: fixed;
@@ -135,7 +111,7 @@
     }
     @media (max-width: 768px) {
       h1 { font-size: 28px; }
-      #part, #definition, #speechSettings { font-size: 18px; }
+      #part, #definition, #wordIndex { font-size: 18px; }
       #input { font-size: 18px; padding: 12px; }
       button, select { font-size: 20px; padding: 15px; }
       #feedback { font-size: 24px; padding: 20px; }
@@ -155,15 +131,11 @@
   </select>
   <div id="part"></div>
   <div id="definition"></div>
-  <div id="speechSettings">Speed: 0.8 | Pitch: 1.2</div>
+  <div id="wordIndex"></div>
   <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" aria-autocomplete="none" onfocus="disableSuggestions(this)" oninput="preventSuggestions(this)" onkeydown="maintainFocus(this)">
+  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none">
   <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
-  <button id="speedUp" onclick="adjustSpeed(0.1)">Speed Up</button>
-  <button id="speedDown" onclick="adjustSpeed(-0.1)">Speed Down</button>
-  <button id="pitchUp" onclick="adjustPitch(0.1)">Pitch Up</button>
-  <button id="pitchDown" onclick="adjustPitch(-0.1)">Pitch Down</button>
   <div id="feedback" onclick="hideFeedback()"></div>
 
   <script src="words.js"></script>
@@ -173,76 +145,6 @@
     let failCount = 0;
     let lastPronouncedIndex = -1;
     let isSpeaking = false;
-    let speechRate = 0.8; // Starting rate
-    let speechPitch = 1.2; // Starting pitch
-
-    // Disable suggestions on focus
-    function disableSuggestions(input) {
-      input.setAttribute("autocomplete", "off");
-      input.setAttribute("autocorrect", "off");
-      input.setAttribute("spellcheck", "false");
-      input.setAttribute("autocapitalize", "none");
-      input.setAttribute("inputmode", "text");
-      input.setAttribute("aria-autocomplete", "none");
-      const originalValue = input.value;
-      input.type = "tel";
-      setTimeout(() => {
-        input.type = "text";
-        input.value = originalValue;
-        input.focus();
-      }, 10);
-    }
-
-    // Prevent suggestions during typing
-    function preventSuggestions(input) {
-      const originalValue = input.value;
-      input.setAttribute("autocomplete", "off");
-      input.setAttribute("autocorrect", "off");
-      input.setAttribute("spellcheck", "false");
-      input.type = "tel";
-      setTimeout(() => {
-        input.type = "text";
-        input.value = originalValue;
-      }, 5);
-    }
-
-    // Maintain focus
-    function maintainFocus(input) {
-      setTimeout(() => {
-        input.focus();
-      }, 0);
-    }
-
-    // Update speech settings display
-    function updateSpeechSettings() {
-      document.getElementById("speechSettings").innerText = 
-        `Speed: ${speechRate.toFixed(1)} | Pitch: ${speechPitch.toFixed(1)}`;
-    }
-
-    // Adjust speech rate
-    function adjustSpeed(change) {
-      if (isSpeaking) return;
-      speechRate = Math.max(0.5, Math.min(1.5, speechRate + change)); // Range: 0.5 to 1.5
-      updateSpeechSettings();
-      testSpeech();
-    }
-
-    // Adjust speech pitch
-    function adjustPitch(change) {
-      if (isSpeaking) return;
-      speechPitch = Math.max(0.5, Math.min(2.0, speechPitch + change)); // Range: 0.5 to 2.0
-      updateSpeechSettings();
-      testSpeech();
-    }
-
-    // Test current speech settings
-    function testSpeech() {
-      const test = new SpeechSynthesisUtterance("Testing speed and pitch");
-      test.lang = "en-US";
-      test.rate = speechRate;
-      test.pitch = speechPitch;
-      speechSynthesis.speak(test);
-    }
 
     function getLevelWords() {
       const start = currentLevel * 50;
@@ -254,6 +156,7 @@
       const w = levelWords[currentIndex];
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
+      document.getElementById("wordIndex").innerText = "Word #" + w.no;
       document.getElementById("input").value = "";
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
     }
@@ -269,8 +172,8 @@
       if (currentIndex === lastPronouncedIndex) {
         const wordOnly = new SpeechSynthesisUtterance(w.word);
         wordOnly.lang = "en-US";
-        wordOnly.rate = speechRate;
-        wordOnly.pitch = speechPitch;
+        wordOnly.rate = 0.7;
+        wordOnly.pitch = 0.7;
         speechSynthesis.speak(wordOnly);
         wordOnly.onend = () => {
           isSpeaking = false;
@@ -279,33 +182,33 @@
       } else {
         const firstWord = new SpeechSynthesisUtterance(w.word);
         firstWord.lang = "en-US";
-        firstWord.rate = speechRate;
-        firstWord.pitch = speechPitch;
+        firstWord.rate = 0.7;
+        firstWord.pitch = 0.7;
 
         const secondWord = new SpeechSynthesisUtterance(w.word);
         secondWord.lang = "en-US";
-        secondWord.rate = speechRate;
-        secondWord.pitch = speechPitch;
+        secondWord.rate = 0.7;
+        secondWord.pitch = 0.7;
 
         const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
         partSpeech.lang = "en-US";
-        partSpeech.rate = speechRate;
-        partSpeech.pitch = speechPitch;
+        partSpeech.rate = 0.7;
+        partSpeech.pitch = 0.7;
 
         const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
         definition.lang = "en-US";
-        definition.rate = speechRate;
-        definition.pitch = speechPitch;
+        definition.rate = 0.7;
+        definition.pitch = 0.7;
 
         const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
         pleaseSpell.lang = "en-US";
-        pleaseSpell.rate = speechRate;
-        pleaseSpell.pitch = speechPitch;
+        pleaseSpell.rate = 0.7;
+        pleaseSpell.pitch = 0.7;
 
         const finalWord = new SpeechSynthesisUtterance(w.word);
         finalWord.lang = "en-US";
-        finalWord.rate = speechRate;
-        finalWord.pitch = speechPitch;
+        finalWord.rate = 0.7;
+        finalWord.pitch = 0.7;
 
         speechSynthesis.speak(firstWord);
         firstWord.onend = () => {
@@ -344,10 +247,6 @@
       document.getElementById("checkAnswer").disabled = true;
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
-      document.getElementById("speedUp").disabled = true;
-      document.getElementById("speedDown").disabled = true;
-      document.getElementById("pitchUp").disabled = true;
-      document.getElementById("pitchDown").disabled = true;
     }
 
     function enableButtons() {
@@ -355,10 +254,6 @@
       document.getElementById("checkAnswer").disabled = false;
       document.getElementById("showAnswer").disabled = failCount < 3;
       document.getElementById("levelSelect").disabled = false;
-      document.getElementById("speedUp").disabled = false;
-      document.getElementById("speedDown").disabled = false;
-      document.getElementById("pitchUp").disabled = false;
-      document.getElementById("pitchDown").disabled = false;
     }
 
     function nextWord() {
@@ -419,7 +314,6 @@
 
     currentIndex = Math.floor(Math.random() * 50);
     showWord();
-    updateSpeechSettings(); // Initial display
   </script>
 </body>
 </html>
