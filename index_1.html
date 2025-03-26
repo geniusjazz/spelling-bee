@@ -132,7 +132,7 @@
   <div id="part"></div>
   <div id="definition"></div>
   <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" inputmode="text" aria-autocomplete="none">
+  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" aria-autocomplete="none" onfocus="disableSuggestions()">
   <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
   <div id="feedback" onclick="hideFeedback()"></div>
@@ -144,6 +144,23 @@
     let failCount = 0;
     let lastPronouncedIndex = -1; // Track last pronounced word
     let isSpeaking = false; // Track speaking state
+
+    // Workaround to disable suggestions on mobile
+    function disableSuggestions() {
+      const input = document.getElementById("input");
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("autocorrect", "off");
+      input.setAttribute("spellcheck", "false");
+      input.setAttribute("autocapitalize", "none");
+      input.setAttribute("inputmode", "text");
+      input.setAttribute("aria-autocomplete", "none");
+      // Temporary type change to force keyboard reset
+      input.type = "search"; // Briefly change to search
+      setTimeout(() => {
+        input.type = "text"; // Change back to text
+        input.focus(); // Refocus
+      }, 0);
+    }
 
     function getLevelWords() {
       const start = currentLevel * 50;
