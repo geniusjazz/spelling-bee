@@ -349,7 +349,7 @@
   <div id="level-complete"><div class="level-complete-text">🎉 Level Complete! 🎉</div></div>
   <div id="mascot"></div>
 
-  <script src="words.js"></script>
+  <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script>
     let currentLevel = 0;
     let currentIndex = 0;
@@ -358,9 +358,9 @@
     let isSpeaking = false;
     let currentWord = "";
     let correctCount = 0;
-    let wordIndices = []; // Array to hold shuffled indices
-    let indexPointer = 0; // Tracks current position in shuffled list
-    let wordsCompleted = 0; // Tracks unique words completed
+    let wordIndices = [];
+    let indexPointer = 0;
+    let wordsCompleted = 0;
 
     // Build keyboard
     const keyboard = document.getElementById("keyboard");
@@ -388,10 +388,10 @@
     // Sound effects
     function playSound(type) {
       const audio = new Audio();
-      if (type === 'correct') audio.src = 'https://www.soundjay.com/human/sounds/applause-01.mp3'; // Cheer sound
+      if (type === 'correct') audio.src = 'https://www.soundjay.com/human/sounds/applause-01.mp3';
       else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
       audio.volume = 0.7;
-      audio.play().catch(() => {}); // Ignore errors if sound fails
+      audio.play().catch(() => {});
     }
 
     // Fisher-Yates shuffle
@@ -404,10 +404,10 @@
     }
 
     function initializeWordIndices() {
-      wordIndices = Array.from({ length: 50 }, (_, i) => i); // [0, 1, 2, ..., 49]
+      wordIndices = Array.from({ length: 50 }, (_, i) => i);
       shuffle(wordIndices);
       indexPointer = 0;
-      wordsCompleted = 0; // Reset on new level
+      wordsCompleted = 0;
       updateProgress();
     }
 
@@ -438,7 +438,7 @@
       const score = document.getElementById("score");
       const progressBar = document.getElementById("progress-bar");
       const progressText = document.getElementById("progress-text");
-      bee.classList.toggle('filled', correctCount > 0); // Bee turns yellow on first correct
+      bee.classList.toggle('filled', correctCount > 0);
       score.innerText = `Buzz Score: ${correctCount}`;
       progressBar.style.width = `${(wordsCompleted / 50) * 100}%`;
       progressText.innerText = `Words Completed: ${wordsCompleted}/50`;
@@ -459,7 +459,7 @@
       currentWord = "";
       updateDisplay();
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
-      document.getElementById("showAnswer").disabled = false; // Ensure enabled when shown
+      document.getElementById("showAnswer").disabled = false;
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
       updateProgress();
@@ -558,16 +558,16 @@
     function enableButtons() {
       document.getElementById("pronounce").disabled = false;
       document.getElementById("checkAnswer").disabled = false;
-      document.getElementById("showAnswer").disabled = failCount < 3; // Enable if failCount >= 3
+      document.getElementById("showAnswer").disabled = failCount < 3;
       document.getElementById("levelSelect").disabled = false;
       document.querySelectorAll(".key").forEach(btn => btn.disabled = false);
     }
 
     function nextWord() {
       const levelWords = getLevelWords();
-      indexPointer = (indexPointer + 1) % levelWords.length; // Cycle through shuffled indices
+      indexPointer = (indexPointer + 1) % levelWords.length;
       if (indexPointer === 0) {
-        showLevelComplete(); // Show grand celebration
+        showLevelComplete();
         return;
       }
       failCount = 0;
@@ -578,8 +578,8 @@
       const feedback = document.getElementById("feedback");
       const mascot = document.getElementById("mascot");
       feedback.innerText = message;
-      feedback.className = isCorrect ? "" : "wrong"; // No styling for correct
-      feedback.style.display = isCorrect ? "none" : "block"; // Show for wrong, hide for correct
+      feedback.className = isCorrect ? "" : "wrong";
+      feedback.style.display = isCorrect ? "none" : "block";
       mascot.className = isCorrect ? "happy" : "sad";
       if (!isCorrect) {
         setTimeout(() => {
@@ -596,10 +596,10 @@
 
     function showCelebration() {
       const celebration = document.getElementById("celebration");
-      document.getElementById("mainContent").style.display = "none"; // Hide question
+      document.getElementById("mainContent").style.display = "none";
       celebration.style.display = "block";
-      const type = Math.floor(Math.random() * 3); // 0: stars, 1: balloons, 2: fireworks
-      const count = type === 2 ? 20 : 10; // More fireworks
+      const type = Math.floor(Math.random() * 3);
+      const count = type === 2 ? 20 : 10;
       for (let i = 0; i < count; i++) {
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
@@ -607,7 +607,7 @@
         el.style.animationDelay = `${Math.random() * 0.5}s`;
         if (type === 0) {
           el.className = "star";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`; // Random color
+          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
         } else if (type === 1) {
           el.className = "balloon";
           el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
@@ -626,14 +626,14 @@
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
       celebration.style.display = "none";
-      celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>'; // Reset with text
+      celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>';
     }
 
     function showLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       document.getElementById("mainContent").style.display = "none";
       levelComplete.style.display = "block";
-      for (let i = 0; i < 30; i++) { // Bigger celebration
+      for (let i = 0; i < 30; i++) {
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
         el.style.top = `${Math.random() * 100}%`;
@@ -653,14 +653,13 @@
       }
       setTimeout(() => {
         hideLevelComplete();
-        // Move to next level or reset
         if (currentLevel < 6) {
           currentLevel++;
           document.getElementById("levelSelect").value = currentLevel;
           initializeWordIndices();
           showWord();
         } else {
-          initializeWordIndices(); // Reset Level 1 if at max
+          initializeWordIndices();
           showWord();
         }
       }, 3000);
@@ -669,7 +668,7 @@
     function hideLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       levelComplete.style.display = "none";
-      levelComplete.innerHTML = '<div class="level-complete-text">🎉 Level Complete! 🎉</div>'; // Reset
+      levelComplete.innerHTML = '<div class="level-complete-text">🎉 Level Complete! 🎉</div>';
     }
 
     function checkSpelling() {
@@ -680,15 +679,15 @@
         correctCount++;
         wordsCompleted++;
         playSound('correct');
-        showFeedback("", true); // No "Awesome" box
+        showFeedback("", true);
         showCelebration();
       } else {
         failCount++;
         playSound('wrong');
-        showFeedback("❌ Oops! Try Again! ❌", false); // Always show wrong message
+        showFeedback("❌ Oops! Try Again! ❌", false);
         if (failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
-          document.getElementById("showAnswer").disabled = false; // Explicitly enable
+          document.getElementById("showAnswer").disabled = false;
         }
         currentWord = "";
         updateDisplay();
@@ -706,724 +705,7 @@
       currentLevel = parseInt(document.getElementById("levelSelect").value);
       failCount = 0;
       correctCount = 0;
-      initializeWordIndices(); // Reshuffle on level change
-      showWord();
-    }
-
-    // Initial setup
-    initializeWordIndices();
-    showWord();
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-  <title>Spelling Bee Adventure</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Annie Use Your Telescope', cursive;
-      text-align: center;
-      padding: 20px;
-      background: url('https://www.transparenttextures.com/patterns/stardust.png') #fff59d;
-      margin: 0;
-      color: #333;
-    }
-    h1 {
-      font-size: 48px;
-      color: #e91e63;
-      text-shadow: 2px 2px #ffeb3b;
-      animation: bounce 2s infinite;
-    }
-    #progress {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 20px 0;
-    }
-    .bee {
-      width: 40px;
-      height: 40px;
-      background: url('https://img.icons8.com/ios-filled/50/cccccc/bee.png') no-repeat center;
-      background-size: contain;
-      margin-right: 10px;
-      transition: background 0.5s;
-    }
-    .bee.filled {
-      background: url('https://img.icons8.com/ios-filled/50/ffeb3b/bee.png') no-repeat center;
-      background-size: contain;
-    }
-    #score {
-      font-size: 24px;
-      color: #d81b60;
-      margin-right: 20px;
-    }
-    #progress-bar-container {
-      width: 90%;
-      max-width: 400px;
-      height: 20px;
-      background: #ccc;
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 0 auto 20px auto;
-    }
-    #progress-bar {
-      height: 100%;
-      background: #4caf50;
-      width: 0%;
-      transition: width 0.5s ease;
-    }
-    #progress-text {
-      font-size: 20px;
-      color: #d81b60;
-    }
-    #part, #definition, #wordIndex {
-      font-size: 24px;
-      margin: 15px 0;
-      color: #d81b60;
-      background: rgba(255, 235, 59, 0.7);
-      padding: 10px;
-      border-radius: 15px;
-      display: inline-block;
-    }
-    #wordDisplay {
-      width: 90%;
-      max-width: 450px;
-      padding: 20px;
-      font-size: 28px;
-      margin: 20px auto;
-      background: #ffffff;
-      border: 4px dashed #2196f3;
-      border-radius: 20px;
-      min-height: 30px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    button {
-      padding: 20px 30px;
-      font-size: 26px;
-      margin: 15px auto;
-      display: block;
-      color: white;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: transform 0.2s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    button:hover:not(:disabled) {
-      transform: scale(1.1);
-    }
-    button:active:not(:disabled) {
-      transform: scale(0.95);
-    }
-    select {
-      width: 90%;
-      max-width: 300px;
-      padding: 15px;
-      font-size: 24px;
-      margin: 15px auto;
-      display: block;
-      background: #ffeb3b;
-      color: #d81b60;
-      border: 3px solid #f06292;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-    button:disabled, select:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    #pronounce {
-      width: 90%;
-      max-width: 350px;
-      background: #4caf50;
-    }
-    #checkAnswer {
-      width: 90%;
-      max-width: 350px;
-      background: #ff9800;
-    }
-    #showAnswer {
-      width: 90%;
-      max-width: 350px;
-      background: #2196f3;
-      display: none;
-    }
-    #keyboard {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 700px;
-      margin: 20px auto;
-    }
-    .key {
-      width: 60px;
-      height: 60px;
-      margin: 8px;
-      font-size: 24px;
-      background: linear-gradient(135deg, #2196f3, #42a5f5);
-      color: white;
-      border: 3px solid #1976d2;
-      border-radius: 15px;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: transform 0.1s;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-    }
-    .key:hover:not(:disabled) {
-      transform: scale(1.1);
-    }
-    .key:active:not(:disabled) {
-      transform: scale(0.9);
-    }
-    .key:disabled {
-      background: #cccccc;
-      border-color: #aaaaaa;
-      box-shadow: none;
-    }
-    #backspace {
-      width: 90px;
-      background: linear-gradient(135deg, #f44336, #ef5350);
-      border-color: #d32f2f;
-    }
-    #clear {
-      width: 90px;
-      background: linear-gradient(135deg, #9c27b0, #ab47bc);
-      border-color: #7b1fa2;
-    }
-    #feedback {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(1);
-      padding: 40px;
-      font-size: 36px;
-      font-weight: bold;
-      color: white;
-      border-radius: 30px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-      z-index: 1000;
-      animation: popIn 0.5s ease-out;
-    }
-    #feedback.wrong {
-      background: #f44336;
-      border: 5px solid #c62828;
-    }
-    #celebration, #level-complete {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 2000;
-      pointer-events: none;
-    }
-    .celebration-text, .level-complete-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 48px;
-      color: #ffffff;
-      text-shadow: 2px 2px 4px #000000;
-    }
-    .level-complete-text {
-      font-size: 60px;
-      color: #ffeb3b;
-    }
-    .star {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: #ffeb3b;
-      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-      animation: spin 1.5s linear infinite;
-    }
-    .balloon {
-      position: absolute;
-      width: 30px;
-      height: 40px;
-      background: #f06292;
-      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-      animation: float 2s ease-in-out infinite;
-    }
-    .firework {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: #2196f3;
-      border-radius: 50%;
-      animation: explode 1s ease-out forwards;
-    }
-    #mascot {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 100px;
-      height: 100px;
-      background: url('https://img.icons8.com/ios-filled/100/000000/bee.png') no-repeat center;
-      background-size: contain;
-      transition: transform 0.5s;
-    }
-    #mascot.happy {
-      transform: scale(1.2) rotate(10deg);
-    }
-    #mascot.sad {
-      transform: scale(0.9) rotate(-10deg);
-    }
-    #pronounce-toggle {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      font-size: 20px;
-    }
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-15px); }
-      60% { transform: translateY(-10px); }
-    }
-    @keyframes popIn {
-      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      80% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg) scale(1); }
-      50% { transform: rotate(180deg) scale(1.2); }
-      100% { transform: rotate(360deg) scale(1); }
-    }
-    @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes explode {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(10); opacity: 0; }
-    }
-    @media (max-width: 768px) {
-      h1 { font-size: 36px; }
-      #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
-      #wordDisplay { font-size: 24px; padding: 15px; }
-      button, select { font-size: 22px; padding: 15px 25px; }
-      .key { width: 50px; height: 50px; font-size: 20px; margin: 5px; }
-      #backspace, #clear { width: 70px; }
-      #feedback { font-size: 28px; padding: 30px; }
-      .celebration-text { font-size: 36px; }
-      .level-complete-text { font-size: 48px; }
-      .star { width: 30px; height: 30px; }
-      .balloon { width: 20px; height: 30px; }
-      .firework { width: 8px; height: 8px; }
-      #mascot { width: 80px; height: 80px; }
-      .bee { width: 30px; height: 30px; }
-      #score { font-size: 20px; }
-      #progress-text { font-size: 18px; }
-      #pronounce-toggle { font-size: 18px; }
-    }
-  </style>
-</head>
-<body>
-  <h1>Spelling Bee Adventure</h1>
-  <div id="pronounce-toggle">
-    <input type="checkbox" id="fullPronounce" checked>
-    <label for="fullPronounce">Full Pronunciation</label>
-  </div>
-  <div id="mainContent">
-    <select id="levelSelect" onchange="changeLevel()">
-      <option value="0">Level 1</option>
-      <option value="1">Level 2</option>
-      <option value="2">Level 3</option>
-      <option value="3">Level 4</option>
-      <option value="4">Level 5</option>
-      <option value="5">Level 6</option>
-      <option value="6">Level 7</option>
-    </select>
-    <div id="progress">
-      <div class="bee"></div>
-      <span id="score">Buzz Score: 0</span>
-    </div>
-    <div id="progress-bar-container">
-      <div id="progress-bar"></div>
-    </div>
-    <div id="progress-text">Words Completed: 0/50</div>
-    <div id="part"></div>
-    <div id="definition"></div>
-    <div id="wordIndex"></div>
-    <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-    <div id="wordDisplay"></div>
-    <div id="keyboard"></div>
-    <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
-    <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
-  </div>
-  <div id="feedback" onclick="hideFeedback()"></div>
-  <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
-  <div id="level-complete"><div class="level-complete-text">🎉 Level Complete! 🎉</div></div>
-  <div id="mascot"></div>
-
-  <script src="words.js"></script>
-  <script>
-    let currentLevel = 0;
-    let currentIndex = 0;
-    let failCount = 0;
-    let lastPronouncedIndex = -1;
-    let isSpeaking = false;
-    let currentWord = "";
-    let correctCount = 0;
-    let wordIndices = []; // Array to hold shuffled indices
-    let indexPointer = 0; // Tracks current position in shuffled list
-    let wordsCompleted = 0; // Tracks unique words completed
-
-    // Build keyboard
-    const keyboard = document.getElementById("keyboard");
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    letters.forEach(letter => {
-      const btn = document.createElement("button");
-      btn.className = "key";
-      btn.innerText = letter;
-      btn.onclick = () => appendLetter(letter.toLowerCase());
-      keyboard.appendChild(btn);
-    });
-    const backspace = document.createElement("button");
-    backspace.id = "backspace";
-    backspace.className = "key";
-    backspace.innerText = "Back";
-    backspace.onclick = removeLetter;
-    keyboard.appendChild(backspace);
-    const clear = document.createElement("button");
-    clear.id = "clear";
-    clear.className = "key";
-    clear.innerText = "Clear";
-    clear.onclick = clearWord;
-    keyboard.appendChild(clear);
-
-    // Sound effects
-    function playSound(type) {
-      const audio = new Audio();
-      if (type === 'correct') audio.src = 'https://www.soundjay.com/human/sounds/applause-01.mp3'; // Cheer sound
-      else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
-      audio.volume = 0.7;
-      audio.play().catch(() => {}); // Ignore errors if sound fails
-    }
-
-    // Fisher-Yates shuffle
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    function initializeWordIndices() {
-      wordIndices = Array.from({ length: 50 }, (_, i) => i); // [0, 1, 2, ..., 49]
-      shuffle(wordIndices);
-      indexPointer = 0;
-      wordsCompleted = 0; // Reset on new level
-      updateProgress();
-    }
-
-    function appendLetter(letter) {
-      if (isSpeaking) return;
-      currentWord += letter;
-      updateDisplay();
-    }
-
-    function removeLetter() {
-      if (isSpeaking) return;
-      currentWord = currentWord.slice(0, -1);
-      updateDisplay();
-    }
-
-    function clearWord() {
-      if (isSpeaking) return;
-      currentWord = "";
-      updateDisplay();
-    }
-
-    function updateDisplay() {
-      document.getElementById("wordDisplay").innerText = currentWord;
-    }
-
-    function updateProgress() {
-      const bee = document.querySelector('.bee');
-      const score = document.getElementById("score");
-      const progressBar = document.getElementById("progress-bar");
-      const progressText = document.getElementById("progress-text");
-      bee.classList.toggle('filled', correctCount > 0); // Bee turns yellow on first correct
-      score.innerText = `Buzz Score: ${correctCount}`;
-      progressBar.style.width = `${(wordsCompleted / 50) * 100}%`;
-      progressText.innerText = `Words Completed: ${wordsCompleted}/50`;
-    }
-
-    function getLevelWords() {
-      const start = currentLevel * 50;
-      return words.slice(start, start + 50);
-    }
-
-    function showWord() {
-      const levelWords = getLevelWords();
-      currentIndex = wordIndices[indexPointer];
-      const w = levelWords[currentIndex];
-      document.getElementById("part").innerText = "Part of Speech: " + w.part;
-      document.getElementById("definition").innerText = "Definition: " + w.definition;
-      document.getElementById("wordIndex").innerText = "Word #" + w.no;
-      currentWord = "";
-      updateDisplay();
-      document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
-      document.getElementById("showAnswer").disabled = false; // Ensure enabled when shown
-      document.getElementById("mainContent").style.display = "block";
-      document.getElementById("mascot").className = "";
-      updateProgress();
-    }
-
-    function pronounceWord() {
-      if (isSpeaking) return;
-      isSpeaking = true;
-      disableButtons();
-
-      const levelWords = getLevelWords();
-      const w = levelWords[currentIndex];
-      const fullPronounce = document.getElementById("fullPronounce").checked;
-
-      if (fullPronounce && currentIndex !== lastPronouncedIndex) {
-        const firstWord = new SpeechSynthesisUtterance(w.word);
-        firstWord.lang = "en-US";
-        firstWord.rate = 0.7;
-        firstWord.pitch = 0.7;
-
-        const secondWord = new SpeechSynthesisUtterance(w.word);
-        secondWord.lang = "en-US";
-        secondWord.rate = 0.7;
-        secondWord.pitch = 0.7;
-
-        const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-        partSpeech.lang = "en-US";
-        partSpeech.rate = 0.7;
-        partSpeech.pitch = 0.7;
-
-        const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-        definition.lang = "en-US";
-        definition.rate = 0.7;
-        definition.pitch = 0.7;
-
-        const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-        pleaseSpell.lang = "en-US";
-        pleaseSpell.rate = 0.7;
-        pleaseSpell.pitch = 0.7;
-
-        const finalWord = new SpeechSynthesisUtterance(w.word);
-        finalWord.lang = "en-US";
-        finalWord.rate = 0.7;
-        finalWord.pitch = 0.7;
-
-        speechSynthesis.speak(firstWord);
-        firstWord.onend = () => {
-          setTimeout(() => {
-            speechSynthesis.speak(secondWord);
-            secondWord.onend = () => {
-              setTimeout(() => {
-                speechSynthesis.speak(partSpeech);
-                partSpeech.onend = () => {
-                  speechSynthesis.speak(definition);
-                  definition.onend = () => {
-                    setTimeout(() => {
-                      speechSynthesis.speak(pleaseSpell);
-                      pleaseSpell.onend = () => {
-                        setTimeout(() => {
-                          speechSynthesis.speak(finalWord);
-                          finalWord.onend = () => {
-                            lastPronouncedIndex = currentIndex;
-                            isSpeaking = false;
-                            enableButtons();
-                          };
-                        }, 1000);
-                      };
-                    }, 1000);
-                  };
-                };
-              }, 1000);
-            };
-          }, 1000);
-        };
-      } else {
-        const wordOnly = new SpeechSynthesisUtterance(w.word);
-        wordOnly.lang = "en-US";
-        wordOnly.rate = 0.7;
-        wordOnly.pitch = 0.7;
-        speechSynthesis.speak(wordOnly);
-        wordOnly.onend = () => {
-          isSpeaking = false;
-          enableButtons();
-        };
-      }
-    }
-
-    function disableButtons() {
-      document.getElementById("pronounce").disabled = true;
-      document.getElementById("checkAnswer").disabled = true;
-      document.getElementById("showAnswer").disabled = true;
-      document.getElementById("levelSelect").disabled = true;
-      document.querySelectorAll(".key").forEach(btn => btn.disabled = true);
-    }
-
-    function enableButtons() {
-      document.getElementById("pronounce").disabled = false;
-      document.getElementById("checkAnswer").disabled = false;
-      document.getElementById("showAnswer").disabled = failCount < 3; // Enable if failCount >= 3
-      document.getElementById("levelSelect").disabled = false;
-      document.querySelectorAll(".key").forEach(btn => btn.disabled = false);
-    }
-
-    function nextWord() {
-      const levelWords = getLevelWords();
-      indexPointer = (indexPointer + 1) % levelWords.length; // Cycle through shuffled indices
-      if (indexPointer === 0) {
-        showLevelComplete(); // Show grand celebration
-        return;
-      }
-      failCount = 0;
-      showWord();
-    }
-
-    function showFeedback(message, isCorrect) {
-      const feedback = document.getElementById("feedback");
-      const mascot = document.getElementById("mascot");
-      feedback.innerText = message;
-      feedback.className = isCorrect ? "" : "wrong"; // No styling for correct
-      feedback.style.display = isCorrect ? "none" : "block"; // Show for wrong, hide for correct
-      mascot.className = isCorrect ? "happy" : "sad";
-      if (!isCorrect) {
-        setTimeout(() => {
-          feedback.style.display = "none";
-          mascot.className = "";
-        }, 1500);
-      }
-    }
-
-    function hideFeedback() {
-      document.getElementById("feedback").style.display = "none";
-      document.getElementById("mascot").className = "";
-    }
-
-    function showCelebration() {
-      const celebration = document.getElementById("celebration");
-      document.getElementById("mainContent").style.display = "none"; // Hide question
-      celebration.style.display = "block";
-      const type = Math.floor(Math.random() * 3); // 0: stars, 1: balloons, 2: fireworks
-      const count = type === 2 ? 20 : 10; // More fireworks
-      for (let i = 0; i < count; i++) {
-        const el = document.createElement("div");
-        el.style.left = `${Math.random() * 100}%`;
-        el.style.top = `${Math.random() * 100}%`;
-        el.style.animationDelay = `${Math.random() * 0.5}s`;
-        if (type === 0) {
-          el.className = "star";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`; // Random color
-        } else if (type === 1) {
-          el.className = "balloon";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        } else {
-          el.className = "firework";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        }
-        celebration.appendChild(el);
-      }
-      setTimeout(() => {
-        hideCelebration();
-        nextWord();
-      }, 2000);
-    }
-
-    function hideCelebration() {
-      const celebration = document.getElementById("celebration");
-      celebration.style.display = "none";
-      celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>'; // Reset with text
-    }
-
-    function showLevelComplete() {
-      const levelComplete = document.getElementById("level-complete");
-      document.getElementById("mainContent").style.display = "none";
-      levelComplete.style.display = "block";
-      for (let i = 0; i < 30; i++) { // Bigger celebration
-        const el = document.createElement("div");
-        el.style.left = `${Math.random() * 100}%`;
-        el.style.top = `${Math.random() * 100}%`;
-        el.style.animationDelay = `${Math.random() * 1}s`;
-        const type = Math.floor(Math.random() * 3);
-        if (type === 0) {
-          el.className = "star";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        } else if (type === 1) {
-          el.className = "balloon";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        } else {
-          el.className = "firework";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        }
-        levelComplete.appendChild(el);
-      }
-      setTimeout(() => {
-        hideLevelComplete();
-        // Move to next level or reset
-        if (currentLevel < 6) {
-          currentLevel++;
-          document.getElementById("levelSelect").value = currentLevel;
-          initializeWordIndices();
-          showWord();
-        } else {
-          initializeWordIndices(); // Reset Level 1 if at max
-          showWord();
-        }
-      }, 3000);
-    }
-
-    function hideLevelComplete() {
-      const levelComplete = document.getElementById("level-complete");
-      levelComplete.style.display = "none";
-      levelComplete.innerHTML = '<div class="level-complete-text">🎉 Level Complete! 🎉</div>'; // Reset
-    }
-
-    function checkSpelling() {
-      if (isSpeaking) return;
-      const levelWords = getLevelWords();
-      const userInput = currentWord.trim().toLowerCase();
-      if (userInput === levelWords[currentIndex].word) {
-        correctCount++;
-        wordsCompleted++;
-        playSound('correct');
-        showFeedback("", true); // No "Awesome" box
-        showCelebration();
-      } else {
-        failCount++;
-        playSound('wrong');
-        showFeedback("❌ Oops! Try Again! ❌", false); // Always show wrong message
-        if (failCount >= 3) {
-          document.getElementById("showAnswer").style.display = "block";
-          document.getElementById("showAnswer").disabled = false; // Explicitly enable
-        }
-        currentWord = "";
-        updateDisplay();
-      }
-    }
-
-    function showAnswer() {
-      if (isSpeaking) return;
-      const levelWords = getLevelWords();
-      const w = levelWords[currentIndex];
-      showFeedback(`Answer: ${w.word}`, false);
-    }
-
-    function changeLevel() {
-      currentLevel = parseInt(document.getElementById("levelSelect").value);
-      failCount = 0;
-      correctCount = 0;
-      initializeWordIndices(); // Reshuffle on level change
+      initializeWordIndices();
       showWord();
     }
 
