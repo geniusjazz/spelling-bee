@@ -6,7 +6,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Annie Use Your Telescope', cursive;
+      font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
       background: url('https://www.transparenttextures.com/patterns/stardust.png') #fff59d;
@@ -14,6 +14,7 @@
       color: #333;
     }
     h1 {
+      font-family: 'Annie Use Your Telescope', cursive;
       font-size: 48px;
       color: #e91e63;
       text-shadow: 2px 2px #ffeb3b;
@@ -165,9 +166,18 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 2000;
       pointer-events: none;
+    }
+    .celebration-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      color: #ffffff;
+      text-shadow: 2px 2px 4px #000000;
     }
     .star {
       position: absolute;
@@ -176,6 +186,22 @@
       background: #ffeb3b;
       clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
       animation: spin 1.5s linear infinite;
+    }
+    .balloon {
+      position: absolute;
+      width: 30px;
+      height: 40px;
+      background: #f06292;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      animation: float 2s ease-in-out infinite;
+    }
+    .firework {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #2196f3;
+      border-radius: 50%;
+      animation: explode 1s ease-out forwards;
     }
     @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
@@ -192,6 +218,15 @@
       50% { transform: rotate(180deg) scale(1.2); }
       100% { transform: rotate(360deg) scale(1); }
     }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes explode {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(10); opacity: 0; }
+    }
     @media (max-width: 768px) {
       h1 { font-size: 36px; }
       #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
@@ -200,31 +235,36 @@
       .key { width: 50px; height: 50px; font-size: 20px; margin: 5px; }
       #backspace, #clear { width: 70px; }
       #feedback { font-size: 28px; padding: 30px; }
+      .celebration-text { font-size: 36px; }
       .star { width: 30px; height: 30px; }
+      .balloon { width: 20px; height: 30px; }
+      .firework { width: 8px; height: 8px; }
     }
   </style>
 </head>
 <body>
   <h1>Spelling Bee Adventure</h1>
-  <select id="levelSelect" onchange="changeLevel()">
-    <option value="0">Level 1</option>
-    <option value="1">Level 2</option>
-    <option value="2">Level 3</option>
-    <option value="3">Level 4</option>
-    <option value="4">Level 5</option>
-    <option value="5">Level 6</option>
-    <option value="6">Level 7</option>
-  </select>
-  <div id="part"></div>
-  <div id="definition"></div>
-  <div id="wordIndex"></div>
-  <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-  <div id="wordDisplay"></div>
-  <div id="keyboard"></div>
-  <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
-  <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
+  <div id="mainContent">
+    <select id="levelSelect" onchange="changeLevel()">
+      <option value="0">Level 1</option>
+      <option value="1">Level 2</option>
+      <option value="2">Level 3</option>
+      <option value="3">Level 4</option>
+      <option value="4">Level 5</option>
+      <option value="5">Level 6</option>
+      <option value="6">Level 7</option>
+    </select>
+    <div id="part"></div>
+    <div id="definition"></div>
+    <div id="wordIndex"></div>
+    <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
+    <div id="wordDisplay"></div>
+    <div id="keyboard"></div>
+    <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
+    <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
+  </div>
   <div id="feedback" onclick="hideFeedback()"></div>
-  <div id="celebration"></div>
+  <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
 
   <script src="words.js"></script>
   <script>
@@ -294,6 +334,7 @@
       currentWord = "";
       updateDisplay();
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
+      document.getElementById("mainContent").style.display = "block";
     }
 
     function pronounceWord() {
@@ -405,13 +446,10 @@
       feedback.innerText = message;
       feedback.className = isCorrect ? "correct" : "wrong";
       feedback.style.display = "block";
-      if (isCorrect) {
-        showCelebration();
+      if (!isCorrect) {
         setTimeout(() => {
           feedback.style.display = "none";
-          hideCelebration();
-          nextWord();
-        }, 2000); // Longer delay for animation
+        }, 1500);
       }
     }
 
@@ -421,21 +459,37 @@
 
     function showCelebration() {
       const celebration = document.getElementById("celebration");
+      document.getElementById("mainContent").style.display = "none"; // Hide question
       celebration.style.display = "block";
-      for (let i = 0; i < 10; i++) {
-        const star = document.createElement("div");
-        star.className = "star";
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.animationDelay = `${Math.random() * 0.5}s`;
-        celebration.appendChild(star);
+      const type = Math.floor(Math.random() * 3); // 0: stars, 1: balloons, 2: fireworks
+      const count = type === 2 ? 20 : 10; // More fireworks
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement("div");
+        el.style.left = `${Math.random() * 100}%`;
+        el.style.top = `${Math.random() * 100}%`;
+        el.style.animationDelay = `${Math.random() * 0.5}s`;
+        if (type === 0) {
+          el.className = "star";
+          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`; // Random color
+        } else if (type === 1) {
+          el.className = "balloon";
+          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+        } else {
+          el.className = "firework";
+          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+        }
+        celebration.appendChild(el);
       }
+      setTimeout(() => {
+        hideCelebration();
+        nextWord();
+      }, 2000);
     }
 
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
       celebration.style.display = "none";
-      celebration.innerHTML = ""; // Clear stars
+      celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>'; // Reset with text
     }
 
     function checkSpelling() {
@@ -444,6 +498,7 @@
       const userInput = currentWord.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
         showFeedback("🎉 Awesome! Correct! 🎉", true);
+        showCelebration();
       } else {
         failCount++;
         showFeedback("❌ Oops! Try Again! ❌", false);
