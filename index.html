@@ -22,7 +22,7 @@
       color: #e91e63;
       text-shadow: 2px 2px #ffeb3b;
       animation: bounce 2s infinite;
-      margin: 0 0 20px 0; /* Ensure consistent spacing */
+      margin-top: 70px; /* Space below top buttons */
     }
     #progress {
       display: flex;
@@ -139,15 +139,15 @@
     }
     #pronounce-toggle {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 10px; /* Very top */
+      left: 10px;
       text-align: left;
       font-size: 20px;
     }
     #wordListButton {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 10px; /* Very top */
+      right: 10px;
       width: 120px;
       background: #9c27b0;
       padding: 10px 15px;
@@ -362,7 +362,7 @@
     @media (max-width: 768px) {
       h1 { 
         font-size: 36px; 
-        margin-bottom: 40px; /* Increased to push content down */
+        margin-top: 60px; /* Adjusted for smaller buttons */
       }
       #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
       #wordDisplay { font-size: 24px; padding: 15px; }
@@ -380,15 +380,15 @@
       #progress-text { font-size: 18px; }
       #pronounce-toggle { 
         font-size: 18px; 
-        top: 80px; /* Further down to avoid title */
-        left: 10px; 
+        top: 5px; /* Very top, slightly inset */
+        left: 5px; 
       }
       #wordListButton { 
         width: 100px; 
         font-size: 14px; 
         padding: 8px 12px; 
-        top: 80px; /* Further down to avoid title */
-        right: 10px; 
+        top: 5px; /* Very top, slightly inset */
+        right: 5px; 
       }
       #confirmPopup p { font-size: 24px; }
       #confirmPopup button { width: 100px; font-size: 18px; padding: 12px; }
@@ -400,6 +400,7 @@
     <input type="checkbox" id="fullPronounce" checked>
     <label for="fullPronounce">Full Pronunciation</label>
   </div>
+  <button id="wordListButton" onclick="showConfirmPopup()">Word List</button>
   <h1>Spelling Bee Adventure</h1>
   <div id="mainContent">
     <select id="levelSelect" onchange="changeLevel()">
@@ -429,7 +430,6 @@
   <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
   <div id="level-complete"><div class="level-complete-text">🎉 Level Complete! 🎉</div></div>
   <div id="mascot"></div>
-  <button id="wordListButton" onclick="showConfirmPopup()">Word List</button>
   <div id="confirmPopup">
     <p>Want to peek at the word list?</p>
     <button id="confirmYes" onclick="goToWordList()">Yes</button>
