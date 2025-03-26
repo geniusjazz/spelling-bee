@@ -166,11 +166,13 @@
 
       const firstWord = new SpeechSynthesisUtterance(w.word);
       firstWord.lang = "en-US";
-      firstWord.rate = 0.5;
+      firstWord.rate = 0.25;
 
       const secondWord = new SpeechSynthesisUtterance(w.word);
       secondWord.lang = "en-US";
-      secondWord.rate = 0.5;
+      secondWord.rate = 0.25;
+      secondWord.pitch = 1.5;
+      secondWord.getVoices(2);
 
       const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
       partSpeech.lang = "en-US";
@@ -183,10 +185,12 @@
       const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
       pleaseSpell.lang = "en-US";
       pleaseSpell.rate = 0.5;
+      finalWord.pitch = 1.5;
 
       const finalWord = new SpeechSynthesisUtterance(w.word);
       finalWord.lang = "en-US";
-      finalWord.rate = 0.5;
+      finalWord.rate = 0.25;
+      finalWord.pitch = 1.5;
 
       // Chain with 1.5s pauses
       speechSynthesis.speak(firstWord);
