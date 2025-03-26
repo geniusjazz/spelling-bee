@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* [Previous CSS unchanged] */
     * {
       font-family: 'Comic Neue', cursive !important;
     }
@@ -15,6 +14,9 @@
       background: url('https://subtlepatterns.com/patterns/honey_im_subtle.png') #fff9e6;
       margin: 0;
       color: #333;
+      min-height: 100vh; /* Ensure body takes full height */
+      display: flex;
+      flex-direction: column;
     }
     h1 {
       font-size: 48px;
@@ -134,6 +136,14 @@
       max-width: 350px;
       background: #2196f3;
       display: none;
+    }
+    #wordListButton {
+      width: 90%;
+      max-width: 200px;
+      background: #9c27b0;
+      padding: 15px 25px;
+      font-size: 20px;
+      margin-top: auto; /* Push to bottom */
     }
     #keyboard {
       display: flex;
@@ -357,6 +367,7 @@
       .bee { width: 30px; height: 30px; }
       #progress-text { font-size: 18px; }
       #pronounce-toggle { font-size: 18px; }
+      #wordListButton { font-size: 18px; padding: 10px 20px; }
     }
   </style>
 </head>
@@ -394,6 +405,7 @@
   <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
   <div id="level-complete"><div class="level-complete-text">🎉 Level Complete! 🎉</div></div>
   <div id="mascot"></div>
+  <button id="wordListButton" onclick="window.location.href='wordlist.html'">Word List</button>
 
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script>
@@ -869,10 +881,9 @@
       saveGameState();
     }
 
-    // Fixed Ctrl+Shift+Z backdoor
     document.addEventListener('keydown', (event) => {
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
-        console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking); // Debug log
+        console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking);
         if (isSpeaking) return;
         const levelWords = getLevelWords();
         currentWord = levelWords[currentIndex].word;
