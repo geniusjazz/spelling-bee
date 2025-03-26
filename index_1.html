@@ -132,7 +132,7 @@
   <div id="part"></div>
   <div id="definition"></div>
   <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
-  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+  <input type="text" id="input" placeholder="Type the word" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" inputmode="text" aria-autocomplete="none">
   <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
   <div id="feedback" onclick="hideFeedback()"></div>
@@ -144,21 +144,6 @@
     let failCount = 0;
     let lastPronouncedIndex = -1; // Track last pronounced word
     let isSpeaking = false; // Track speaking state
-
-    // Load voices and log them
-    let voices = [];
-    function loadVoices() {
-      voices = speechSynthesis.getVoices();
-      console.log("Available voices:", voices);
-    }
-    speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices(); // Try loading immediately too
-
-    function getVoice() {
-      // Prefer an en-US voice that's not the first default, if available
-      const enUSVoices = voices.filter(v => v.lang === "en-US");
-      return enUSVoices.length > 1 ? enUSVoices[1] : (enUSVoices[0] || null);
-    }
 
     function getLevelWords() {
       const start = currentLevel * 50;
@@ -181,14 +166,13 @@
 
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
-      const voice = getVoice(); // Get alternate voice
 
       if (currentIndex === lastPronouncedIndex) {
         // Second click: Pronounce only the word
         const wordOnly = new SpeechSynthesisUtterance(w.word);
         wordOnly.lang = "en-US";
-        wordOnly.rate = 0.5;
-        if (voice) wordOnly.voice = voice;
+        wordOnly.rate = 0.8;
+        wordOnly.pitch = 1.2;
         speechSynthesis.speak(wordOnly);
         wordOnly.onend = () => {
           isSpeaking = false;
@@ -198,33 +182,33 @@
         // First click: Full sequence with 1s pauses
         const firstWord = new SpeechSynthesisUtterance(w.word);
         firstWord.lang = "en-US";
-        firstWord.rate = 0.5;
-        if (voice) firstWord.voice = voice;
+        firstWord.rate = 0.8;
+        firstWord.pitch = 1.2;
 
         const secondWord = new SpeechSynthesisUtterance(w.word);
         secondWord.lang = "en-US";
-        secondWord.rate = 0.5;
-        if (voice) secondWord.voice = voice;
+        secondWord.rate = 0.8;
+        secondWord.pitch = 1.2;
 
         const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
         partSpeech.lang = "en-US";
-        partSpeech.rate = 0.5;
-        if (voice) partSpeech.voice = voice;
+        partSpeech.rate = 0.8;
+        partSpeech.pitch = 1.2;
 
         const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
         definition.lang = "en-US";
-        definition.rate = 0.5;
-        if (voice) definition.voice = voice;
+        definition.rate = 0.8;
+        definition.pitch = 1.2;
 
         const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
         pleaseSpell.lang = "en-US";
-        pleaseSpell.rate = 0.5;
-        if (voice) pleaseSpell.voice = voice;
+        pleaseSpell.rate = 0.8;
+        pleaseSpell.pitch = 1.2;
 
         const finalWord = new SpeechSynthesisUtterance(w.word);
         finalWord.lang = "en-US";
-        finalWord.rate = 0.5;
-        if (voice) finalWord.voice = voice;
+        finalWord.rate = 0.8;
+        finalWord.pitch = 1.2;
 
         speechSynthesis.speak(firstWord);
         firstWord.onend = () => {
