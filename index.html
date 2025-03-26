@@ -327,6 +327,8 @@
     let isSpeaking = false;
     let currentWord = "";
     let correctCount = 0;
+    let wordIndices = []; // Array to hold shuffled indices
+    let indexPointer = 0; // Tracks current position in shuffled list
 
     // Build keyboard
     const keyboard = document.getElementById("keyboard");
@@ -358,6 +360,21 @@
       else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
       audio.volume = 0.7;
       audio.play().catch(() => {}); // Ignore errors if sound fails
+    }
+
+    // Fisher-Yates shuffle
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function initializeWordIndices() {
+      wordIndices = Array.from({ length: 50 }, (_, i) => i); // [0, 1, 2, ..., 49]
+      shuffle(wordIndices);
+      indexPointer = 0;
     }
 
     function appendLetter(letter) {
@@ -396,6 +413,7 @@
 
     function showWord() {
       const levelWords = getLevelWords();
+      currentIndex = wordIndices[indexPointer];
       const w = levelWords[currentIndex];
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
@@ -508,7 +526,8 @@
 
     function nextWord() {
       const levelWords = getLevelWords();
-      currentIndex = (currentIndex + 1) % levelWords.length;
+      indexPointer = (indexPointer + 1) % levelWords.length; // Cycle through shuffled indices
+      if (indexPointer === 0) shuffle(wordIndices); // Reshuffle when cycle completes
       failCount = 0;
       showWord();
     }
@@ -598,13 +617,14 @@
 
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
-      currentIndex = Math.floor(Math.random() * 50);
       failCount = 0;
-      correctCount = 0; // Reset progress on level change
+      correctCount = 0;
+      initializeWordIndices(); // Reshuffle on level change
       showWord();
     }
 
-    currentIndex = Math.floor(Math.random() * 50);
+    // Initial setup
+    initializeWordIndices();
     showWord();
   </script>
 </body>
