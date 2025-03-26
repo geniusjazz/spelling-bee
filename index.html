@@ -30,7 +30,7 @@
       border: 2px solid #ccc;
       border-radius: 5px;
     }
-    button, select {
+    button {
       width: 90%;
       max-width: 300px;
       padding: 20px;
@@ -43,6 +43,19 @@
       cursor: pointer;
       touch-action: manipulation;
     }
+    select {
+      width: 90%;
+      max-width: 300px;
+      padding: 15px;
+      font-size: 20px;
+      margin: 10px auto;
+      display: block;
+      background-color: white;
+      color: #333; /* Ensure text is visible */
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
     button:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
@@ -54,7 +67,7 @@
       background-color: #45a049;
     }
     #checkAnswer {
-      background-color: #FF9800; /* Orange */
+      background-color: #FF9800;
     }
     #checkAnswer:hover:not(:disabled) {
       background-color: #e68a00;
@@ -130,7 +143,7 @@
     let isSpeaking = false;
 
     function getLevelWords() {
-      const start = currentLevel * 50; // 50 words per level
+      const start = currentLevel * 50;
       return words.slice(start, start + 50);
     }
 
@@ -151,68 +164,80 @@
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
-      const voices = speechSynthesis.getVoices();
-      const voice1 = voices[0] || voices.find(v => v.lang === "en-US"); // Default or first en-US
-      const voice2 = voices[1] || voices.find(v => v.lang === "en-GB") || voice1; // Second voice or fallback
+      // Ensure voices are loaded
+      let voices = speechSynthesis.getVoices();
+      if (!voices.length) {
+        speechSynthesis.onvoiceschanged = () => {
+          voices = speechSynthesis.getVoices();
+          startPronunciation(voices);
+        };
+      } else {
+        startPronunciation(voices);
+      }
 
-      const firstWord = new SpeechSynthesisUtterance(w.word);
-      firstWord.lang = "en-US";
-      firstWord.rate = 0.5;
-      firstWord.voice = voice1;
+      function startPronunciation(voices) {
+        const voice1 = voices[0] || voices.find(v => v.lang === "en-US");
+        const voice2 = voices[1] || voices.find(v => v.lang === "en-GB") || voice1;
 
-      const secondWord = new SpeechSynthesisUtterance(w.word);
-      secondWord.lang = "en-US";
-      secondWord.rate = 0.5;
-      secondWord.voice = voice2; // Different voice
+        const firstWord = new SpeechSynthesisUtterance(w.word);
+        firstWord.lang = "en-US";
+        firstWord.rate = 0.5;
+        firstWord.voice = voice1;
 
-      const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-      partSpeech.lang = "en-US";
-      partSpeech.rate = 0.5;
-      partSpeech.voice = voice1;
+        const secondWord = new SpeechSynthesisUtterance(w.word);
+        secondWord.lang = "en-US";
+        secondWord.rate = 0.5;
+        secondWord.voice = voice2;
 
-      const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-      definition.lang = "en-US";
-      definition.rate = 0.5;
-      definition.voice = voice1;
+        const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+        partSpeech.lang = "en-US";
+        partSpeech.rate = 0.5;
+        partSpeech.voice = voice1;
 
-      const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-      pleaseSpell.lang = "en-US";
-      pleaseSpell.rate = 0.5;
-      pleaseSpell.voice = voice1;
+        const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+        definition.lang = "en-US";
+        definition.rate = 0.5;
+        definition.voice = voice1;
 
-      const finalWord = new SpeechSynthesisUtterance(w.word);
-      finalWord.lang = "en-US";
-      finalWord.rate = 0.5;
-      finalWord.voice = voice1;
+        const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+        pleaseSpell.lang = "en-US";
+        pleaseSpell.rate = 0.5;
+        pleaseSpell.voice = voice1;
 
-      speechSynthesis.speak(firstWord);
-      firstWord.onend = () => {
-        setTimeout(() => {
-          speechSynthesis.speak(secondWord);
-          secondWord.onend = () => {
-            setTimeout(() => {
-              speechSynthesis.speak(partSpeech);
-              partSpeech.onend = () => {
-                speechSynthesis.speak(definition);
-                definition.onend = () => {
-                  setTimeout(() => {
-                    speechSynthesis.speak(pleaseSpell);
-                    pleaseSpell.onend = () => {
-                      setTimeout(() => {
-                        speechSynthesis.speak(finalWord);
-                        finalWord.onend = () => {
-                          isSpeaking = false;
-                          enableButtons();
-                        };
-                      }, 1000);
-                    };
-                  }, 1000);
+        const finalWord = new SpeechSynthesisUtterance(w.word);
+        finalWord.lang = "en-US";
+        finalWord.rate = 0.5;
+        finalWord.voice = voice1;
+
+        speechSynthesis.speak(firstWord);
+        firstWord.onend = () => {
+          setTimeout(() => {
+            speechSynthesis.speak(secondWord);
+            secondWord.onend = () => {
+              setTimeout(() => {
+                speechSynthesis.speak(partSpeech);
+                partSpeech.onend = () => {
+                  speechSynthesis.speak(definition);
+                  definition.onend = () => {
+                    setTimeout(() => {
+                      speechSynthesis.speak(pleaseSpell);
+                      pleaseSpell.onend = () => {
+                        setTimeout(() => {
+                          speechSynthesis.speak(finalWord);
+                          finalWord.onend = () => {
+                            isSpeaking = false;
+                            enableButtons();
+                          };
+                        }, 1000);
+                      };
+                    }, 1000);
+                  };
                 };
-              };
-            }, 1000);
-          };
-        }, 1000);
-      };
+              }, 1000);
+            };
+          }, 1000);
+        };
+      }
     }
 
     function disableButtons() {
@@ -279,13 +304,12 @@
 
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
-      currentIndex = Math.floor(Math.random() * 50); // Random start
+      currentIndex = Math.floor(Math.random() * 50);
       failCount = 0;
       showWord();
       pronounceWord();
     }
 
-    // Initial random start
     currentIndex = Math.floor(Math.random() * 50);
     showWord();
     pronounceWord();
