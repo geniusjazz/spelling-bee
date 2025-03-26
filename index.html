@@ -263,6 +263,10 @@
       top: 20px;
       left: 20px;
       font-size: 20px;
+      z-index: 1000; /* Ensure it stays above other content */
+      background: rgba(255, 255, 255, 0.8); /* Slight background for visibility */
+      padding: 5px 10px;
+      border-radius: 10px;
     }
     #review-mode {
       position: fixed;
@@ -523,7 +527,7 @@
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
       updateProgress();
-      enableButtons(); // Ensure buttons are enabled
+      enableButtons();
     }
 
     function pronounceWord() {
@@ -635,7 +639,7 @@
         return;
       }
       failCount = 0;
-      isSpeaking = false; // Reset speaking state
+      isSpeaking = false;
       showWord();
     }
 
@@ -644,7 +648,7 @@
       missedWords = [];
       wordsCompleted = 0;
       initializeWordIndices();
-      isSpeaking = false; // Ensure speaking is reset
+      isSpeaking = false;
       showWord();
       saveGameState();
     }
@@ -702,7 +706,7 @@
       const celebration = document.getElementById("celebration");
       celebration.style.display = "none";
       celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>';
-      document.getElementById("mainContent").style.display = "block"; // Ensure main content is visible
+      document.getElementById("mainContent").style.display = "block";
     }
 
     function showLevelComplete() {
@@ -775,11 +779,11 @@
       document.getElementById("mainContent").style.display = "block";
       isReviewMode = true;
       wordsCompleted = 0;
-      failCount = 0; // Reset fail count
-      isSpeaking = false; // Reset speaking state
+      failCount = 0;
+      isSpeaking = false;
       initializeWordIndices();
       showWord();
-      enableButtons(); // Explicitly enable buttons
+      enableButtons();
       saveGameState();
     }
 
@@ -822,7 +826,7 @@
       wordsCompleted = 0;
       isReviewMode = false;
       missedWords = [];
-      isSpeaking = false; // Reset speaking state
+      isSpeaking = false;
       initializeWordIndices();
       showWord();
       saveGameState();
