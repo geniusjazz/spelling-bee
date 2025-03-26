@@ -76,6 +76,10 @@
       border-radius: 20px;
       min-height: 30px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: opacity 0.3s ease; /* Smooth transition for opacity */
+    }
+    #wordDisplay.fade {
+      opacity: 0;
     }
     button {
       padding: 20px 30px;
@@ -240,6 +244,14 @@
       border-radius: 50%;
       animation: explode 1s ease-out forwards;
     }
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #ff9800;
+      transform: rotate(45deg);
+      animation: fall 2s linear forwards;
+    }
     #mascot {
       position: fixed;
       bottom: 20px;
@@ -318,6 +330,10 @@
       0% { transform: scale(1); opacity: 1; }
       100% { transform: scale(10); opacity: 0; }
     }
+    @keyframes fall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
     @keyframes pulse {
       0% { transform: translate(-50%, -50%) scale(1); }
       50% { transform: translate(-50%, -50%) scale(1.1); }
@@ -335,7 +351,7 @@
       .level-complete-text { font-size: 48px; }
       .star { width: 30px; height: 30px; }
       .balloon { width: 20px; height: 30px; }
-      .firework { width: 8px; height: 8px; }
+      .firework, .confetti { width: 8px; height: 8px; }
       #mascot { width: 60px; height: 60px; bottom: 10px; right: 10px; }
       .bee { width: 30px; height: 30px; }
       #progress-text { font-size: 18px; }
@@ -484,7 +500,12 @@
     }
 
     function updateDisplay() {
-      document.getElementById("wordDisplay").innerText = currentWord;
+      const wordDisplay = document.getElementById("wordDisplay");
+      wordDisplay.classList.add("fade");
+      setTimeout(() => {
+        wordDisplay.innerText = currentWord;
+        wordDisplay.classList.remove("fade");
+      }, 150); // Half of 0.3s transition time for smooth effect
     }
 
     function updateProgress() {
@@ -672,36 +693,53 @@
       const celebration = document.getElementById("celebration");
       document.getElementById("mainContent").style.display = "none";
       celebration.style.display = "block";
-      const type = Math.floor(Math.random() * 3);
-      const count = type === 2 ? 20 : 10;
-      for (let i = 0; i < count; i++) {
-        const el = document.createElement("div");
-        el.style.left = `${Math.random() * 100}%`;
-        el.style.top = `${Math.random() * 100}%`;
-        el.style.animationDelay = `${Math.random() * 0.5}s`;
-        if (type === 0) {
-          el.className = "star";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        } else if (type === 1) {
-          el.className = "balloon";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        } else {
-          el.className = "firework";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+      const type = Math.floor(Math.random() * 4); // Added confetti as type 3
+      const count = type === 2 ? 20 : type === 3 ? 30 : 10; // More confetti
+      const effects = [];
+      
+      // Mix effects for variety
+      if (Math.random() > 0.5) effects.push(0); // Stars
+      if (Math.random() > 0.5) effects.push(1); // Balloons
+      if (Math.random() > 0.5) effects.push(2); // Fireworks
+      if (Math.random() > 0.5) effects.push(3); // Confetti
+      if (effects.length === 0) effects.push(type); // Ensure at least one effect
+
+      effects.forEach(effectType => {
+        for (let i = 0; i < count; i++) {
+          const el = document.createElement("div");
+          el.style.left = `${Math.random() * 100}%`;
+          el.style.top = `${Math.random() * 100}%`;
+          el.style.animationDelay = `${Math.random() * 0.5}s`;
+          const color = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+          
+          if (effectType === 0) {
+            el.className = "star";
+            el.style.background = color;
+          } else if (effectType === 1) {
+            el.className = "balloon";
+            el.style.background = color;
+          } else if (effectType === 2) {
+            el.className = "firework";
+            el.style.background = color;
+          } else if (effectType === 3) {
+            el.className = "confetti";
+            el.style.background = color;
+          }
+          celebration.appendChild(el);
         }
-        celebration.appendChild(el);
-      }
-      setTimeout(() => {
-        hideCelebration();
-        nextWord();
-      }, 2000);
+      });
+
+      setTimeout(() => hideCelebration(), 2000);
     }
 
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
+      while (celebration.firstChild && celebration.firstChild !== celebration.querySelector(".celebration-text")) {
+        celebration.removeChild(celebration.firstChild); // Remove all effects except text
+      }
       celebration.style.display = "none";
-      celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>';
       document.getElementById("mainContent").style.display = "block";
+      nextWord();
     }
 
     function showLevelComplete() {
@@ -714,29 +752,33 @@
         el.style.left = `${Math.random() * 100}%`;
         el.style.top = `${Math.random() * 100}%`;
         el.style.animationDelay = `${Math.random() * 1.5}s`;
-        const type = Math.floor(Math.random() * 3);
+        const type = Math.floor(Math.random() * 4); // Include confetti
+        const color = `#${Math.floor(Math.random()*16777215).toString(16)}`;
         if (type === 0) {
           el.className = "star";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+          el.style.background = color;
         } else if (type === 1) {
           el.className = "balloon";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-        } else {
+          el.style.background = color;
+        } else if (type === 2) {
           el.className = "firework";
-          el.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+          el.style.background = color;
+        } else {
+          el.className = "confetti";
+          el.style.background = color;
         }
         levelComplete.appendChild(el);
       }
-      setTimeout(() => {
-        hideLevelComplete();
-        showReviewMode();
-      }, 4000);
+      setTimeout(() => hideLevelComplete(), 4000);
     }
 
     function hideLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
+      while (levelComplete.firstChild && levelComplete.firstChild !== levelComplete.querySelector(".level-complete-text")) {
+        levelComplete.removeChild(levelComplete.firstChild); // Remove all effects except text
+      }
       levelComplete.style.display = "none";
-      levelComplete.innerHTML = '<div class="level-complete-text">🎉 Level Complete! 🎉</div>';
+      showReviewMode();
     }
 
     function showReviewMode() {
