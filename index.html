@@ -458,12 +458,10 @@
     }
 
     function initializeWordIndices() {
-      if (!localStorage.getItem('wordIndices') || !isReviewMode) {
-        wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i);
-        shuffle(wordIndices);
-      }
+      wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i);
+      shuffle(wordIndices);
       indexPointer = 0;
-      wordsCompleted = wordsCompleted || 0;
+      wordsCompleted = 0;
       updateProgress();
       saveGameState();
     }
@@ -509,9 +507,9 @@
       if (indexPointer >= levelWords.length) {
         if (isReviewMode) {
           endReviewMode();
-          return;
+        } else {
+          showLevelComplete();
         }
-        showLevelComplete();
         return;
       }
       currentIndex = wordIndices[indexPointer];
@@ -522,10 +520,10 @@
       currentWord = "";
       updateDisplay();
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
-      document.getElementById("showAnswer").disabled = false;
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
       updateProgress();
+      enableButtons(); // Ensure buttons are enabled
     }
 
     function pronounceWord() {
@@ -637,6 +635,7 @@
         return;
       }
       failCount = 0;
+      isSpeaking = false; // Reset speaking state
       showWord();
     }
 
@@ -645,6 +644,7 @@
       missedWords = [];
       wordsCompleted = 0;
       initializeWordIndices();
+      isSpeaking = false; // Ensure speaking is reset
       showWord();
       saveGameState();
     }
@@ -702,6 +702,7 @@
       const celebration = document.getElementById("celebration");
       celebration.style.display = "none";
       celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>';
+      document.getElementById("mainContent").style.display = "block"; // Ensure main content is visible
     }
 
     function showLevelComplete() {
@@ -774,8 +775,11 @@
       document.getElementById("mainContent").style.display = "block";
       isReviewMode = true;
       wordsCompleted = 0;
+      failCount = 0; // Reset fail count
+      isSpeaking = false; // Reset speaking state
       initializeWordIndices();
       showWord();
+      enableButtons(); // Explicitly enable buttons
       saveGameState();
     }
 
@@ -818,6 +822,7 @@
       wordsCompleted = 0;
       isReviewMode = false;
       missedWords = [];
+      isSpeaking = false; // Reset speaking state
       initializeWordIndices();
       showWord();
       saveGameState();
