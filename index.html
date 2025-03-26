@@ -37,21 +37,33 @@
       font-size: 24px;
       margin: 10px auto;
       display: block;
-      background-color: #4CAF50;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       touch-action: manipulation;
     }
-    button:hover, select:hover {
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    #pronounce {
+      background-color: #4CAF50;
+    }
+    #pronounce:hover:not(:disabled) {
       background-color: #45a049;
+    }
+    #checkAnswer {
+      background-color: #FF9800; /* Orange */
+    }
+    #checkAnswer:hover:not(:disabled) {
+      background-color: #e68a00;
     }
     #showAnswer {
       background-color: #2196F3;
       display: none;
     }
-    #showAnswer:hover {
+    #showAnswer:hover:not(:disabled) {
       background-color: #1e88e5;
     }
     #feedback {
@@ -95,60 +107,31 @@
     <option value="0">Level 1</option>
     <option value="1">Level 2</option>
     <option value="2">Level 3</option>
+    <option value="3">Level 4</option>
+    <option value="4">Level 5</option>
+    <option value="5">Level 6</option>
+    <option value="6">Level 7</option>
+    <option value="7">Level 8</option>
+    <option value="8">Level 9</option>
   </select>
   <div id="part"></div>
   <div id="definition"></div>
-  <button onclick="pronounceWord()">Pronounce</button>
+  <button id="pronounce" onclick="pronounceWord()">Pronounce</button>
   <input type="text" id="input" placeholder="Type the word">
-  <button onclick="checkSpelling()">Check</button>
-  <button onclick="nextWord()">Next</button>
+  <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
   <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
   <div id="feedback" onclick="hideFeedback()"></div>
 
+  <script src="words.js"></script>
   <script>
-    const words = [
-      // Level 1
-      { word: "deep", part: "adjective", definition: "extending downward to a considerable degree" },
-      { word: "happy", part: "adjective", definition: "having the feeling arising from well-being" },
-      { word: "bump", part: "verb", definition: "to hit or knock with force" },
-      { word: "bear", part: "noun", definition: "an animal with long shaggy hair" },
-      { word: "count", part: "verb", definition: "to find the total number of units" },
-      { word: "dunk", part: "verb", definition: "to dip into liquid while eating" },
-      { word: "feet", part: "noun", definition: "terminal parts of the legs" },
-      { word: "cold", part: "adjective", definition: "having a low temperature" },
-      { word: "alone", part: "adjective", definition: "away from other people" },
-      { word: "click", part: "verb", definition: "to select something on a computer" },
-      // Level 2
-      { word: "eagle", part: "noun", definition: "a large bird of prey" },
-      { word: "berries", part: "noun", definition: "small pulpy edible fruits" },
-      { word: "caves", part: "noun", definition: "hollowed-out chambers in the earth" },
-      { word: "blanket", part: "noun", definition: "a warm fabric bed covering" },
-      { word: "catch", part: "verb", definition: "to take hold of suddenly" },
-      { word: "glow", part: "verb", definition: "to shine with light" },
-      { word: "quick", part: "adjective", definition: "done with rapidity" },
-      { word: "cotton", part: "noun", definition: "a soft fibrous substance" },
-      { word: "seats", part: "noun", definition: "assigned sitting places" },
-      { word: "baseball", part: "noun", definition: "a game with a bat and ball" },
-      // Level 3
-      { word: "giraffe", part: "noun", definition: "a large mammal with a long neck" },
-      { word: "groceries", part: "noun", definition: "staple foodstuffs" },
-      { word: "huddling", part: "verb", definition: "gathering in a group" },
-      { word: "jigsaw", part: "noun", definition: "a puzzle with small pieces" },
-      { word: "neighbors", part: "noun", definition: "ones living nearby" },
-      { word: "mansion", part: "noun", definition: "an impressive large home" },
-      { word: "powwow", part: "noun", definition: "a North American Indian ceremony" },
-      { word: "bazaar", part: "noun", definition: "a market with shops" },
-      { word: "astray", part: "adverb", definition: "into a wrong way" },
-      { word: "liquid", part: "noun", definition: "a fluid substance" }
-    ];
-
     let currentLevel = 0;
     let currentIndex = 0;
     let failCount = 0;
+    let isSpeaking = false;
 
     function getLevelWords() {
-      const start = currentLevel * 10;
-      return words.slice(start, start + 10);
+      const start = currentLevel * 50; // 50 words per level
+      return words.slice(start, start + 50);
     }
 
     function showWord() {
@@ -161,38 +144,47 @@
     }
 
     function pronounceWord() {
+      if (isSpeaking) return;
+      isSpeaking = true;
+      disableButtons();
+
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
 
+      const voices = speechSynthesis.getVoices();
+      const voice1 = voices[0] || voices.find(v => v.lang === "en-US"); // Default or first en-US
+      const voice2 = voices[1] || voices.find(v => v.lang === "en-GB") || voice1; // Second voice or fallback
+
       const firstWord = new SpeechSynthesisUtterance(w.word);
       firstWord.lang = "en-US";
-      firstWord.rate = 0.25;
+      firstWord.rate = 0.5;
+      firstWord.voice = voice1;
 
       const secondWord = new SpeechSynthesisUtterance(w.word);
       secondWord.lang = "en-US";
-      secondWord.rate = 0.25;
-      secondWord.pitch = 1.5;
-      secondWord.getVoices(2);
+      secondWord.rate = 0.5;
+      secondWord.voice = voice2; // Different voice
 
       const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
       partSpeech.lang = "en-US";
       partSpeech.rate = 0.5;
+      partSpeech.voice = voice1;
 
       const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
       definition.lang = "en-US";
       definition.rate = 0.5;
+      definition.voice = voice1;
 
       const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
       pleaseSpell.lang = "en-US";
       pleaseSpell.rate = 0.5;
-      finalWord.pitch = 1.5;
+      pleaseSpell.voice = voice1;
 
       const finalWord = new SpeechSynthesisUtterance(w.word);
       finalWord.lang = "en-US";
-      finalWord.rate = 0.25;
-      finalWord.pitch = 1.5;
+      finalWord.rate = 0.5;
+      finalWord.voice = voice1;
 
-      // Chain with 1.5s pauses
       speechSynthesis.speak(firstWord);
       firstWord.onend = () => {
         setTimeout(() => {
@@ -208,15 +200,31 @@
                     pleaseSpell.onend = () => {
                       setTimeout(() => {
                         speechSynthesis.speak(finalWord);
-                      }, 1500);
+                        finalWord.onend = () => {
+                          isSpeaking = false;
+                          enableButtons();
+                        };
+                      }, 1000);
                     };
-                  }, 1500);
+                  }, 1000);
                 };
               };
-            }, 1500);
+            }, 1000);
           };
-        }, 1500);
+        }, 1000);
       };
+    }
+
+    function disableButtons() {
+      document.getElementById("pronounce").disabled = true;
+      document.getElementById("checkAnswer").disabled = true;
+      document.getElementById("showAnswer").disabled = true;
+    }
+
+    function enableButtons() {
+      document.getElementById("pronounce").disabled = false;
+      document.getElementById("checkAnswer").disabled = false;
+      document.getElementById("showAnswer").disabled = failCount < 3;
     }
 
     function nextWord() {
@@ -235,7 +243,7 @@
       if (isCorrect) {
         setTimeout(() => {
           feedback.style.display = "none";
-        }, 1500); // Auto-hide only for correct
+        }, 1500);
       }
     }
 
@@ -244,6 +252,7 @@
     }
 
     function checkSpelling() {
+      if (isSpeaking) return;
       const levelWords = getLevelWords();
       const userInput = document.getElementById("input").value.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
@@ -265,17 +274,19 @@
     function showAnswer() {
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
-      showFeedback(`Answer: ${w.word}`, false); // Stays until clicked
+      showFeedback(`Answer: ${w.word}`, false);
     }
 
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
-      currentIndex = 0;
+      currentIndex = Math.floor(Math.random() * 50); // Random start
       failCount = 0;
       showWord();
       pronounceWord();
     }
 
+    // Initial random start
+    currentIndex = Math.floor(Math.random() * 50);
     showWord();
     pronounceWord();
   </script>
