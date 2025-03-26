@@ -37,11 +37,6 @@
       background: url('https://img.icons8.com/ios-filled/50/ffeb3b/bee.png') no-repeat center;
       background-size: contain;
     }
-    #score {
-      font-size: 24px;
-      color: #d81b60;
-      margin-right: 20px;
-    }
     #progress-bar-container {
       width: 90%;
       max-width: 400px;
@@ -305,7 +300,6 @@
       .firework { width: 8px; height: 8px; }
       #mascot { width: 80px; height: 80px; }
       .bee { width: 30px; height: 30px; }
-      #score { font-size: 20px; }
       #progress-text { font-size: 18px; }
       #pronounce-toggle { font-size: 18px; }
     }
@@ -329,7 +323,6 @@
     </select>
     <div id="progress">
       <div class="bee"></div>
-      <span id="score">Buzz Score: 0</span>
     </div>
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
@@ -357,7 +350,6 @@
     let lastPronouncedIndex = -1;
     let isSpeaking = false;
     let currentWord = "";
-    let correctCount = 0;
     let wordIndices = [];
     let indexPointer = 0;
     let wordsCompleted = 0;
@@ -435,11 +427,9 @@
 
     function updateProgress() {
       const bee = document.querySelector('.bee');
-      const score = document.getElementById("score");
       const progressBar = document.getElementById("progress-bar");
       const progressText = document.getElementById("progress-text");
-      bee.classList.toggle('filled', correctCount > 0);
-      score.innerText = `Buzz Score: ${correctCount}`;
+      bee.classList.toggle('filled', wordsCompleted > 0);
       progressBar.style.width = `${(wordsCompleted / 50) * 100}%`;
       progressText.innerText = `Words Completed: ${wordsCompleted}/50`;
     }
@@ -676,7 +666,6 @@
       const levelWords = getLevelWords();
       const userInput = currentWord.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
-        correctCount++;
         wordsCompleted++;
         playSound('correct');
         showFeedback("", true);
@@ -704,10 +693,21 @@
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
       failCount = 0;
-      correctCount = 0;
+      wordsCompleted = 0;
       initializeWordIndices();
       showWord();
     }
+
+    // Backdoor: Ctrl+Shift+Z to auto-answer correctly
+    document.addEventListener('keydown', (event) => {
+      if (event.ctrlKey && event.shiftKey && event.key === 'Z') {
+        if (isSpeaking) return;
+        const levelWords = getLevelWords();
+        currentWord = levelWords[currentIndex].word;
+        updateDisplay();
+        checkSpelling();
+      }
+    });
 
     // Initial setup
     initializeWordIndices();
