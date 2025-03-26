@@ -3,18 +3,17 @@
 <head>
   <title>Spelling Bee Adventure</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your_Telescope&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * {
-      font-family: 'Annie Use Your Telescope', cursive !important;
+      font-family: 'Comic Neue', cursive !important;
     }
     body {
       text-align: center;
       padding: 20px;
-      background: url('https://www.transparenttextures.com/patterns/stardust.png') #fff59d;
+      background: url('https://subtlepatterns.com/patterns/honey_im_subtle.png') #fff9e6; /* Cute honeycomb background */
       margin: 0;
       color: #333;
-      transition: background 0.5s;
     }
     h1 {
       font-size: 48px;
@@ -49,14 +48,6 @@
       background: #4caf50;
       width: 0%;
       transition: width 0.5s ease;
-    }
-    @keyframes progressBounce {
-      0% { transform: scaleX(1); }
-      50% { transform: scaleX(1.05); }
-      100% { transform: scaleX(1); }
-    }
-    .progress-updating {
-      animation: progressBounce 0.5s ease;
     }
     #progress-text {
       font-size: 20px;
@@ -133,16 +124,11 @@
       max-width: 350px;
       background: #ff9800;
     }
-    #showAnswer, #hint {
+    #showAnswer {
       width: 90%;
       max-width: 350px;
-      display: none;
-    }
-    #showAnswer {
       background: #2196f3;
-    }
-    #hint {
-      background: #ff5722;
+      display: none;
     }
     #keyboard {
       display: flex;
@@ -387,7 +373,6 @@
     <div id="keyboard"></div>
     <button id="checkAnswer" onclick="checkSpelling()">Check Answer</button>
     <button id="showAnswer" onclick="showAnswer()">Show Answer</button>
-    <button id="hint" onclick="showHint()">Hint</button>
   </div>
   <div id="feedback" onclick="hideFeedback()"></div>
   <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
@@ -408,12 +393,7 @@
     let tapCount = 0;
     let tapTimeout;
     let missedWords = [];
-    const motivationalMessages = [
-      "Buzz-tastic job!",
-      "You’re a spelling queen bee!",
-      "Keep buzzing along!",
-      "Sweet spelling skills!"
-    ];
+    let isReviewMode = false;
 
     // Build keyboard
     const keyboard = document.getElementById("keyboard");
@@ -463,6 +443,8 @@
       localStorage.setItem('wordsCompleted', wordsCompleted);
       localStorage.setItem('wordIndices', JSON.stringify(wordIndices));
       localStorage.setItem('indexPointer', indexPointer);
+      localStorage.setItem('isReviewMode', isReviewMode);
+      localStorage.setItem('missedWords', JSON.stringify(missedWords));
     }
 
     function loadGameState() {
@@ -470,12 +452,14 @@
       wordsCompleted = parseInt(localStorage.getItem('wordsCompleted')) || 0;
       wordIndices = JSON.parse(localStorage.getItem('wordIndices')) || Array.from({ length: 50 }, (_, i) => i);
       indexPointer = parseInt(localStorage.getItem('indexPointer')) || 0;
+      isReviewMode = localStorage.getItem('isReviewMode') === 'true';
+      missedWords = JSON.parse(localStorage.getItem('missedWords')) || [];
       document.getElementById("levelSelect").value = currentLevel;
     }
 
     function initializeWordIndices() {
-      if (!localStorage.getItem('wordIndices')) {
-        wordIndices = Array.from({ length: 50 }, (_, i) => i);
+      if (!localStorage.getItem('wordIndices') || !isReviewMode) {
+        wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i);
         shuffle(wordIndices);
       }
       indexPointer = 0;
@@ -509,28 +493,13 @@
     function updateProgress() {
       const progressBar = document.getElementById("progress-bar");
       const progressText = document.getElementById("progress-text");
-      progressBar.style.width = `${(wordsCompleted / 50) * 100}%`;
-      progressBar.classList.add("progress-updating");
-      progressText.innerHTML = `Words Completed: ${wordsCompleted}/50 <div class="bee"></div>`;
-      setTimeout(() => progressBar.classList.remove("progress-updating"), 500);
-    }
-
-    function updateBackground() {
-      const backgrounds = [
-        'https://www.transparenttextures.com/patterns/stardust.png',
-        'https://www.transparenttextures.com/patterns/honeycomb.png',
-        'https://www.transparenttextures.com/patterns/flowers.png',
-        'https://www.transparenttextures.com/patterns/wavey-fingerprint.png',
-        'https://www.transparenttextures.com/patterns/tree-bark.png',
-        'https://www.transparenttextures.com/patterns/brick-wall.png',
-        'https://www.transparenttextures.com/patterns/gplay.png'
-      ];
-      const bgUrl = backgrounds[currentLevel] || backgrounds[0];
-      document.body.style.background = `url('${bgUrl}') #fff59d`;
-      console.log(`Level ${currentLevel + 1}: Background set to ${bgUrl}`);
+      const totalWords = isReviewMode ? missedWords.length : 50;
+      progressBar.style.width = `${(wordsCompleted / totalWords) * 100}%`;
+      progressText.innerHTML = `Words Completed: ${wordsCompleted}/${totalWords} <div class="bee"></div>`;
     }
 
     function getLevelWords() {
+      if (isReviewMode) return missedWords;
       const start = currentLevel * 50;
       return words.slice(start, start + 50);
     }
@@ -546,12 +515,9 @@
       updateDisplay();
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
       document.getElementById("showAnswer").disabled = false;
-      document.getElementById("hint").style.display = failCount >= 1 ? "block" : "none";
-      document.getElementById("hint").disabled = false;
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
       updateProgress();
-      updateBackground();
     }
 
     function pronounceWord() {
@@ -639,7 +605,6 @@
       document.getElementById("pronounce").disabled = true;
       document.getElementById("checkAnswer").disabled = true;
       document.getElementById("showAnswer").disabled = true;
-      document.getElementById("hint").disabled = true;
       document.getElementById("levelSelect").disabled = true;
       document.querySelectorAll(".key").forEach(btn => btn.disabled = true);
     }
@@ -648,7 +613,6 @@
       document.getElementById("pronounce").disabled = false;
       document.getElementById("checkAnswer").disabled = false;
       document.getElementById("showAnswer").disabled = failCount < 3;
-      document.getElementById("hint").disabled = failCount < 1;
       document.getElementById("levelSelect").disabled = false;
       document.querySelectorAll(".key").forEach(btn => btn.disabled = false);
     }
@@ -657,7 +621,14 @@
       const levelWords = getLevelWords();
       indexPointer = (indexPointer + 1) % levelWords.length;
       if (indexPointer === 0) {
-        showLevelComplete();
+        if (isReviewMode) {
+          isReviewMode = false;
+          missedWords = [];
+          initializeWordIndices();
+          showWord();
+        } else {
+          showLevelComplete();
+        }
         return;
       }
       failCount = 0;
@@ -758,7 +729,18 @@
       if (missedWords.length === 0) {
         document.getElementById("feedback").innerText = "No words to review!";
         document.getElementById("feedback").style.display = "block";
-        setTimeout(hideFeedback, 2000);
+        setTimeout(() => {
+          hideFeedback();
+          if (currentLevel < 6) {
+            currentLevel++;
+            document.getElementById("levelSelect").value = currentLevel;
+            initializeWordIndices();
+            showWord();
+          } else {
+            initializeWordIndices();
+            showWord();
+          }
+        }, 2000);
         return;
       }
       document.getElementById("mainContent").style.display = "none";
@@ -768,24 +750,19 @@
       reviewDiv.innerHTML = `
         <h2>Review Missed Words</h2>
         <ul>${missedWords.map(w => `<li>${w.word} - ${w.part}: ${w.definition}</li>`).join('')}</ul>
-        <button onclick="exitReviewMode()">Back to Game</button>
+        <button onclick="redoMissedWords()">Redo Missed Words</button>
       `;
       document.body.appendChild(reviewDiv);
     }
 
-    function exitReviewMode() {
+    function redoMissedWords() {
       document.getElementById("review-mode").remove();
       document.getElementById("mainContent").style.display = "block";
-      if (currentLevel < 6) {
-        currentLevel++;
-        document.getElementById("levelSelect").value = currentLevel;
-        initializeWordIndices();
-        showWord();
-      } else {
-        initializeWordIndices();
-        showWord();
-      }
-      missedWords = [];
+      isReviewMode = true;
+      wordsCompleted = 0;
+      initializeWordIndices();
+      showWord();
+      saveGameState();
     }
 
     function checkSpelling() {
@@ -800,15 +777,11 @@
         saveGameState();
       } else {
         failCount++;
-        if (failCount === 1) {
+        if (failCount === 1 && !isReviewMode) {
           missedWords.push(levelWords[currentIndex]);
         }
         playSound('wrong');
         showFeedback("❌ Oops! Try Again! ❌", false);
-        if (failCount >= 1) {
-          document.getElementById("hint").style.display = "block";
-          document.getElementById("hint").disabled = false;
-        }
         if (failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
           document.getElementById("showAnswer").disabled = false;
@@ -825,18 +798,12 @@
       showFeedback(`Answer: ${w.word}`, false);
     }
 
-    function showHint() {
-      if (isSpeaking) return;
-      const levelWords = getLevelWords();
-      const w = levelWords[currentIndex];
-      const hint = w.word.charAt(0).toUpperCase();
-      showFeedback(`Hint: Starts with "${hint}"`, false);
-    }
-
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
       failCount = 0;
       wordsCompleted = 0;
+      isReviewMode = false;
+      missedWords = [];
       initializeWordIndices();
       showWord();
       saveGameState();
@@ -865,14 +832,6 @@
         checkSpelling();
         tapCount = 0;
       }
-    });
-
-    mascot.addEventListener('click', () => {
-      if (isSpeaking) return;
-      mascot.classList.add("happy");
-      const message = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      showFeedback(message, true);
-      setTimeout(() => mascot.classList.remove("happy"), 1000);
     });
 
     // Initial setup
