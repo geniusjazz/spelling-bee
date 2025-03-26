@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* [Previous CSS unchanged] */
     * {
       font-family: 'Comic Neue', cursive !important;
     }
@@ -76,7 +77,7 @@
       border-radius: 20px;
       min-height: 30px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      transition: opacity 0.3s ease; /* Smooth transition for opacity */
+      transition: opacity 0.3s ease;
     }
     #wordDisplay.fade {
       opacity: 0;
@@ -505,7 +506,7 @@
       setTimeout(() => {
         wordDisplay.innerText = currentWord;
         wordDisplay.classList.remove("fade");
-      }, 150); // Half of 0.3s transition time for smooth effect
+      }, 150);
     }
 
     function updateProgress() {
@@ -693,16 +694,15 @@
       const celebration = document.getElementById("celebration");
       document.getElementById("mainContent").style.display = "none";
       celebration.style.display = "block";
-      const type = Math.floor(Math.random() * 4); // Added confetti as type 3
-      const count = type === 2 ? 20 : type === 3 ? 30 : 10; // More confetti
+      const type = Math.floor(Math.random() * 4);
+      const count = type === 2 ? 20 : type === 3 ? 30 : 10;
       const effects = [];
       
-      // Mix effects for variety
-      if (Math.random() > 0.5) effects.push(0); // Stars
-      if (Math.random() > 0.5) effects.push(1); // Balloons
-      if (Math.random() > 0.5) effects.push(2); // Fireworks
-      if (Math.random() > 0.5) effects.push(3); // Confetti
-      if (effects.length === 0) effects.push(type); // Ensure at least one effect
+      if (Math.random() > 0.5) effects.push(0);
+      if (Math.random() > 0.5) effects.push(1);
+      if (Math.random() > 0.5) effects.push(2);
+      if (Math.random() > 0.5) effects.push(3);
+      if (effects.length === 0) effects.push(type);
 
       effects.forEach(effectType => {
         for (let i = 0; i < count; i++) {
@@ -735,7 +735,7 @@
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
       while (celebration.firstChild && celebration.firstChild !== celebration.querySelector(".celebration-text")) {
-        celebration.removeChild(celebration.firstChild); // Remove all effects except text
+        celebration.removeChild(celebration.firstChild);
       }
       celebration.style.display = "none";
       document.getElementById("mainContent").style.display = "block";
@@ -752,7 +752,7 @@
         el.style.left = `${Math.random() * 100}%`;
         el.style.top = `${Math.random() * 100}%`;
         el.style.animationDelay = `${Math.random() * 1.5}s`;
-        const type = Math.floor(Math.random() * 4); // Include confetti
+        const type = Math.floor(Math.random() * 4);
         const color = `#${Math.floor(Math.random()*16777215).toString(16)}`;
         if (type === 0) {
           el.className = "star";
@@ -775,7 +775,7 @@
     function hideLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       while (levelComplete.firstChild && levelComplete.firstChild !== levelComplete.querySelector(".level-complete-text")) {
-        levelComplete.removeChild(levelComplete.firstChild); // Remove all effects except text
+        levelComplete.removeChild(levelComplete.firstChild);
       }
       levelComplete.style.display = "none";
       showReviewMode();
@@ -869,9 +869,10 @@
       saveGameState();
     }
 
-    // Backdoor: Ctrl+Shift+Z and triple-tap mascot
+    // Fixed Ctrl+Shift+Z backdoor
     document.addEventListener('keydown', (event) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'Z') {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
+        console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking); // Debug log
         if (isSpeaking) return;
         const levelWords = getLevelWords();
         currentWord = levelWords[currentIndex].word;
