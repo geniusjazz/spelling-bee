@@ -255,6 +255,12 @@
     #mascot.sad {
       transform: scale(0.9) rotate(-10deg);
     }
+    #pronounce-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 20px;
+    }
     @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-15px); }
@@ -295,6 +301,7 @@
       .hexagon { width: 40px; height: 23px; }
       .hexagon:before { border-bottom-width: 11.5px; }
       .hexagon:after { border-top-width: 11.5px; }
+      #pronounce-toggle { font-size: 18px; }
     }
   </style>
 </head>
@@ -304,6 +311,10 @@
     <div class="hexagon"></div>
     <div class="hexagon"></div>
     <div class="hexagon"></div>
+  </div>
+  <div id="pronounce-toggle">
+    <input type="checkbox" id="fullPronounce" checked>
+    <label for="fullPronounce">Full Pronunciation</label>
   </div>
   <div id="mainContent">
     <select id="levelSelect" onchange="changeLevel()">
@@ -345,29 +356,20 @@
       const btn = document.createElement("button");
       btn.className = "key";
       btn.innerText = letter;
-      btn.onclick = () => {
-        appendLetter(letter.toLowerCase());
-        playSound('click');
-      };
+      btn.onclick = () => appendLetter(letter.toLowerCase());
       keyboard.appendChild(btn);
     });
     const backspace = document.createElement("button");
     backspace.id = "backspace";
     backspace.className = "key";
     backspace.innerText = "Back";
-    backspace.onclick = () => {
-      removeLetter();
-      playSound('click');
-    };
+    backspace.onclick = removeLetter;
     keyboard.appendChild(backspace);
     const clear = document.createElement("button");
     clear.id = "clear";
     clear.className = "key";
     clear.innerText = "Clear";
-    clear.onclick = () => {
-      clearWord();
-      playSound('click');
-    };
+    clear.onclick = clearWord;
     keyboard.appendChild(clear);
 
     // Sound effects
@@ -375,7 +377,6 @@
       const audio = new Audio();
       if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-01a.mp3';
       else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
-      else if (type === 'click') audio.src = 'https://www.soundjay.com/buttons/sounds/button-3.mp3';
       audio.play().catch(() => {}); // Ignore errors if sound fails
     }
 
@@ -425,6 +426,7 @@
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
+      updateProgress(); // Ensure progress updates on new word
     }
 
     function pronounceWord() {
@@ -434,18 +436,9 @@
 
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
+      const fullPronounce = document.getElementById("fullPronounce").checked;
 
-      if (currentIndex === lastPronouncedIndex) {
-        const wordOnly = new SpeechSynthesisUtterance(w.word);
-        wordOnly.lang = "en-US";
-        wordOnly.rate = 0.7;
-        wordOnly.pitch = 0.7;
-        speechSynthesis.speak(wordOnly);
-        wordOnly.onend = () => {
-          isSpeaking = false;
-          enableButtons();
-        };
-      } else {
+      if (fullPronounce && currentIndex !== lastPronouncedIndex) {
         const firstWord = new SpeechSynthesisUtterance(w.word);
         firstWord.lang = "en-US";
         firstWord.rate = 0.7;
@@ -505,6 +498,16 @@
             };
           }, 1000);
         };
+      } else {
+        const wordOnly = new SpeechSynthesisUtterance(w.word);
+        wordOnly.lang = "en-US";
+        wordOnly.rate = 0.7;
+        wordOnly.pitch = 0.7;
+        speechSynthesis.speak(wordOnly);
+        wordOnly.onend = () => {
+          isSpeaking = false;
+          enableButtons();
+        };
       }
     }
 
@@ -529,7 +532,6 @@
       currentIndex = (currentIndex + 1) % levelWords.length;
       failCount = 0;
       showWord();
-      updateProgress();
     }
 
     function showFeedback(message, isCorrect) {
@@ -577,6 +579,7 @@
       }
       setTimeout(() => {
         hideCelebration();
+        document.getElementById("feedback").style.display = "none"; // Hide "Awesome" after celebration
         nextWord();
       }, 2000);
     }
@@ -592,7 +595,7 @@
       const levelWords = getLevelWords();
       const userInput = currentWord.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
-        correctCount++;
+        correctCount++; // Fixed: Increment here for correct answers
         playSound('correct');
         showFeedback("🎉 Awesome! Correct! 🎉", true);
         showCelebration();
@@ -621,12 +624,10 @@
       failCount = 0;
       correctCount = 0; // Reset progress on level change
       showWord();
-      updateProgress();
     }
 
     currentIndex = Math.floor(Math.random() * 50);
     showWord();
-    updateProgress();
   </script>
 </body>
 </html>
