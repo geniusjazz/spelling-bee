@@ -421,6 +421,7 @@
       currentWord = "";
       updateDisplay();
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
+      document.getElementById("showAnswer").disabled = false; // Ensure enabled when shown
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
       updateProgress();
@@ -519,7 +520,7 @@
     function enableButtons() {
       document.getElementById("pronounce").disabled = false;
       document.getElementById("checkAnswer").disabled = false;
-      document.getElementById("showAnswer").disabled = failCount < 3;
+      document.getElementById("showAnswer").disabled = failCount < 3; // Enable if failCount >= 3
       document.getElementById("levelSelect").disabled = false;
       document.querySelectorAll(".key").forEach(btn => btn.disabled = false);
     }
@@ -537,7 +538,7 @@
       const mascot = document.getElementById("mascot");
       feedback.innerText = message;
       feedback.className = isCorrect ? "" : "wrong"; // No styling for correct
-      feedback.style.display = isCorrect ? "none" : "block"; // Hide for correct
+      feedback.style.display = isCorrect ? "none" : "block"; // Show for wrong, hide for correct
       mascot.className = isCorrect ? "happy" : "sad";
       if (!isCorrect) {
         setTimeout(() => {
@@ -599,9 +600,10 @@
       } else {
         failCount++;
         playSound('wrong');
-        showFeedback("❌ Oops! Try Again! ❌", false);
+        showFeedback("❌ Oops! Try Again! ❌", false); // Always show wrong message
         if (failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
+          document.getElementById("showAnswer").disabled = false; // Explicitly enable
         }
         currentWord = "";
         updateDisplay();
