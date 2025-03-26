@@ -19,6 +19,43 @@
       text-shadow: 2px 2px #ffeb3b;
       animation: bounce 2s infinite;
     }
+    #progress {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .hexagon {
+      width: 50px;
+      height: 29px;
+      background: #cccccc;
+      position: relative;
+      margin: 0 10px;
+      transition: background 0.5s;
+    }
+    .hexagon:before, .hexagon:after {
+      content: "";
+      position: absolute;
+      width: 0;
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+    }
+    .hexagon:before {
+      bottom: 100%;
+      border-bottom: 14.5px solid #cccccc;
+    }
+    .hexagon:after {
+      top: 100%;
+      border-top: 14.5px solid #cccccc;
+    }
+    .hexagon.filled {
+      background: #ffeb3b;
+    }
+    .hexagon.filled:before {
+      border-bottom-color: #ffeb3b;
+    }
+    .hexagon.filled:after {
+      border-top-color: #ffeb3b;
+    }
     #part, #definition, #wordIndex {
       font-size: 24px;
       margin: 15px 0;
@@ -202,6 +239,22 @@
       border-radius: 50%;
       animation: explode 1s ease-out forwards;
     }
+    #mascot {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 100px;
+      height: 100px;
+      background: url('https://via.placeholder.com/100?text=Buzz') no-repeat center;
+      background-size: contain;
+      transition: transform 0.5s;
+    }
+    #mascot.happy {
+      transform: scale(1.2) rotate(10deg);
+    }
+    #mascot.sad {
+      transform: scale(0.9) rotate(-10deg);
+    }
     @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-15px); }
@@ -238,11 +291,20 @@
       .star { width: 30px; height: 30px; }
       .balloon { width: 20px; height: 30px; }
       .firework { width: 8px; height: 8px; }
+      #mascot { width: 80px; height: 80px; }
+      .hexagon { width: 40px; height: 23px; }
+      .hexagon:before { border-bottom-width: 11.5px; }
+      .hexagon:after { border-top-width: 11.5px; }
     }
   </style>
 </head>
 <body>
   <h1>Spelling Bee Adventure</h1>
+  <div id="progress">
+    <div class="hexagon"></div>
+    <div class="hexagon"></div>
+    <div class="hexagon"></div>
+  </div>
   <div id="mainContent">
     <select id="levelSelect" onchange="changeLevel()">
       <option value="0">Level 1</option>
@@ -264,6 +326,7 @@
   </div>
   <div id="feedback" onclick="hideFeedback()"></div>
   <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
+  <div id="mascot"></div>
 
   <script src="words.js"></script>
   <script>
@@ -273,6 +336,7 @@
     let lastPronouncedIndex = -1;
     let isSpeaking = false;
     let currentWord = "";
+    let correctCount = 0;
 
     // Build keyboard
     const keyboard = document.getElementById("keyboard");
@@ -281,21 +345,39 @@
       const btn = document.createElement("button");
       btn.className = "key";
       btn.innerText = letter;
-      btn.onclick = () => appendLetter(letter.toLowerCase());
+      btn.onclick = () => {
+        appendLetter(letter.toLowerCase());
+        playSound('click');
+      };
       keyboard.appendChild(btn);
     });
     const backspace = document.createElement("button");
     backspace.id = "backspace";
     backspace.className = "key";
     backspace.innerText = "Back";
-    backspace.onclick = removeLetter;
+    backspace.onclick = () => {
+      removeLetter();
+      playSound('click');
+    };
     keyboard.appendChild(backspace);
     const clear = document.createElement("button");
     clear.id = "clear";
     clear.className = "key";
     clear.innerText = "Clear";
-    clear.onclick = clearWord;
+    clear.onclick = () => {
+      clearWord();
+      playSound('click');
+    };
     keyboard.appendChild(clear);
+
+    // Sound effects
+    function playSound(type) {
+      const audio = new Audio();
+      if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-01a.mp3';
+      else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
+      else if (type === 'click') audio.src = 'https://www.soundjay.com/buttons/sounds/button-3.mp3';
+      audio.play().catch(() => {}); // Ignore errors if sound fails
+    }
 
     function appendLetter(letter) {
       if (isSpeaking) return;
@@ -319,6 +401,14 @@
       document.getElementById("wordDisplay").innerText = currentWord;
     }
 
+    function updateProgress() {
+      const hexagons = document.querySelectorAll('.hexagon');
+      const filledCount = Math.min(Math.floor(correctCount / 5), 3);
+      hexagons.forEach((hex, i) => {
+        hex.classList.toggle('filled', i < filledCount);
+      });
+    }
+
     function getLevelWords() {
       const start = currentLevel * 50;
       return words.slice(start, start + 50);
@@ -334,6 +424,7 @@
       updateDisplay();
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
       document.getElementById("mainContent").style.display = "block";
+      document.getElementById("mascot").className = "";
     }
 
     function pronounceWord() {
@@ -438,22 +529,27 @@
       currentIndex = (currentIndex + 1) % levelWords.length;
       failCount = 0;
       showWord();
+      updateProgress();
     }
 
     function showFeedback(message, isCorrect) {
       const feedback = document.getElementById("feedback");
+      const mascot = document.getElementById("mascot");
       feedback.innerText = message;
       feedback.className = isCorrect ? "correct" : "wrong";
       feedback.style.display = "block";
+      mascot.className = isCorrect ? "happy" : "sad";
       if (!isCorrect) {
         setTimeout(() => {
           feedback.style.display = "none";
+          mascot.className = "";
         }, 1500);
       }
     }
 
     function hideFeedback() {
       document.getElementById("feedback").style.display = "none";
+      document.getElementById("mascot").className = "";
     }
 
     function showCelebration() {
@@ -496,10 +592,13 @@
       const levelWords = getLevelWords();
       const userInput = currentWord.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
+        correctCount++;
+        playSound('correct');
         showFeedback("🎉 Awesome! Correct! 🎉", true);
         showCelebration();
       } else {
         failCount++;
+        playSound('wrong');
         showFeedback("❌ Oops! Try Again! ❌", false);
         if (failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
@@ -520,11 +619,14 @@
       currentLevel = parseInt(document.getElementById("levelSelect").value);
       currentIndex = Math.floor(Math.random() * 50);
       failCount = 0;
+      correctCount = 0; // Reset progress on level change
       showWord();
+      updateProgress();
     }
 
     currentIndex = Math.floor(Math.random() * 50);
     showWord();
+    updateProgress();
   </script>
 </body>
 </html>
