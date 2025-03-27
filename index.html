@@ -504,29 +504,37 @@
 
     // Save and load game state
     function saveGameState() {
+      console.log("Saving state:", { currentLevel, wordsCompleted, indexPointer, isReviewMode, wordIndices, missedWords });
       localStorage.setItem('currentLevel', currentLevel);
       localStorage.setItem('wordsCompleted', wordsCompleted);
       localStorage.setItem('wordIndices', JSON.stringify(wordIndices));
       localStorage.setItem('indexPointer', indexPointer);
       localStorage.setItem('isReviewMode', isReviewMode);
       localStorage.setItem('missedWords', JSON.stringify(missedWords));
+      localStorage.setItem('currentIndex', currentIndex);
+      localStorage.setItem('failCount', failCount);
+      localStorage.setItem('currentWord', currentWord);
     }
 
     function loadGameState() {
       currentLevel = parseInt(localStorage.getItem('currentLevel')) || 0;
       wordsCompleted = parseInt(localStorage.getItem('wordsCompleted')) || 0;
-      wordIndices = JSON.parse(localStorage.getItem('wordIndices')) || (currentLevel < 10 ? Array.from({ length: 10 }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i));
+      wordIndices = JSON.parse(localStorage.getItem('wordIndices')) || [];
       indexPointer = parseInt(localStorage.getItem('indexPointer')) || 0;
       isReviewMode = localStorage.getItem('isReviewMode') === 'true';
       missedWords = JSON.parse(localStorage.getItem('missedWords')) || [];
+      currentIndex = parseInt(localStorage.getItem('currentIndex')) || 0;
+      failCount = parseInt(localStorage.getItem('failCount')) || 0;
+      currentWord = localStorage.getItem('currentWord') || "";
       document.getElementById("levelSelect").value = currentLevel;
+      console.log("Loaded state:", { currentLevel, wordsCompleted, indexPointer, isReviewMode, wordIndices, missedWords, currentIndex, failCount, currentWord });
     }
 
     function initializeWordIndices() {
-      wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : (currentLevel < 10 ? Array.from({ length: 10 }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i));
-      shuffle(wordIndices);
-      indexPointer = 0;
-      wordsCompleted = 0;
+      if (wordIndices.length === 0 || !localStorage.getItem('wordIndices')) {
+        wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : (currentLevel < 10 ? Array.from({ length: 10 }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i));
+        shuffle(wordIndices);
+      }
       updateProgress();
       saveGameState();
     }
@@ -534,16 +542,19 @@
     function appendLetter(letter) {
       currentWord += letter;
       updateDisplay();
+      saveGameState();
     }
 
     function removeLetter() {
       currentWord = currentWord.slice(0, -1);
       updateDisplay();
+      saveGameState();
     }
 
     function clearWord() {
       currentWord = "";
       updateDisplay();
+      saveGameState();
     }
 
     function updateDisplay() {
@@ -592,7 +603,6 @@
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
       document.getElementById("wordIndex").innerText = "Word #" + w.no;
-      currentWord = "";
       updateDisplay();
       document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
       document.getElementById("mainContent").style.display = "block";
@@ -665,7 +675,6 @@
 
     function disableButtons() {
       document.getElementById("pronounce").disabled = true;
-      // Keep "Check Answer" enabled to allow interruption
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
     }
@@ -690,7 +699,9 @@
       }
       failCount = 0;
       isSpeaking = false;
+      currentWord = "";
       showWord();
+      saveGameState();
     }
 
     function endReviewMode() {
@@ -884,6 +895,7 @@
         }
         currentWord = "";
         updateDisplay();
+        saveGameState();
       }
     }
 
@@ -901,6 +913,7 @@
       isReviewMode = false;
       missedWords = [];
       isSpeaking = false;
+      wordIndices = [];
       initializeWordIndices();
       showWord();
       saveGameState();
@@ -915,7 +928,7 @@
     }
 
     function goToWordList() {
-      saveGameState(); // Ensure state is saved before leaving
+      saveGameState();
       window.location.href = 'wordlist.html';
     }
 
@@ -946,7 +959,9 @@
 
     // Initial setup
     loadGameState();
-    initializeWordIndices();
+    if (wordIndices.length === 0 || indexPointer >= wordIndices.length) {
+      initializeWordIndices();
+    }
     showWord();
   </script>
 </body>
