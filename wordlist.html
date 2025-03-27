@@ -153,7 +153,7 @@
     <button id="pronounceWord" onclick="pronounceCurrentWord()">Pronounce</button>
     <button id="closeDetails" onclick="hideDetails()">Close</button>
   </div>
-  <button id="backToGame" onclick="goBackToGame()">Back to Game</button>
+  <button id="backToGame" onclick="window.location.href='index.html'">Back to Game</button>
 
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script>
@@ -229,7 +229,7 @@
       const pronounceSequence = async () => {
         try {
           await speakText(word); // First pronunciation with SpeechSynthesis
-          await new Promise(resolve => setTimeout(resolve, 500)); // Reduced from 1000ms to 500ms
+          await new Promise(resolve => setTimeout(resolve, 500)); // Reduced to 500ms
           await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay
           isSpeaking = false;
           document.getElementById("pronounceWord").disabled = false;
@@ -241,21 +241,6 @@
       };
 
       pronounceSequence();
-    }
-
-    function saveGameState() {
-      // Sync with index.html's state
-      localStorage.setItem('currentLevel', localStorage.getItem('currentLevel') || 0);
-      localStorage.setItem('wordsCompleted', localStorage.getItem('wordsCompleted') || 0);
-      localStorage.setItem('wordIndices', localStorage.getItem('wordIndices') || JSON.stringify((parseInt(localStorage.getItem('currentLevel')) < 10 ? Array.from({ length: 10 }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i))));
-      localStorage.setItem('indexPointer', localStorage.getItem('indexPointer') || 0);
-      localStorage.setItem('isReviewMode', localStorage.getItem('isReviewMode') || 'false');
-      localStorage.setItem('missedWords', localStorage.getItem('missedWords') || JSON.stringify([]));
-    }
-
-    function goBackToGame() {
-      saveGameState(); // Save state before redirecting
-      window.location.href = 'index.html';
     }
 
     // Initial load
