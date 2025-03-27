@@ -147,27 +147,30 @@
       font-size: 20px;
     }
     #wordListButton {
-      position: absolute;
+      position: fixed;
       top: 10px;
-      right: 10px;
+      left: 50%;
+      transform: translateX(-50%);
       width: 120px;
       background: #9c27b0;
       padding: 10px 15px;
       font-size: 16px;
       opacity: 0.7;
+      z-index: 10;
     }
     #wordListButton:hover {
       opacity: 1;
     }
     #resetButton {
       position: fixed;
-      bottom: 10px;
-      left: 10px;
+      top: 10px;
+      right: 10px;
       width: 120px;
       background: #f44336;
       padding: 10px 15px;
       font-size: 16px;
       opacity: 0.7;
+      z-index: 10;
     }
     #resetButton:hover {
       opacity: 1;
@@ -252,11 +255,19 @@
       font-size: 48px;
       color: #ffffff;
       text-shadow: 2px 2px 4px #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
     }
-    .level-complete-text {
+    .level-complete-text span:first-child {
       font-size: 72px;
       color: #ffeb3b;
       animation: pulse 1s infinite;
+    }
+    .level-complete-text span:last-child {
+      font-size: 36px;
+      color: #ffffff;
     }
     .star {
       position: absolute;
@@ -416,9 +427,9 @@
       100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
     }
     @keyframes pulse {
-      0% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.1); }
-      100% { transform: translate(-50%, -50%) scale(1); }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
     @media (max-width: 768px) {
       h1 { font-size: 36px; margin-top: 60px; }
@@ -429,7 +440,8 @@
       #backspace, #clear { width: 70px; }
       #feedback { font-size: 28px; padding: 30px; }
       .celebration-text { font-size: 36px; }
-      .level-complete-text { font-size: 48px; }
+      .level-complete-text span:first-child { font-size: 48px; }
+      .level-complete-text span:last-child { font-size: 24px; }
       .star { width: 30px; height: 30px; }
       .balloon { width: 20px; height: 30px; }
       .firework, .confetti { width: 8px; height: 8px; }
@@ -437,8 +449,8 @@
       .bee { width: 30px; height: 30px; }
       #progress-text { font-size: 18px; }
       #pronounce-toggle { font-size: 18px; top: 5px; left: 5px; }
-      #wordListButton { width: 100px; font-size: 14px; padding: 8px 12px; top: 5px; right: 5px; }
-      #resetButton { width: 100px; font-size: 14px; padding: 8px 12px; bottom: 5px; left: 5px; }
+      #wordListButton { width: 100px; font-size: 14px; padding: 8px 12px; }
+      #resetButton { width: 100px; font-size: 14px; padding: 8px 12px; }
       #confirmPopup p, #resetConfirmPopup p { font-size: 24px; }
       #confirmPopup button, #resetConfirmPopup button { width: 100px; font-size: 18px; padding: 12px; }
       .word-button { font-size: 22px; padding: 8px 15px; }
@@ -452,6 +464,7 @@
     <label for="fullPronounce">Full Pronunciation</label>
   </div>
   <button id="wordListButton" onclick="showConfirmPopup()">Word List</button>
+  <button id="resetButton" onclick="showResetConfirmPopup()">Reset Progress</button>
   <h1>Spelling Bee Adventure</h1>
   <div id="mainContent">
     <select id="levelSelect" onchange="changeLevel()">
@@ -487,7 +500,7 @@
   </div>
   <div id="feedback" onclick="hideFeedback()"></div>
   <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
-  <div id="level-complete"><div class="level-complete-text">🎉 Level Complete! 🎉</div></div>
+  <div id="level-complete"><div class="level-complete-text"><span>🎉 Level Complete! 🎉</span><span></span></div></div>
   <div id="mascot"></div>
   <div id="confirmPopup">
     <p>Want to peek at the word list?</p>
@@ -499,7 +512,6 @@
     <button id="resetYes" onclick="resetProgress()">Yes</button>
     <button id="resetNo" onclick="hideResetConfirmPopup()">No</button>
   </div>
-  <button id="resetButton" onclick="showResetConfirmPopup()">Reset Progress</button>
 
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script>
@@ -857,9 +869,24 @@
 
     function showLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
+      const levelCompleteText = levelComplete.querySelector(".level-complete-text");
       document.getElementById("mainContent").style.display = "none";
       levelComplete.style.display = "block";
       playSound('levelComplete');
+      
+      // Calculate the next uncompleted level
+      const baseOptions = [
+        "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e",
+        "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
+        "Level 3", "Level 4", "Level 5", "Level 6", "Level 7"
+      ];
+      let nextLevel = currentLevel;
+      do {
+        nextLevel++;
+      } while (nextLevel <= 14 && completedLevels.includes(nextLevel));
+      const nextLevelName = nextLevel <= 14 ? baseOptions[nextLevel] : baseOptions[0];
+      levelCompleteText.innerHTML = `<span>🎉 Level Complete! 🎉</span><span>Now heading to ${nextLevelName}!</span>`;
+      
       updateLevelSelect();
       for (let i = 0; i < 50; i++) {
         const el = document.createElement("div");
