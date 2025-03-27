@@ -404,19 +404,27 @@
   <h1>Spelling Bee Adventure</h1>
   <div id="mainContent">
     <select id="levelSelect" onchange="changeLevel()">
-      <option value="0">Level 1</option>
-      <option value="1">Level 2</option>
-      <option value="2">Level 3</option>
-      <option value="3">Level 4</option>
-      <option value="4">Level 5</option>
-      <option value="5">Level 6</option>
-      <option value="6">Level 7</option>
+      <option value="0">Level 1-a</option>
+      <option value="1">Level 1-b</option>
+      <option value="2">Level 1-c</option>
+      <option value="3">Level 1-d</option>
+      <option value="4">Level 1-e</option>
+      <option value="5">Level 2-a</option>
+      <option value="6">Level 2-b</option>
+      <option value="7">Level 2-c</option>
+      <option value="8">Level 2-d</option>
+      <option value="9">Level 2-e</option>
+      <option value="10">Level 3</option>
+      <option value="11">Level 4</option>
+      <option value="12">Level 5</option>
+      <option value="13">Level 6</option>
+      <option value="14">Level 7</option>
     </select>
     <div id="progress"></div>
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
     </div>
-    <div id="progress-text">Words Completed: 0/50 <div class="bee"></div></div>
+    <div id="progress-text">Words Completed: 0/10 <div class="bee"></div></div>
     <div id="part"></div>
     <div id="definition"></div>
     <div id="wordIndex"></div>
@@ -451,7 +459,7 @@
     let tapTimeout;
     let missedWords = [];
     let isReviewMode = false;
-  
+
     // Build keyboard
     const keyboard = document.getElementById("keyboard");
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -474,7 +482,7 @@
     clear.innerText = "Clear";
     clear.onclick = clearWord;
     keyboard.appendChild(clear);
-  
+
     // Sound effects
     function playSound(type) {
       const audio = new Audio();
@@ -484,7 +492,7 @@
       audio.volume = 0.7;
       audio.play().catch(() => {});
     }
-  
+
     // Fisher-Yates shuffle
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -493,7 +501,7 @@
       }
       return array;
     }
-  
+
     // Save and load game state
     function saveGameState() {
       localStorage.setItem('currentLevel', currentLevel);
@@ -503,41 +511,41 @@
       localStorage.setItem('isReviewMode', isReviewMode);
       localStorage.setItem('missedWords', JSON.stringify(missedWords));
     }
-  
+
     function loadGameState() {
       currentLevel = parseInt(localStorage.getItem('currentLevel')) || 0;
       wordsCompleted = parseInt(localStorage.getItem('wordsCompleted')) || 0;
-      wordIndices = JSON.parse(localStorage.getItem('wordIndices')) || Array.from({ length: 50 }, (_, i) => i);
+      wordIndices = JSON.parse(localStorage.getItem('wordIndices')) || (currentLevel < 10 ? Array.from({ length: 10 }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i));
       indexPointer = parseInt(localStorage.getItem('indexPointer')) || 0;
       isReviewMode = localStorage.getItem('isReviewMode') === 'true';
       missedWords = JSON.parse(localStorage.getItem('missedWords')) || [];
       document.getElementById("levelSelect").value = currentLevel;
     }
-  
+
     function initializeWordIndices() {
-      wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i);
+      wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : (currentLevel < 10 ? Array.from({ length: 10 }, (_, i) => i) : Array.from({ length: 50 }, (_, i) => i));
       shuffle(wordIndices);
       indexPointer = 0;
       wordsCompleted = 0;
       updateProgress();
       saveGameState();
     }
-  
+
     function appendLetter(letter) {
       currentWord += letter;
       updateDisplay();
     }
-  
+
     function removeLetter() {
       currentWord = currentWord.slice(0, -1);
       updateDisplay();
     }
-  
+
     function clearWord() {
       currentWord = "";
       updateDisplay();
     }
-  
+
     function updateDisplay() {
       const wordDisplay = document.getElementById("wordDisplay");
       wordDisplay.classList.add("fade");
@@ -546,21 +554,32 @@
         wordDisplay.classList.remove("fade");
       }, 150);
     }
-  
+
     function updateProgress() {
       const progressBar = document.getElementById("progress-bar");
       const progressText = document.getElementById("progress-text");
-      const totalWords = isReviewMode ? missedWords.length : 50;
+      const totalWords = isReviewMode ? missedWords.length : (currentLevel < 10 ? 10 : 50);
       progressBar.style.width = `${(wordsCompleted / totalWords) * 100}%`;
       progressText.innerHTML = `Words Completed: ${wordsCompleted}/${totalWords} <div class="bee"></div>`;
     }
-  
+
     function getLevelWords() {
       if (isReviewMode) return missedWords;
-      const start = currentLevel * 50;
-      return words.slice(start, start + 50);
+      let start;
+      if (currentLevel < 5) {
+        // Level 1-a to 1-e (0-4)
+        start = currentLevel * 10;
+      } else if (currentLevel < 10) {
+        // Level 2-a to 2-e (5-9)
+        start = 50 + (currentLevel - 5) * 10;
+      } else {
+        // Levels 3-7 (10-14)
+        start = 100 + (currentLevel - 10) * 50;
+      }
+      const wordCount = currentLevel < 10 ? 10 : 50;
+      return words.slice(start, start + wordCount);
     }
-  
+
     function showWord() {
       const levelWords = getLevelWords();
       if (indexPointer >= levelWords.length) {
@@ -584,7 +603,7 @@
       updateProgress();
       enableButtons();
     }
-  
+
     function pronounceWord() {
       if (isSpeaking) return;
       isSpeaking = true;
@@ -593,7 +612,7 @@
       const w = levelWords[currentIndex];
       const fullPronounce = document.getElementById("fullPronounce").checked;
       const word = w.word.toLowerCase();
-  
+
       const speakText = (text) => {
         return new Promise((resolve) => {
           const utterance = new SpeechSynthesisUtterance(text);
@@ -604,7 +623,7 @@
           speechSynthesis.speak(utterance);
         });
       };
-  
+
       const playHowjsayAudio = () => {
         const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
         audio.volume = 0.7;
@@ -615,14 +634,13 @@
           setTimeout(() => reject(new Error("Audio load timeout")), 3000);
         });
       };
-  
+
       const pronounceSequence = async () => {
         try {
           if (fullPronounce && currentIndex !== lastPronouncedIndex) {
-            // Full pronunciation: SpeechSynthesis first, then Howjsay
             await speakText(word); // First pronunciation with SpeechSynthesis
             await new Promise(resolve => setTimeout(resolve, 1000));
-            await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay, fallback to SpeechSynthesis
+            await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay
             await new Promise(resolve => setTimeout(resolve, 1000));
             await speakText(`Part of speech: ${w.part}`);
             await speakText(`Definition: ${w.definition}`);
@@ -632,10 +650,9 @@
             await speakText(word); // Final pronunciation with SpeechSynthesis
             lastPronouncedIndex = currentIndex;
           } else {
-            // Subsequent clicks: pronounce twice
             await speakText(word); // First with SpeechSynthesis
             await new Promise(resolve => setTimeout(resolve, 1000));
-            await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay, fallback to SpeechSynthesis
+            await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay
           }
           isSpeaking = false;
           enableButtons();
@@ -645,24 +662,24 @@
           enableButtons();
         }
       };
-  
+
       pronounceSequence();
     }
-  
+
     function disableButtons() {
       document.getElementById("pronounce").disabled = true;
       document.getElementById("checkAnswer").disabled = true;
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
     }
-  
+
     function enableButtons() {
       document.getElementById("pronounce").disabled = false;
       document.getElementById("checkAnswer").disabled = false;
       document.getElementById("showAnswer").disabled = failCount < 3;
       document.getElementById("levelSelect").disabled = false;
     }
-  
+
     function nextWord() {
       const levelWords = getLevelWords();
       indexPointer++;
@@ -678,7 +695,7 @@
       isSpeaking = false;
       showWord();
     }
-  
+
     function endReviewMode() {
       isReviewMode = false;
       missedWords = [];
@@ -688,7 +705,7 @@
       showWord();
       saveGameState();
     }
-  
+
     function showFeedback(message, isCorrect) {
       const feedback = document.getElementById("feedback");
       const mascot = document.getElementById("mascot");
@@ -703,12 +720,12 @@
         }, 1500);
       }
     }
-  
+
     function hideFeedback() {
       document.getElementById("feedback").style.display = "none";
       document.getElementById("mascot").className = "";
     }
-  
+
     function showCelebration() {
       const celebration = document.getElementById("celebration");
       document.getElementById("mainContent").style.display = "none";
@@ -722,7 +739,7 @@
       if (Math.random() > 0.5) effects.push(2);
       if (Math.random() > 0.5) effects.push(3);
       if (effects.length === 0) effects.push(type);
-  
+
       effects.forEach(effectType => {
         for (let i = 0; i < count; i++) {
           const el = document.createElement("div");
@@ -747,10 +764,10 @@
           celebration.appendChild(el);
         }
       });
-  
+
       setTimeout(() => hideCelebration(), 2000);
     }
-  
+
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
       while (celebration.firstChild && celebration.firstChild !== celebration.querySelector(".celebration-text")) {
@@ -760,7 +777,7 @@
       document.getElementById("mainContent").style.display = "block";
       nextWord();
     }
-  
+
     function showLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       document.getElementById("mainContent").style.display = "none";
@@ -790,7 +807,7 @@
       }
       setTimeout(() => hideLevelComplete(), 4000);
     }
-  
+
     function hideLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       while (levelComplete.firstChild && levelComplete.firstChild !== levelComplete.querySelector(".level-complete-text")) {
@@ -799,14 +816,14 @@
       levelComplete.style.display = "none";
       showReviewMode();
     }
-  
+
     function showReviewMode() {
       if (missedWords.length === 0) {
         document.getElementById("feedback").innerText = "No words to review!";
         document.getElementById("feedback").style.display = "block";
         setTimeout(() => {
           hideFeedback();
-          if (currentLevel < 6) {
+          if (currentLevel < 14) {
             currentLevel++;
             document.getElementById("levelSelect").value = currentLevel;
             initializeWordIndices();
@@ -829,7 +846,7 @@
       `;
       document.body.appendChild(reviewDiv);
     }
-  
+
     function redoMissedWords() {
       document.getElementById("review-mode").remove();
       document.getElementById("mainContent").style.display = "block";
@@ -842,7 +859,7 @@
       enableButtons();
       saveGameState();
     }
-  
+
     function checkSpelling() {
       if (isSpeaking) return;
       const levelWords = getLevelWords();
@@ -868,14 +885,14 @@
         updateDisplay();
       }
     }
-  
+
     function showAnswer() {
       if (isSpeaking) return;
       const levelWords = getLevelWords();
       const w = levelWords[currentIndex];
       showFeedback(`Answer: ${w.word}`, false);
     }
-  
+
     function changeLevel() {
       currentLevel = parseInt(document.getElementById("levelSelect").value);
       failCount = 0;
@@ -887,20 +904,19 @@
       showWord();
       saveGameState();
     }
-  
-    // Custom confirmation popup
+
     function showConfirmPopup() {
       document.getElementById("confirmPopup").style.display = "block";
     }
-  
+
     function hideConfirmPopup() {
       document.getElementById("confirmPopup").style.display = "none";
     }
-  
+
     function goToWordList() {
       window.location.href = 'wordlist.html';
     }
-  
+
     document.addEventListener('keydown', (event) => {
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
         console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking);
@@ -911,7 +927,7 @@
         checkSpelling();
       }
     });
-  
+
     const mascot = document.getElementById("mascot");
     mascot.addEventListener('touchstart', () => {
       tapCount++;
@@ -925,7 +941,7 @@
         tapCount = 0;
       }
     });
-  
+
     // Initial setup
     loadGameState();
     initializeWordIndices();
