@@ -665,7 +665,7 @@
 
     function disableButtons() {
       document.getElementById("pronounce").disabled = true;
-      document.getElementById("checkAnswer").disabled = true;
+      // Keep "Check Answer" enabled to allow interruption
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
     }
@@ -915,6 +915,7 @@
     }
 
     function goToWordList() {
+      saveGameState(); // Ensure state is saved before leaving
       window.location.href = 'wordlist.html';
     }
 
