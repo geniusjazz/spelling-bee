@@ -775,6 +775,9 @@
 
     function endReviewMode() {
       isReviewMode = false;
+      if (!completedLevels.includes(currentLevel)) {
+        completedLevels.push(currentLevel);
+      }
       saveGameState();
       updateLevelSelect();
       showLevelComplete();
@@ -893,9 +896,16 @@
       wordsCompleted = 0;
       wordIndices = [];
       currentWord = "";
-      // Move to next level without adding star
-      if (currentLevel < 14) {
-        currentLevel++;
+      // Find the next uncompleted level
+      let nextLevel = currentLevel;
+      do {
+        nextLevel++;
+      } while (nextLevel <= 14 && completedLevels.includes(nextLevel));
+      if (nextLevel <= 14) {
+        currentLevel = nextLevel;
+        document.getElementById("levelSelect").value = currentLevel;
+      } else {
+        currentLevel = 0; // Restart at Level 1-a if all levels are completed
         document.getElementById("levelSelect").value = currentLevel;
       }
       initializeWordIndices();
@@ -906,6 +916,11 @@
 
     function showReviewMode() {
       if (missedWords.length === 0) {
+        if (!completedLevels.includes(currentLevel)) {
+          completedLevels.push(currentLevel);
+          saveGameState();
+          updateLevelSelect();
+        }
         showLevelComplete();
         return;
       }
