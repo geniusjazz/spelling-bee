@@ -588,159 +588,159 @@
       enableButtons();
     }
 
-function pronounceWord() {
-  if (isSpeaking) return;
-  isSpeaking = true;
-  disableButtons();
-  const levelWords = getLevelWords();
-  const w = levelWords[currentIndex];
-  const fullPronounce = document.getElementById("fullPronounce").checked;
-  const word = w.word.toLowerCase();
-
-  // Try Howjsay first
-  const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
-  
-  // Handle successful load and play
-  audio.oncanplaythrough = () => {
-    if (fullPronounce && currentIndex !== lastPronouncedIndex) {
-      // Full pronunciation sequence with Howjsay for the word
-      audio.play().catch(() => fallbackToSpeechSynthesis(w, fullPronounce));
-      audio.onended = () => {
-        setTimeout(() => {
-          const secondPlay = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
-          secondPlay.play().catch(() => {});
-          secondPlay.onended = () => {
+    function pronounceWord() {
+      if (isSpeaking) return;
+      isSpeaking = true;
+      disableButtons();
+      const levelWords = getLevelWords();
+      const w = levelWords[currentIndex];
+      const fullPronounce = document.getElementById("fullPronounce").checked;
+      const word = w.word.toLowerCase();
+    
+      // Try Howjsay first
+      const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
+      
+      // Handle successful load and play
+      audio.oncanplaythrough = () => {
+        if (fullPronounce && currentIndex !== lastPronouncedIndex) {
+          // Full pronunciation sequence with Howjsay for the word
+          audio.play().catch(() => fallbackToSpeechSynthesis(w, fullPronounce));
+          audio.onended = () => {
             setTimeout(() => {
-              const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-              partSpeech.lang = "en-US";
-              partSpeech.rate = 0.7;
-              partSpeech.pitch = 0.7;
-              speechSynthesis.speak(partSpeech);
-              partSpeech.onend = () => {
-                const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-                definition.lang = "en-US";
-                definition.rate = 0.7;
-                definition.pitch = 0.7;
-                speechSynthesis.speak(definition);
-                definition.onend = () => {
-                  setTimeout(() => {
-                    const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-                    pleaseSpell.lang = "en-US";
-                    pleaseSpell.rate = 0.7;
-                    pleaseSpell.pitch = 0.7;
-                    speechSynthesis.speak(pleaseSpell);
-                    pleaseSpell.onend = () => {
+              const secondPlay = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
+              secondPlay.play().catch(() => {});
+              secondPlay.onended = () => {
+                setTimeout(() => {
+                  const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+                  partSpeech.lang = "en-US";
+                  partSpeech.rate = 0.7;
+                  partSpeech.pitch = 0.7;
+                  speechSynthesis.speak(partSpeech);
+                  partSpeech.onend = () => {
+                    const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+                    definition.lang = "en-US";
+                    definition.rate = 0.7;
+                    definition.pitch = 0.7;
+                    speechSynthesis.speak(definition);
+                    definition.onend = () => {
                       setTimeout(() => {
-                        const finalPlay = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
-                        finalPlay.play().catch(() => {});
-                        finalPlay.onended = () => {
-                          lastPronouncedIndex = currentIndex;
-                          isSpeaking = false;
-                          enableButtons();
+                        const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+                        pleaseSpell.lang = "en-US";
+                        pleaseSpell.rate = 0.7;
+                        pleaseSpell.pitch = 0.7;
+                        speechSynthesis.speak(pleaseSpell);
+                        pleaseSpell.onend = () => {
+                          setTimeout(() => {
+                            const finalPlay = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
+                            finalPlay.play().catch(() => {});
+                            finalPlay.onended = () => {
+                              lastPronouncedIndex = currentIndex;
+                              isSpeaking = false;
+                              enableButtons();
+                            };
+                          }, 1000);
                         };
                       }, 1000);
                     };
-                  }, 1000);
-                };
-              };
-            }, 1000);
-          };
-        }, 1000);
-      };
-    } else {
-      // Simple pronunciation with Howjsay
-      audio.play().catch(() => fallbackToSpeechSynthesis(w, fullPronounce));
-      audio.onended = () => {
-        isSpeaking = false;
-        enableButtons();
-      };
-    }
-  };
-
-  // Handle errors (e.g., word not found on Howjsay)
-  audio.onerror = () => {
-    console.log(`Howjsay audio not found for "${word}", falling back to SpeechSynthesis`);
-    fallbackToSpeechSynthesis(w, fullPronounce);
-  };
-
-  // Start loading the audio
-  audio.load();
-}
-
-// Fallback function for SpeechSynthesis
-function fallbackToSpeechSynthesis(w, fullPronounce) {
-  if (fullPronounce && currentIndex !== lastPronouncedIndex) {
-    const firstWord = new SpeechSynthesisUtterance(w.word);
-    firstWord.lang = "en-US";
-    firstWord.rate = 0.7;
-    firstWord.pitch = 0.7;
-
-    const secondWord = new SpeechSynthesisUtterance(w.word);
-    secondWord.lang = "en-US";
-    secondWord.rate = 0.7;
-    secondWord.pitch = 0.7;
-
-    const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
-    partSpeech.lang = "en-US";
-    partSpeech.rate = 0.7;
-    partSpeech.pitch = 0.7;
-
-    const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
-    definition.lang = "en-US";
-    definition.rate = 0.7;
-    definition.pitch = 0.7;
-
-    const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
-    pleaseSpell.lang = "en-US";
-    pleaseSpell.rate = 0.7;
-    pleaseSpell.pitch = 0.7;
-
-    const finalWord = new SpeechSynthesisUtterance(w.word);
-    finalWord.lang = "en-US";
-    finalWord.rate = 0.7;
-    finalWord.pitch = 0.7;
-
-    speechSynthesis.speak(firstWord);
-    firstWord.onend = () => {
-      setTimeout(() => {
-        speechSynthesis.speak(secondWord);
-        secondWord.onend = () => {
-          setTimeout(() => {
-            speechSynthesis.speak(partSpeech);
-            partSpeech.onend = () => {
-              speechSynthesis.speak(definition);
-              definition.onend = () => {
-                setTimeout(() => {
-                  speechSynthesis.speak(pleaseSpell);
-                  pleaseSpell.onend = () => {
-                    setTimeout(() => {
-                      speechSynthesis.speak(finalWord);
-                      finalWord.onend = () => {
-                        lastPronouncedIndex = currentIndex;
-                        isSpeaking = false;
-                        enableButtons();
-                      };
-                    }, 1000);
                   };
                 }, 1000);
               };
             }, 1000);
+          };
+        } else {
+          // Simple pronunciation with Howjsay
+          audio.play().catch(() => fallbackToSpeechSynthesis(w, fullPronounce));
+          audio.onended = () => {
+            isSpeaking = false;
+            enableButtons();
+          };
+        }
+      };
+    
+      // Handle errors (e.g., word not found on Howjsay)
+      audio.onerror = () => {
+        console.log(`Howjsay audio not found for "${word}", falling back to SpeechSynthesis`);
+        fallbackToSpeechSynthesis(w, fullPronounce);
+      };
+    
+      // Start loading the audio
+      audio.load();
+    }
+    
+    // Fallback function for SpeechSynthesis
+    function fallbackToSpeechSynthesis(w, fullPronounce) {
+      if (fullPronounce && currentIndex !== lastPronouncedIndex) {
+        const firstWord = new SpeechSynthesisUtterance(w.word);
+        firstWord.lang = "en-US";
+        firstWord.rate = 0.7;
+        firstWord.pitch = 0.7;
+    
+        const secondWord = new SpeechSynthesisUtterance(w.word);
+        secondWord.lang = "en-US";
+        secondWord.rate = 0.7;
+        secondWord.pitch = 0.7;
+    
+        const partSpeech = new SpeechSynthesisUtterance(`Part of speech: ${w.part}`);
+        partSpeech.lang = "en-US";
+        partSpeech.rate = 0.7;
+        partSpeech.pitch = 0.7;
+    
+        const definition = new SpeechSynthesisUtterance(`Definition: ${w.definition}`);
+        definition.lang = "en-US";
+        definition.rate = 0.7;
+        definition.pitch = 0.7;
+    
+        const pleaseSpell = new SpeechSynthesisUtterance("Please spell");
+        pleaseSpell.lang = "en-US";
+        pleaseSpell.rate = 0.7;
+        pleaseSpell.pitch = 0.7;
+    
+        const finalWord = new SpeechSynthesisUtterance(w.word);
+        finalWord.lang = "en-US";
+        finalWord.rate = 0.7;
+        finalWord.pitch = 0.7;
+    
+        speechSynthesis.speak(firstWord);
+        firstWord.onend = () => {
+          setTimeout(() => {
+            speechSynthesis.speak(secondWord);
+            secondWord.onend = () => {
+              setTimeout(() => {
+                speechSynthesis.speak(partSpeech);
+                partSpeech.onend = () => {
+                  speechSynthesis.speak(definition);
+                  definition.onend = () => {
+                    setTimeout(() => {
+                      speechSynthesis.speak(pleaseSpell);
+                      pleaseSpell.onend = () => {
+                        setTimeout(() => {
+                          speechSynthesis.speak(finalWord);
+                          finalWord.onend = () => {
+                            lastPronouncedIndex = currentIndex;
+                            isSpeaking = false;
+                            enableButtons();
+                          };
+                        }, 1000);
+                      };
+                    }, 1000);
+                  };
+                }, 1000);
+              }, 1000);
+            };
           }, 1000);
         };
-      }, 1000);
-    };
-  } else {
-    const wordOnly = new SpeechSynthesisUtterance(w.word);
-    wordOnly.lang = "en-US";
-    wordOnly.rate = 0.7;
-    wordOnly.pitch = 0.7;
-    speechSynthesis.speak(wordOnly);
-    wordOnly.onend = () => {
-      isSpeaking = false;
-      enableButtons();
-    };
-  }
-}
+      } else {
+        const wordOnly = new SpeechSynthesisUtterance(w.word);
+        wordOnly.lang = "en-US";
+        wordOnly.rate = 0.7;
+        wordOnly.pitch = 0.7;
+        speechSynthesis.speak(wordOnly);
+        wordOnly.onend = () => {
+          isSpeaking = false;
+          enableButtons();
+        };
+      }
+    }
 
     function disableButtons() {
       document.getElementById("pronounce").disabled = true;
