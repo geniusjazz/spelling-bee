@@ -11,7 +11,7 @@
     body {
       text-align: center;
       padding: 20px;
-      background: url('https://subtlepatterns.com/patterns/honey_im_subtle.png') #fff9e6;
+      FECbackground: url('https://subtlepatterns.com/patterns/honey_im_subtle.png') #fff9e6;
       margin: 0;
       color: #333;
       min-height: 100vh;
@@ -129,13 +129,21 @@
 <body>
   <h1>Word List</h1>
   <select id="levelSelect" onchange="updateWordList()">
-    <option value="0">Level 1</option>
-    <option value="1">Level 2</option>
-    <option value="2">Level 3</option>
-    <option value="3">Level 4</option>
-    <option value="4">Level 5</option>
-    <option value="5">Level 6</option>
-    <option value="6">Level 7</option>
+    <option value="0">Level 1-a</option>
+    <option value="1">Level 1-b</option>
+    <option value="2">Level 1-c</option>
+    <option value="3">Level 1-d</option>
+    <option value="4">Level 1-e</option>
+    <option value="5">Level 2-a</option>
+    <option value="6">Level 2-b</option>
+    <option value="7">Level 2-c</option>
+    <option value="8">Level 2-d</option>
+    <option value="9">Level 2-e</option>
+    <option value="10">Level 3</option>
+    <option value="11">Level 4</option>
+    <option value="12">Level 5</option>
+    <option value="13">Level 6</option>
+    <option value="14">Level 7</option>
   </select>
   <div id="wordList"></div>
   <div id="wordDetails">
@@ -154,8 +162,19 @@
 
     function updateWordList() {
       const level = parseInt(document.getElementById("levelSelect").value);
-      const start = level * 50;
-      const levelWords = words.slice(start, start + 50);
+      let start;
+      if (level < 5) {
+        // Level 1-a to 1-e (0-4)
+        start = level * 10;
+      } else if (level < 10) {
+        // Level 2-a to 2-e (5-9)
+        start = 50 + (level - 5) * 10;
+      } else {
+        // Levels 3-7 (10-14)
+        start = 100 + (level - 10) * 50;
+      }
+      const wordCount = level < 10 ? 10 : 50;
+      const levelWords = words.slice(start, start + wordCount);
       const wordList = document.getElementById("wordList");
       wordList.innerHTML = "";
 
@@ -214,7 +233,7 @@
         try {
           await speakText(word); // First pronunciation with SpeechSynthesis
           await new Promise(resolve => setTimeout(resolve, 1000));
-          await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay, fallback to SpeechSynthesis
+          await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay
           isSpeaking = false;
           document.getElementById("pronounceWord").disabled = false;
         } catch (error) {
