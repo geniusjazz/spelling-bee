@@ -567,13 +567,10 @@
       if (isReviewMode) return missedWords;
       let start;
       if (currentLevel < 5) {
-        // Level 1-a to 1-e (0-4)
         start = currentLevel * 10;
       } else if (currentLevel < 10) {
-        // Level 2-a to 2-e (5-9)
         start = 50 + (currentLevel - 5) * 10;
       } else {
-        // Levels 3-7 (10-14)
         start = 100 + (currentLevel - 10) * 50;
       }
       const wordCount = currentLevel < 10 ? 10 : 50;
@@ -861,7 +858,11 @@
     }
 
     function checkSpelling() {
-      if (isSpeaking) return;
+      if (isSpeaking) {
+        speechSynthesis.cancel(); // Stop any ongoing speech
+        isSpeaking = false;
+        enableButtons();
+      }
       const levelWords = getLevelWords();
       const userInput = currentWord.trim().toLowerCase();
       if (userInput === levelWords[currentIndex].word) {
