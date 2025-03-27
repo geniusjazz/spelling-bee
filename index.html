@@ -374,10 +374,6 @@
     .redo-button:active {
       transform: scale(0.95);
     }
-    .completed::after {
-      content: " ⭐";
-      color: #ffeb3b;
-    }
     @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-15px); }
@@ -585,13 +581,14 @@
 
     function updateLevelSelect() {
       const select = document.getElementById("levelSelect");
-      const options = select.options;
-      for (let i = 0; i < options.length; i++) {
-        const level = parseInt(options[i].value);
-        options[i].classList.remove("completed"); // Clear existing stars
-        if (completedLevels.includes(level)) {
-          options[i].classList.add("completed");
-        }
+      const baseOptions = [
+        "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e",
+        "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
+        "Level 3", "Level 4", "Level 5", "Level 6", "Level 7"
+      ];
+      for (let i = 0; i < select.options.length; i++) {
+        const level = parseInt(select.options[i].value);
+        select.options[i].text = baseOptions[i] + (completedLevels.includes(level) ? " ⭐" : "");
       }
     }
 
@@ -874,6 +871,7 @@
       missedWords = [];
       wordsCompleted = 0;
       wordIndices = [];
+      currentWord = ""; // Clear the answer box
       initializeWordIndices();
       isSpeaking = false;
       showWord();
