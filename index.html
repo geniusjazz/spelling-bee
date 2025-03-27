@@ -588,10 +588,9 @@
       const options = select.options;
       for (let i = 0; i < options.length; i++) {
         const level = parseInt(options[i].value);
+        options[i].classList.remove("completed"); // Clear existing stars
         if (completedLevels.includes(level)) {
           options[i].classList.add("completed");
-        } else {
-          options[i].classList.remove("completed");
         }
       }
     }
@@ -643,7 +642,7 @@
         if (isReviewMode) {
           endReviewMode();
         } else {
-          showReviewMode(); // Move to review instead of immediate celebration
+          showReviewMode();
         }
         return;
       }
@@ -757,10 +756,10 @@
       isReviewMode = false;
       if (!completedLevels.includes(currentLevel)) {
         completedLevels.push(currentLevel);
-        saveGameState();
-        updateLevelSelect();
       }
-      showLevelComplete(); // Celebrate only after review is done
+      saveGameState();
+      updateLevelSelect();
+      showLevelComplete();
     }
 
     function showFeedback(message, isCorrect) {
@@ -840,6 +839,7 @@
       document.getElementById("mainContent").style.display = "none";
       levelComplete.style.display = "block";
       playSound('levelComplete');
+      updateLevelSelect(); // Ensure star appears immediately
       for (let i = 0; i < 50; i++) {
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
@@ -916,6 +916,7 @@
       wordsCompleted = 0;
       failCount = 0;
       isSpeaking = false;
+      currentWord = ""; // Clear the answer box
       wordIndices = [];
       initializeWordIndices();
       showWord();
@@ -968,6 +969,7 @@
       isReviewMode = false;
       missedWords = [];
       isSpeaking = false;
+      currentWord = "";
       wordIndices = [];
       initializeWordIndices();
       showWord();
