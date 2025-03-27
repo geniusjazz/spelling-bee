@@ -186,13 +186,47 @@
       isSpeaking = true;
       document.getElementById("pronounceWord").disabled = true;
 
-      const utterance = new SpeechSynthesisUtterance(currentWord.word);
+      const word = currentWord.word.toLowerCase();
+      const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
+      audio.volume = 0.7;
+
+      const playAudio = () => {
+        return new Promise((resolve, reject) => {
+          audio.oncanplaythrough = () => resolve();
+          audio.onerror = () => reject(new Error(`Howjsay audio failed for "${word}"`));
+          audio.onended = () => resolve();
+          audio.play().catch(reject);
+          setTimeout(() => reject(new Error("Audio load timeout")), 3000);
+        });
+      };
+
+      const pronounceSequence = async () => {
+        try {
+          await playAudio();
+          isSpeaking = false;
+          document.getElementById("pronounceWord").disabled = false;
+        } catch (error) {
+          console.log("Howjsay failed:", error.message);
+          fallbackToSpeechSynthesis(word);
+        }
+      };
+
+      pronounceSequence();
+    }
+
+    function fallbackToSpeechSynthesis(word) {
+      const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = "en-US";
       utterance.rate = 0.7;
       utterance.pitch = 0.7;
       speechSynthesis.speak(utterance);
 
       utterance.onend = () => {
+        isSpeaking = false;
+        document.getElementById("pronounceWord").disabled = false;
+      };
+      utterance.onerror = (err) => {
+        console.error("SpeechSynthesis failed:", err);
         isSpeaking = false;
         document.getElementById("pronounceWord").disabled = false;
       };
