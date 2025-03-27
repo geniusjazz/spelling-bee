@@ -643,7 +643,7 @@
         if (isReviewMode) {
           endReviewMode();
         } else {
-          showLevelComplete();
+          showReviewMode(); // Move to review instead of immediate celebration
         }
         return;
       }
@@ -742,7 +742,7 @@
         if (isReviewMode) {
           endReviewMode();
         } else {
-          showLevelComplete();
+          showReviewMode();
         }
         return;
       }
@@ -754,18 +754,13 @@
     }
 
     function endReviewMode() {
+      isReviewMode = false;
       if (!completedLevels.includes(currentLevel)) {
         completedLevels.push(currentLevel);
+        saveGameState();
+        updateLevelSelect();
       }
-      isReviewMode = false;
-      missedWords = [];
-      wordsCompleted = 0;
-      wordIndices = [];
-      initializeWordIndices();
-      isSpeaking = false;
-      showWord();
-      updateLevelSelect();
-      saveGameState();
+      showLevelComplete(); // Celebrate only after review is done
     }
 
     function showFeedback(message, isCorrect) {
@@ -845,11 +840,6 @@
       document.getElementById("mainContent").style.display = "none";
       levelComplete.style.display = "block";
       playSound('levelComplete');
-      if (!completedLevels.includes(currentLevel)) {
-        completedLevels.push(currentLevel);
-      }
-      saveGameState();
-      updateLevelSelect();
       for (let i = 0; i < 50; i++) {
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
@@ -881,17 +871,23 @@
         levelComplete.removeChild(levelComplete.firstChild);
       }
       levelComplete.style.display = "none";
-      showReviewMode();
+      missedWords = [];
+      wordsCompleted = 0;
+      wordIndices = [];
+      initializeWordIndices();
+      isSpeaking = false;
+      showWord();
+      saveGameState();
     }
 
     function showReviewMode() {
       if (missedWords.length === 0) {
-        document.getElementById("feedback").innerText = "No words to review! Great job!";
-        document.getElementById("feedback").style.display = "block";
-        setTimeout(() => {
-          hideFeedback();
-          document.getElementById("mainContent").style.display = "block";
-        }, 2000);
+        if (!completedLevels.includes(currentLevel)) {
+          completedLevels.push(currentLevel);
+          saveGameState();
+          updateLevelSelect();
+        }
+        showLevelComplete();
         return;
       }
       document.getElementById("mainContent").style.display = "none";
