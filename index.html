@@ -159,6 +159,19 @@
     #wordListButton:hover {
       opacity: 1;
     }
+    #resetButton {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      width: 120px;
+      background: #f44336;
+      padding: 10px 15px;
+      font-size: 16px;
+      opacity: 0.7;
+    }
+    #resetButton:hover {
+      opacity: 1;
+    }
     #keyboard {
       display: flex;
       flex-wrap: wrap;
@@ -295,7 +308,7 @@
     #mascot.sad {
       transform: scale(0.9) rotate(-10deg);
     }
-    #confirmPopup {
+    #confirmPopup, #resetConfirmPopup {
       display: none;
       position: fixed;
       top: 50%;
@@ -310,22 +323,22 @@
       max-width: 80%;
       animation: popIn 0.5s ease-out;
     }
-    #confirmPopup p {
+    #confirmPopup p, #resetConfirmPopup p {
       font-size: 28px;
       color: #d81b60;
       margin: 0 0 20px 0;
     }
-    #confirmPopup button {
+    #confirmPopup button, #resetConfirmPopup button {
       width: 120px;
       padding: 15px;
       font-size: 20px;
       margin: 10px;
       display: inline-block;
     }
-    #confirmYes {
+    #confirmYes, #resetYes {
       background: #4caf50;
     }
-    #confirmNo {
+    #confirmNo, #resetNo {
       background: #f44336;
     }
     #review-mode {
@@ -425,8 +438,9 @@
       #progress-text { font-size: 18px; }
       #pronounce-toggle { font-size: 18px; top: 5px; left: 5px; }
       #wordListButton { width: 100px; font-size: 14px; padding: 8px 12px; top: 5px; right: 5px; }
-      #confirmPopup p { font-size: 24px; }
-      #confirmPopup button { width: 100px; font-size: 18px; padding: 12px; }
+      #resetButton { width: 100px; font-size: 14px; padding: 8px 12px; bottom: 5px; left: 5px; }
+      #confirmPopup p, #resetConfirmPopup p { font-size: 24px; }
+      #confirmPopup button, #resetConfirmPopup button { width: 100px; font-size: 18px; padding: 12px; }
       .word-button { font-size: 22px; padding: 8px 15px; }
       .redo-button { font-size: 20px; padding: 12px 25px; }
     }
@@ -480,6 +494,12 @@
     <button id="confirmYes" onclick="goToWordList()">Yes</button>
     <button id="confirmNo" onclick="hideConfirmPopup()">No</button>
   </div>
+  <div id="resetConfirmPopup">
+    <p>Are you sure you want to reset all progress?</p>
+    <button id="resetYes" onclick="resetProgress()">Yes</button>
+    <button id="resetNo" onclick="hideResetConfirmPopup()">No</button>
+  </div>
+  <button id="resetButton" onclick="showResetConfirmPopup()">Reset Progress</button>
 
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script>
@@ -497,6 +517,7 @@
     let missedWords = [];
     let isReviewMode = false;
     let completedLevels = [];
+    let lastResetDate = null;
 
     // Build keyboard
     const keyboard = document.getElementById("keyboard");
@@ -552,6 +573,7 @@
       localStorage.setItem('failCount', failCount);
       localStorage.setItem('currentWord', currentWord);
       localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+      localStorage.setItem('lastResetDate', lastResetDate);
     }
 
     function loadGameState() {
@@ -565,7 +587,9 @@
       failCount = parseInt(localStorage.getItem('failCount')) || 0;
       currentWord = localStorage.getItem('currentWord') || "";
       completedLevels = JSON.parse(localStorage.getItem('completedLevels')) || [];
+      lastResetDate = localStorage.getItem('lastResetDate') || null;
       document.getElementById("levelSelect").value = currentLevel;
+      checkDailyReset();
       updateLevelSelect();
     }
 
@@ -751,9 +775,6 @@
 
     function endReviewMode() {
       isReviewMode = false;
-      if (!completedLevels.includes(currentLevel)) {
-        completedLevels.push(currentLevel);
-      }
       saveGameState();
       updateLevelSelect();
       showLevelComplete();
@@ -836,7 +857,7 @@
       document.getElementById("mainContent").style.display = "none";
       levelComplete.style.display = "block";
       playSound('levelComplete');
-      updateLevelSelect(); // Ensure star appears immediately
+      updateLevelSelect();
       for (let i = 0; i < 50; i++) {
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
@@ -871,7 +892,12 @@
       missedWords = [];
       wordsCompleted = 0;
       wordIndices = [];
-      currentWord = ""; // Clear the answer box
+      currentWord = "";
+      // Move to next level without adding star
+      if (currentLevel < 14) {
+        currentLevel++;
+        document.getElementById("levelSelect").value = currentLevel;
+      }
       initializeWordIndices();
       isSpeaking = false;
       showWord();
@@ -880,11 +906,6 @@
 
     function showReviewMode() {
       if (missedWords.length === 0) {
-        if (!completedLevels.includes(currentLevel)) {
-          completedLevels.push(currentLevel);
-          saveGameState();
-          updateLevelSelect();
-        }
         showLevelComplete();
         return;
       }
@@ -914,7 +935,7 @@
       wordsCompleted = 0;
       failCount = 0;
       isSpeaking = false;
-      currentWord = ""; // Clear the answer box
+      currentWord = "";
       wordIndices = [];
       initializeWordIndices();
       showWord();
@@ -985,6 +1006,43 @@
     function goToWordList() {
       saveGameState();
       window.location.href = 'wordlist.html';
+    }
+
+    function showResetConfirmPopup() {
+      document.getElementById("resetConfirmPopup").style.display = "block";
+    }
+
+    function hideResetConfirmPopup() {
+      document.getElementById("resetConfirmPopup").style.display = "none";
+    }
+
+    function resetProgress() {
+      completedLevels = [];
+      currentLevel = 0;
+      wordsCompleted = 0;
+      wordIndices = [];
+      indexPointer = 0;
+      isReviewMode = false;
+      missedWords = [];
+      currentIndex = 0;
+      failCount = 0;
+      currentWord = "";
+      lastResetDate = new Date().toDateString();
+      document.getElementById("levelSelect").value = 0;
+      initializeWordIndices();
+      updateLevelSelect();
+      showWord();
+      saveGameState();
+      hideResetConfirmPopup();
+    }
+
+    function checkDailyReset() {
+      const today = new Date().toDateString();
+      if (lastResetDate !== today) {
+        resetProgress();
+        lastResetDate = today;
+        saveGameState();
+      }
     }
 
     document.addEventListener('keydown', (event) => {
