@@ -449,9 +449,7 @@
       #mascot { width: 60px; height: 60px; bottom: 10px; right: 10px; }
       .bee { width: 30px; height: 30px; }
       #progress-text { font-size: 18px; }
-      #header {
-        padding: 10px;
-      }
+      #header { padding: 10px; }
       #pronounce-toggle button {
         width: 90px;
         padding: 6px 10px;
@@ -540,8 +538,7 @@
     let tapTimeout;
     let missedWords = [];
     let isReviewMode = false;
-    let completedLevels = [];
-    let lastResetDate = null;
+    let levelCompletions = {}; // Object to track completions per level
     let fullPronounceEnabled = true;
 
     // Build keyboard
@@ -597,8 +594,7 @@
       localStorage.setItem('currentIndex', currentIndex);
       localStorage.setItem('failCount', failCount);
       localStorage.setItem('currentWord', currentWord);
-      localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
-      localStorage.setItem('lastResetDate', lastResetDate);
+      localStorage.setItem('levelCompletions', JSON.stringify(levelCompletions));
       localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled);
     }
 
@@ -612,12 +608,10 @@
       currentIndex = parseInt(localStorage.getItem('currentIndex')) || 0;
       failCount = parseInt(localStorage.getItem('failCount')) || 0;
       currentWord = localStorage.getItem('currentWord') || "";
-      completedLevels = JSON.parse(localStorage.getItem('completedLevels')) || [];
-      lastResetDate = localStorage.getItem('lastResetDate') || null;
+      levelCompletions = JSON.parse(localStorage.getItem('levelCompletions')) || {};
       fullPronounceEnabled = localStorage.getItem('fullPronounceEnabled') !== 'false';
       document.getElementById("levelSelect").value = currentLevel;
       updatePronounceButton();
-      checkDailyReset();
       updateLevelSelect();
     }
 
@@ -652,7 +646,13 @@
       ];
       for (let i = 0; i < select.options.length; i++) {
         const level = parseInt(select.options[i].value);
-        select.options[i].text = baseOptions[i] + (completedLevels.includes(level) ? " ⭐" : "");
+        const completions = levelCompletions[level] || 0;
+        const stars = completions % 5;
+        const trophies = Math.floor(completions / 5);
+        let suffix = '';
+        if (trophies > 0) suffix += ' 🏆'.repeat(trophies);
+        if (stars > 0) suffix += ' ⭐'.repeat(stars);
+        select.options[i].text = baseOptions[i] + suffix;
       }
     }
 
@@ -814,9 +814,7 @@
 
     function endReviewMode() {
       isReviewMode = false;
-      if (!completedLevels.includes(currentLevel)) {
-        completedLevels.push(currentLevel);
-      }
+      levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
       saveGameState();
       updateLevelSelect();
       showLevelComplete();
@@ -906,12 +904,14 @@
         "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
         "Level 3", "Level 4", "Level 5", "Level 6", "Level 7"
       ];
-      let nextLevel = currentLevel;
-      do {
-        nextLevel++;
-      } while (nextLevel <= 14 && completedLevels.includes(nextLevel));
-      const nextLevelName = nextLevel <= 14 ? baseOptions[nextLevel] : baseOptions[0];
-      levelCompleteText.innerHTML = `<span>🎉 Level Complete! 🎉</span><span>Now heading to ${nextLevelName}!</span>`;
+      const completions = levelCompletions[currentLevel] || 0;
+      const stars = completions % 5;
+      const trophies = Math.floor(completions / 5);
+      let message = `Level Complete! You now have `;
+      if (trophies > 0) message += `${trophies} 🏆 `;
+      if (stars > 0) message += `${stars} ⭐`;
+      if (completions === 1) message = "Level Complete! You earned your first ⭐!";
+      levelCompleteText.innerHTML = `<span>🎉 Level Complete! 🎉</span><span>${message}</span>`;
       
       updateLevelSelect();
       for (let i = 0; i < 50; i++) {
@@ -949,17 +949,6 @@
       wordsCompleted = 0;
       wordIndices = [];
       currentWord = "";
-      let nextLevel = currentLevel;
-      do {
-        nextLevel++;
-      } while (nextLevel <= 14 && completedLevels.includes(nextLevel));
-      if (nextLevel <= 14) {
-        currentLevel = nextLevel;
-        document.getElementById("levelSelect").value = currentLevel;
-      } else {
-        currentLevel = 0;
-        document.getElementById("levelSelect").value = currentLevel;
-      }
       initializeWordIndices();
       isSpeaking = false;
       showWord();
@@ -968,11 +957,9 @@
 
     function showReviewMode() {
       if (missedWords.length === 0) {
-        if (!completedLevels.includes(currentLevel)) {
-          completedLevels.push(currentLevel);
-          saveGameState();
-          updateLevelSelect();
-        }
+        levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
+        saveGameState();
+        updateLevelSelect();
         showLevelComplete();
         return;
       }
@@ -1084,7 +1071,6 @@
     }
 
     function resetProgress() {
-      completedLevels = [];
       currentLevel = 0;
       wordsCompleted = 0;
       wordIndices = [];
@@ -1094,22 +1080,13 @@
       currentIndex = 0;
       failCount = 0;
       currentWord = "";
-      lastResetDate = new Date().toDateString();
+      levelCompletions = {};
       document.getElementById("levelSelect").value = 0;
       initializeWordIndices();
       updateLevelSelect();
       showWord();
       saveGameState();
       hideResetConfirmPopup();
-    }
-
-    function checkDailyReset() {
-      const today = new Date().toDateString();
-      if (lastResetDate !== today) {
-        resetProgress();
-        lastResetDate = today;
-        saveGameState();
-      }
     }
 
     document.addEventListener('keydown', (event) => {
