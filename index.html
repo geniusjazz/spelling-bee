@@ -921,10 +921,12 @@
       const completions = levelCompletions[currentLevel] || 0;
       const stars = completions % 5;
       const trophies = Math.floor(completions / 5);
+      const nextLevel = currentLevel < 14 ? currentLevel + 1 : 0;
       let message = `Level Complete! You now have `;
       if (trophies > 0) message += `${trophies} 🏆 `;
       if (stars > 0) message += `${stars} ⭐`;
       if (completions === 1) message = "Level Complete! You earned your first ⭐!";
+      message += `<br>Next up: ${baseOptions[nextLevel]}`;
       levelCompleteText.innerHTML = `<span>🎉 Level Complete! 🎉</span><span>${message}</span>`;
       
       updateLevelSelect();
@@ -969,7 +971,13 @@
         currentIndex: 0,
         currentWord: ""
       };
-      initializeWordIndices(currentLevel);
+      if (currentLevel < 14) {
+        currentLevel++;
+      } else {
+        currentLevel = 0; // Loop back to start after Level 7
+      }
+      document.getElementById("levelSelect").value = currentLevel;
+      initializeLevelState(currentLevel);
       isSpeaking = false;
       showWord();
       saveGameState();
