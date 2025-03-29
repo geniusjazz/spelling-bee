@@ -637,13 +637,10 @@
   
     function initializeWordIndices(level) {
       const state = levelStates[level];
-      if (state.wordIndices.length === 0) {
-        state.wordIndices = state.isReviewMode ? 
-          Array.from({ length: state.missedWords.length }, (_, i) => i) : 
-          Array.from({ length: 10 }, (_, i) => i);
-        shuffle(state.wordIndices);
-        state.indexPointer = 0;
-      }
+      state.wordIndices = Array.from({ length: 10 }, (_, i) => i); // Always 10 words for a new level
+      shuffle(state.wordIndices);
+      state.indexPointer = 0;
+      state.isReviewMode = false; // Ensure new level starts in normal mode
       updateProgress();
       saveGameState();
     }
@@ -974,10 +971,11 @@
       if (currentLevel < 14) {
         currentLevel++;
       } else {
-        currentLevel = 0; // Loop back to start after Level 7
+        currentLevel = 0; // Loop back to Level 1-a after Level 7
       }
       document.getElementById("levelSelect").value = currentLevel;
       initializeLevelState(currentLevel);
+      initializeWordIndices(currentLevel); // Ensure indices are set
       isSpeaking = false;
       showWord();
       saveGameState();
@@ -1136,7 +1134,7 @@
   
     // Initial setup
     loadGameState();
-    if (!levelStates[currentLevel] || levelStates[currentLevel].indexPointer >= getLevelWords().length) {
+    if (!levelStates[currentLevel] || levelStates[currentLevel].wordIndices.length === 0) {
       initializeLevelState(currentLevel);
     }
     showWord();
