@@ -523,25 +523,17 @@
     <button id="resetNo" onclick="hideResetConfirmPopup()">No</button>
   </div>
 
-  <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script>
     let currentLevel = 0;
-    let currentIndex = 0;
-    let failCount = 0;
+    let levelStates = {}; // { level: { failCount, wordsCompleted, wordIndices, indexPointer, isReviewMode, missedWords, currentIndex, currentWord } }
+    let levelCompletions = {}; // { level: completionCount }
     let lastPronouncedIndex = -1;
     let isSpeaking = false;
-    let currentWord = "";
-    let wordIndices = [];
-    let indexPointer = 0;
-    let wordsCompleted = 0;
     let tapCount = 0;
     let tapTimeout;
-    let missedWords = [];
-    let isReviewMode = false;
-    let levelCompletions = {}; // Object to track completions per level
     let fullPronounceEnabled = true;
-
-    // Build keyboard
+  
+    // Build keyboard (unchanged)
     const keyboard = document.getElementById("keyboard");
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     letters.forEach(letter => {
@@ -563,8 +555,8 @@
     clear.innerText = "Clear";
     clear.onclick = clearWord;
     keyboard.appendChild(clear);
-
-    // Sound effects
+  
+    // Sound effects (unchanged)
     function playSound(type) {
       const audio = new Audio();
       if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/button-3.mp3';
@@ -573,8 +565,8 @@
       audio.volume = 0.7;
       audio.play().catch(() => {});
     }
-
-    // Fisher-Yates shuffle
+  
+    // Fisher-Yates shuffle (unchanged)
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -582,61 +574,80 @@
       }
       return array;
     }
-
+  
     // Save and load game state
     function saveGameState() {
+      const currentState = {
+        failCount: levelStates[currentLevel]?.failCount || 0,
+        wordsCompleted: levelStates[currentLevel]?.wordsCompleted || 0,
+        wordIndices: levelStates[currentLevel]?.wordIndices || [],
+        indexPointer: levelStates[currentLevel]?.indexPointer || 0,
+        isReviewMode: levelStates[currentLevel]?.isReviewMode || false,
+        missedWords: levelStates[currentLevel]?.missedWords || [],
+        currentIndex: levelStates[currentLevel]?.currentIndex || 0,
+        currentWord: levelStates[currentLevel]?.currentWord || ""
+      };
+      levelStates[currentLevel] = currentState;
       localStorage.setItem('currentLevel', currentLevel);
-      localStorage.setItem('wordsCompleted', wordsCompleted);
-      localStorage.setItem('wordIndices', JSON.stringify(wordIndices));
-      localStorage.setItem('indexPointer', indexPointer);
-      localStorage.setItem('isReviewMode', isReviewMode);
-      localStorage.setItem('missedWords', JSON.stringify(missedWords));
-      localStorage.setItem('currentIndex', currentIndex);
-      localStorage.setItem('failCount', failCount);
-      localStorage.setItem('currentWord', currentWord);
+      localStorage.setItem('levelStates', JSON.stringify(levelStates));
       localStorage.setItem('levelCompletions', JSON.stringify(levelCompletions));
       localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled);
     }
-
+  
     function loadGameState() {
       currentLevel = parseInt(localStorage.getItem('currentLevel')) || 0;
-      wordsCompleted = parseInt(localStorage.getItem('wordsCompleted')) || 0;
-      wordIndices = JSON.parse(localStorage.getItem('wordIndices')) || [];
-      indexPointer = parseInt(localStorage.getItem('indexPointer')) || 0;
-      isReviewMode = localStorage.getItem('isReviewMode') === 'true';
-      missedWords = JSON.parse(localStorage.getItem('missedWords')) || [];
-      currentIndex = parseInt(localStorage.getItem('currentIndex')) || 0;
-      failCount = parseInt(localStorage.getItem('failCount')) || 0;
-      currentWord = localStorage.getItem('currentWord') || "";
+      levelStates = JSON.parse(localStorage.getItem('levelStates')) || {};
       levelCompletions = JSON.parse(localStorage.getItem('levelCompletions')) || {};
       fullPronounceEnabled = localStorage.getItem('fullPronounceEnabled') !== 'false';
       document.getElementById("levelSelect").value = currentLevel;
       updatePronounceButton();
       updateLevelSelect();
+      if (!levelStates[currentLevel]) {
+        initializeLevelState(currentLevel);
+      }
     }
-
+  
+    function initializeLevelState(level) {
+      if (!levelStates[level]) {
+        levelStates[level] = {
+          failCount: 0,
+          wordsCompleted: 0,
+          wordIndices: [],
+          indexPointer: 0,
+          isReviewMode: false,
+          missedWords: [],
+          currentIndex: 0,
+          currentWord: ""
+        };
+        initializeWordIndices(level);
+      }
+    }
+  
     function updatePronounceButton() {
       const btn = document.getElementById("fullPronounce");
       btn.innerText = `Full Pronunciation: ${fullPronounceEnabled ? 'On' : 'Off'}`;
       btn.className = fullPronounceEnabled ? '' : 'off';
     }
-
+  
     function togglePronounce() {
       fullPronounceEnabled = !fullPronounceEnabled;
       updatePronounceButton();
       saveGameState();
     }
-
-    function initializeWordIndices() {
-      if (wordIndices.length === 0 || !localStorage.getItem('wordIndices')) {
-        wordIndices = isReviewMode ? Array.from({ length: missedWords.length }, (_, i) => i) : Array.from({ length: 10 }, (_, i) => i);
-        shuffle(wordIndices);
-        indexPointer = 0;
+  
+    function initializeWordIndices(level) {
+      const state = levelStates[level];
+      if (state.wordIndices.length === 0) {
+        state.wordIndices = state.isReviewMode ? 
+          Array.from({ length: state.missedWords.length }, (_, i) => i) : 
+          Array.from({ length: 10 }, (_, i) => i);
+        shuffle(state.wordIndices);
+        state.indexPointer = 0;
       }
       updateProgress();
       saveGameState();
     }
-
+  
     function updateLevelSelect() {
       const select = document.getElementById("levelSelect");
       const baseOptions = [
@@ -655,79 +666,81 @@
         select.options[i].text = baseOptions[i] + suffix;
       }
     }
-
+  
     function appendLetter(letter) {
-      currentWord += letter;
+      levelStates[currentLevel].currentWord += letter;
       updateDisplay();
       saveGameState();
     }
-
+  
     function removeLetter() {
-      currentWord = currentWord.slice(0, -1);
+      levelStates[currentLevel].currentWord = levelStates[currentLevel].currentWord.slice(0, -1);
       updateDisplay();
       saveGameState();
     }
-
+  
     function clearWord() {
-      currentWord = "";
+      levelStates[currentLevel].currentWord = "";
       updateDisplay();
       saveGameState();
     }
-
+  
     function updateDisplay() {
       const wordDisplay = document.getElementById("wordDisplay");
       wordDisplay.classList.add("fade");
       setTimeout(() => {
-        wordDisplay.innerText = currentWord;
+        wordDisplay.innerText = levelStates[currentLevel].currentWord;
         wordDisplay.classList.remove("fade");
       }, 150);
     }
-
+  
     function updateProgress() {
+      const state = levelStates[currentLevel];
       const progressBar = document.getElementById("progress-bar");
       const progressText = document.getElementById("progress-text");
-      const totalWords = isReviewMode ? missedWords.length : 10;
-      progressBar.style.width = `${(wordsCompleted / totalWords) * 100}%`;
-      progressText.innerHTML = `Words Completed: ${wordsCompleted}/${totalWords} <div class="bee"></div>`;
+      const totalWords = state.isReviewMode ? state.missedWords.length : 10;
+      progressBar.style.width = `${(state.wordsCompleted / totalWords) * 100}%`;
+      progressText.innerHTML = `Words Completed: ${state.wordsCompleted}/${totalWords} <div class="bee"></div>`;
     }
-
+  
     function getLevelWords() {
-      if (isReviewMode) return missedWords;
+      const state = levelStates[currentLevel];
+      if (state.isReviewMode) return state.missedWords;
       const start = currentLevel * 10;
       return words.slice(start, start + 10);
     }
-
+  
     function showWord() {
-      const levelWords = getLevelWords();
-      if (indexPointer >= levelWords.length) {
-        if (isReviewMode) {
+      const state = levelStates[currentLevel];
+      if (state.indexPointer >= getLevelWords().length) {
+        if (state.isReviewMode) {
           endReviewMode();
         } else {
           showReviewMode();
         }
         return;
       }
-      currentIndex = wordIndices[indexPointer];
-      const w = levelWords[currentIndex];
+      state.currentIndex = state.wordIndices[state.indexPointer];
+      const w = getLevelWords()[state.currentIndex];
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
       document.getElementById("wordIndex").innerText = "Word #" + w.no;
       updateDisplay();
-      document.getElementById("showAnswer").style.display = failCount >= 3 ? "block" : "none";
+      document.getElementById("showAnswer").style.display = state.failCount >= 3 ? "block" : "none";
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("mascot").className = "";
       updateProgress();
       enableButtons();
     }
-
+  
     function pronounceWord() {
       if (isSpeaking) return;
       isSpeaking = true;
       disableButtons();
-      const levelWords = getLevelWords();
-      const w = levelWords[currentIndex];
+      const state = levelStates[currentLevel];
+      const w = getLevelWords()[state.currentIndex];
       const word = w.word.toLowerCase();
-
+  
       const speakText = (text) => {
         return new Promise((resolve) => {
           const utterance = new SpeechSynthesisUtterance(text);
@@ -738,7 +751,7 @@
           speechSynthesis.speak(utterance);
         });
       };
-
+  
       const playHowjsayAudio = () => {
         const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
         audio.volume = 0.7;
@@ -749,10 +762,10 @@
           setTimeout(() => reject(new Error("Audio load timeout")), 3000);
         });
       };
-
+  
       const pronounceSequence = async () => {
         try {
-          if (fullPronounceEnabled && currentIndex !== lastPronouncedIndex) {
+          if (fullPronounceEnabled && state.currentIndex !== lastPronouncedIndex) {
             await speakText(word);
             await new Promise(resolve => setTimeout(resolve, 1000));
             await playHowjsayAudio().catch(() => speakText(word));
@@ -763,7 +776,7 @@
             await speakText("Please spell");
             await new Promise(resolve => setTimeout(resolve, 1000));
             await speakText(word);
-            lastPronouncedIndex = currentIndex;
+            lastPronouncedIndex = state.currentIndex;
           } else {
             await speakText(word);
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -777,49 +790,50 @@
           enableButtons();
         }
       };
-
+  
       pronounceSequence();
     }
-
+  
     function disableButtons() {
       document.getElementById("pronounce").disabled = true;
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
     }
-
+  
     function enableButtons() {
+      const state = levelStates[currentLevel];
       document.getElementById("pronounce").disabled = false;
       document.getElementById("checkAnswer").disabled = false;
-      document.getElementById("showAnswer").disabled = failCount < 3;
+      document.getElementById("showAnswer").disabled = state.failCount < 3;
       document.getElementById("levelSelect").disabled = false;
     }
-
+  
     function nextWord() {
-      const levelWords = getLevelWords();
-      indexPointer++;
-      if (indexPointer >= levelWords.length) {
-        if (isReviewMode) {
+      const state = levelStates[currentLevel];
+      state.indexPointer++;
+      if (state.indexPointer >= getLevelWords().length) {
+        if (state.isReviewMode) {
           endReviewMode();
         } else {
           showReviewMode();
         }
         return;
       }
-      failCount = 0;
+      state.failCount = 0;
       isSpeaking = false;
-      currentWord = "";
+      state.currentWord = "";
       showWord();
       saveGameState();
     }
-
+  
     function endReviewMode() {
-      isReviewMode = false;
+      levelStates[currentLevel].isReviewMode = false;
       levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
       saveGameState();
       updateLevelSelect();
       showLevelComplete();
     }
-
+  
     function showFeedback(message, isCorrect) {
       const feedback = document.getElementById("feedback");
       const mascot = document.getElementById("mascot");
@@ -834,12 +848,12 @@
         }, 1500);
       }
     }
-
+  
     function hideFeedback() {
       document.getElementById("feedback").style.display = "none";
       document.getElementById("mascot").className = "";
     }
-
+  
     function showCelebration() {
       const celebration = document.getElementById("celebration");
       document.getElementById("mainContent").style.display = "none";
@@ -853,7 +867,7 @@
       if (Math.random() > 0.5) effects.push(2);
       if (Math.random() > 0.5) effects.push(3);
       if (effects.length === 0) effects.push(type);
-
+  
       effects.forEach(effectType => {
         for (let i = 0; i < count; i++) {
           const el = document.createElement("div");
@@ -871,17 +885,17 @@
           } else if (effectType === 2) {
             el.className = "firework";
             el.style.background = color;
-          } else if (effectType === 3) {
+          } else {
             el.className = "confetti";
             el.style.background = color;
           }
           celebration.appendChild(el);
         }
       });
-
+  
       setTimeout(() => hideCelebration(), 2000);
     }
-
+  
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
       while (celebration.firstChild && celebration.firstChild !== celebration.querySelector(".celebration-text")) {
@@ -891,7 +905,7 @@
       document.getElementById("mainContent").style.display = "block";
       nextWord();
     }
-
+  
     function showLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       const levelCompleteText = levelComplete.querySelector(".level-complete-text");
@@ -938,25 +952,32 @@
       }
       setTimeout(() => hideLevelComplete(), 4000);
     }
-
+  
     function hideLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       while (levelComplete.firstChild && levelComplete.firstChild !== levelComplete.querySelector(".level-complete-text")) {
         levelComplete.removeChild(levelComplete.firstChild);
       }
       levelComplete.style.display = "none";
-      missedWords = [];
-      wordsCompleted = 0;
-      wordIndices = [];
-      currentWord = "";
-      initializeWordIndices();
+      levelStates[currentLevel] = {
+        failCount: 0,
+        wordsCompleted: 0,
+        wordIndices: [],
+        indexPointer: 0,
+        isReviewMode: false,
+        missedWords: [],
+        currentIndex: 0,
+        currentWord: ""
+      };
+      initializeWordIndices(currentLevel);
       isSpeaking = false;
       showWord();
       saveGameState();
     }
-
+  
     function showReviewMode() {
-      if (missedWords.length === 0) {
+      const state = levelStates[currentLevel];
+      if (state.missedWords.length === 0) {
         levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
         saveGameState();
         updateLevelSelect();
@@ -967,7 +988,7 @@
       const reviewDiv = document.createElement("div");
       reviewDiv.id = "review-mode";
       const wordList = document.createElement("div");
-      missedWords.forEach(w => {
+      state.missedWords.forEach(w => {
         const btn = document.createElement("button");
         btn.className = "word-button";
         btn.innerText = w.word;
@@ -981,142 +1002,134 @@
       reviewDiv.appendChild(redoBtn);
       document.body.appendChild(reviewDiv);
     }
-
+  
     function redoMissedWords() {
       document.getElementById("review-mode").remove();
       document.getElementById("mainContent").style.display = "block";
-      isReviewMode = true;
-      wordsCompleted = 0;
-      failCount = 0;
+      levelStates[currentLevel].isReviewMode = true;
+      levelStates[currentLevel].wordsCompleted = 0;
+      levelStates[currentLevel].failCount = 0;
       isSpeaking = false;
-      currentWord = "";
-      wordIndices = [];
-      initializeWordIndices();
+      levelStates[currentLevel].currentWord = "";
+      levelStates[currentLevel].wordIndices = [];
+      initializeWordIndices(currentLevel);
       showWord();
       enableButtons();
       saveGameState();
     }
-
+  
     function checkSpelling() {
+      const state = levelStates[currentLevel];
       if (isSpeaking) {
         speechSynthesis.cancel();
         isSpeaking = false;
         enableButtons();
       }
       const levelWords = getLevelWords();
-      const userInput = currentWord.trim().toLowerCase();
-      if (userInput === levelWords[currentIndex].word) {
-        wordsCompleted++;
+      const userInput = state.currentWord.trim().toLowerCase();
+      if (userInput === levelWords[state.currentIndex].word) {
+        state.wordsCompleted++;
         playSound('correct');
         showFeedback("", true);
         showCelebration();
         saveGameState();
       } else {
-        failCount++;
-        if (failCount === 1 && !isReviewMode) {
-          missedWords.push(levelWords[currentIndex]);
+        state.failCount++;
+        if (state.failCount === 1 && !state.isReviewMode) {
+          state.missedWords.push(levelWords[state.currentIndex]);
         }
         playSound('wrong');
         showFeedback("❌ Oops! Try Again! ❌", false);
-        if (failCount >= 3) {
+        if (state.failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
           document.getElementById("showAnswer").disabled = false;
         }
-        currentWord = "";
+        state.currentWord = "";
         updateDisplay();
         saveGameState();
       }
     }
-
+  
     function showAnswer() {
       if (isSpeaking) return;
-      const levelWords = getLevelWords();
-      const w = levelWords[currentIndex];
+      const state = levelStates[currentLevel];
+      const w = getLevelWords()[state.currentIndex];
       showFeedback(`Answer: ${w.word}`, false);
     }
-
+  
     function changeLevel() {
-      currentLevel = parseInt(document.getElementById("levelSelect").value);
-      failCount = 0;
-      wordsCompleted = 0;
-      isReviewMode = false;
-      missedWords = [];
+      const newLevel = parseInt(document.getElementById("levelSelect").value);
+      saveGameState(); // Save current level state before switching
+      currentLevel = newLevel;
+      if (!levelStates[currentLevel]) {
+        initializeLevelState(currentLevel);
+      }
       isSpeaking = false;
-      currentWord = "";
-      wordIndices = [];
-      initializeWordIndices();
       showWord();
       saveGameState();
     }
-
+  
     function showConfirmPopup() {
       document.getElementById("confirmPopup").style.display = "block";
     }
-
+  
     function hideConfirmPopup() {
       document.getElementById("confirmPopup").style.display = "none";
     }
-
+  
     function goToWordList() {
       saveGameState();
       window.location.href = 'wordlist.html';
     }
-
+  
     function showResetConfirmPopup() {
       document.getElementById("resetConfirmPopup").style.display = "block";
     }
-
+  
     function hideResetConfirmPopup() {
       document.getElementById("resetConfirmPopup").style.display = "none";
     }
-
+  
     function resetProgress() {
       currentLevel = 0;
-      wordsCompleted = 0;
-      wordIndices = [];
-      indexPointer = 0;
-      isReviewMode = false;
-      missedWords = [];
-      currentIndex = 0;
-      failCount = 0;
-      currentWord = "";
+      levelStates = {};
       levelCompletions = {};
       document.getElementById("levelSelect").value = 0;
-      initializeWordIndices();
+      initializeLevelState(0);
       updateLevelSelect();
       showWord();
       saveGameState();
       hideResetConfirmPopup();
     }
-
+  
     document.addEventListener('keydown', (event) => {
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
         if (isSpeaking) return;
-        const levelWords = getLevelWords();
-        currentWord = levelWords[currentIndex].word;
+        const state = levelStates[currentLevel];
+        state.currentWord = getLevelWords()[state.currentIndex].word;
         updateDisplay();
         checkSpelling();
       }
     });
-
+  
     const mascot = document.getElementById("mascot");
     mascot.addEventListener('touchstart', () => {
       tapCount++;
       clearTimeout(tapTimeout);
       tapTimeout = setTimeout(() => tapCount = 0, 500);
       if (tapCount === 3 && !isSpeaking) {
-        const levelWords = getLevelWords();
-        currentWord = levelWords[currentIndex].word;
+        const state = levelStates[currentLevel];
+        state.currentWord = getLevelWords()[state.currentIndex].word;
         updateDisplay();
         checkSpelling();
         tapCount = 0;
       }
     });
-
+  
     // Initial setup
     loadGameState();
-    if (wordIndices.length === 0 || indexPointer >= wordIndices.length) {
-      initializeWordIndices();
+    if (!levelStates[currentLevel] || levelStates[currentLevel].indexPointer >= getLevelWords().length) {
+      initializeLevelState(currentLevel);
     }
     showWord();
   </script>
