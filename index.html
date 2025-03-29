@@ -523,63 +523,8 @@
     <button id="resetNo" onclick="hideResetConfirmPopup()">No</button>
   </div>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spelling Bee Adventure</title>
-  <script src="words.js"></script> <!-- Ensure this is here and correct -->
-  <style>
-    /* Minimal styles for testing */
-    #mainContent { display: block; }
-    .fade { transition: opacity 0.15s; }
-    .key { margin: 5px; padding: 10px; }
-    #progress-bar { height: 20px; background: green; width: 0%; }
-    #level-complete, #celebration { display: none; }
-  </style>
-</head>
-<body>
-  <div id="mainContent">
-    <select id="levelSelect">
-      <option value="0">Level 1-a</option>
-      <option value="1">Level 1-b</option>
-      <option value="2">Level 1-c</option>
-      <option value="3">Level 1-d</option>
-      <option value="4">Level 1-e</option>
-      <option value="5">Level 2-a</option>
-      <option value="6">Level 2-b</option>
-      <option value="7">Level 2-c</option>
-      <option value="8">Level 2-d</option>
-      <option value="9">Level 2-e</option>
-      <option value="10">Level 3</option>
-      <option value="11">Level 4</option>
-      <option value="12">Level 5</option>
-      <option value="13">Level 6</option>
-      <option value="14">Level 7</option>
-    </select>
-    <div id="wordIndex"></div>
-    <div id="part"></div>
-    <div id="definition"></div>
-    <div id="wordDisplay"></div>
-    <div id="keyboard"></div>
-    <button id="pronounce">Pronounce</button>
-    <button id="checkAnswer">Check Answer</button>
-    <button id="showAnswer" style="display: none;">Show Answer</button>
-    <button id="fullPronounce">Full Pronunciation: On</button>
-    <button id="wordListBtn">Word List</button>
-    <div id="progress-text"></div>
-    <div id="progress-bar"></div>
-    <div id="mascot"></div>
-    <div id="feedback"></div>
-  </div>
-  <div id="celebration"><div class="celebration-text"></div></div>
-  <div id="level-complete"><div class="level-complete-text"></div></div>
-  <div id="confirmPopup" style="display: none;"></div>
-  <div id="resetConfirmPopup" style="display: none;">
-    <button onclick="resetProgress()">Yes</button>
-    <button onclick="hideResetConfirmPopup()">No</button>
-  </div>
+  <!-- Load the external words.js file -->
+  <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
 
   <script>
     let currentLevel = 0;
@@ -613,14 +558,6 @@
     clear.innerText = "Clear";
     clear.onclick = clearWord;
     keyboard.appendChild(clear);
-
-    // Button event listeners
-    document.getElementById("pronounce").onclick = pronounceWord;
-    document.getElementById("checkAnswer").onclick = checkSpelling;
-    document.getElementById("showAnswer").onclick = showAnswer;
-    document.getElementById("fullPronounce").onclick = togglePronounce;
-    document.getElementById("wordListBtn").onclick = goToWordList;
-    document.getElementById("levelSelect").onchange = changeLevel;
 
     // Sound effects
     function playSound(type) {
@@ -671,7 +608,6 @@
       if (!levelStates[currentLevel]) {
         initializeLevelState(currentLevel);
       }
-      console.log("Loaded state:", { currentLevel, levelStates, wordsLength: words.length });
     }
 
     function initializeLevelState(level) {
@@ -710,7 +646,6 @@
       state.isReviewMode = false;
       updateProgress();
       saveGameState();
-      console.log(`Initialized indices for level ${level}:`, state.wordIndices);
     }
 
     function updateLevelSelect() {
@@ -773,25 +708,21 @@
       if (state.isReviewMode) return state.missedWords;
       const start = currentLevel * 10;
       const levelWords = words.slice(start, start + 10);
-      console.log(`Level ${currentLevel} words:`, levelWords);
       return levelWords;
     }
 
     function showWord() {
       const state = levelStates[currentLevel];
-      console.log(`Showing word for level ${currentLevel}:`, state);
+      if (!state.wordIndices.length || state.indexPointer >= state.wordIndices.length) {
+        initializeWordIndices(currentLevel);
+      }
       const levelWords = getLevelWords();
       if (levelWords.length === 0) {
         console.error("No words available for this level!");
         return;
       }
-      if (!state.wordIndices.length) {
-        console.log("Word indices empty, initializing...");
-        initializeWordIndices(currentLevel);
-      }
       state.currentIndex = state.wordIndices[state.indexPointer];
       const w = levelWords[state.currentIndex];
-      console.log("Displaying word:", w);
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
       document.getElementById("wordIndex").innerText = "Word #" + w.no;
@@ -931,7 +862,7 @@
       const type = Math.floor(Math.random() * 4);
       const count = type === 2 ? 20 : type === 3 ? 30 : 10;
       const effects = [];
-      
+
       if (Math.random() > 0.5) effects.push(0);
       if (Math.random() > 0.5) effects.push(1);
       if (Math.random() > 0.5) effects.push(2);
@@ -945,7 +876,7 @@
           el.style.top = `${Math.random() * 100}%`;
           el.style.animationDelay = `${Math.random() * 0.5}s`;
           const color = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-          
+
           if (effectType === 0) {
             el.className = "star";
             el.style.background = color;
@@ -982,7 +913,7 @@
       document.getElementById("mainContent").style.display = "none";
       levelComplete.style.display = "block";
       playSound('levelComplete');
-      
+
       const baseOptions = [
         "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e",
         "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
@@ -998,7 +929,7 @@
       if (completions === 1) message = "Level Complete! You earned your first ⭐!";
       message += `<br>Next up: ${baseOptions[nextLevel]}`;
       levelCompleteText.innerHTML = `<span>🎉 Level Complete! 🎉</span><span>${message}</span>`;
-      
+
       updateLevelSelect();
       for (let i = 0; i < 50; i++) {
         const el = document.createElement("div");
@@ -1203,14 +1134,31 @@
       }
     });
 
-    // Initial setup
-    loadGameState();
-    if (!levelStates[currentLevel] || levelStates[currentLevel].wordIndices.length === 0) {
-      initializeLevelState(currentLevel);
+    // Improved Initialization
+    function initializeGame() {
+      if (typeof words === "undefined" || !words.length) {
+        console.warn("Words array not loaded yet, retrying...");
+        setTimeout(initializeGame, 100); // Retry after 100ms
+        return;
+      }
+      console.log("Game initialized with words:", words.length);
+      loadGameState();
+      if (!levelStates[currentLevel] || levelStates[currentLevel].wordIndices.length === 0) {
+        initializeLevelState(currentLevel);
+      }
+      showWord();
     }
-    showWord();
+
+    // Start the game after DOM and scripts are loaded
+    document.addEventListener("DOMContentLoaded", () => {
+      const script = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]');
+      if (script.complete || (typeof words !== "undefined" && words.length)) {
+        initializeGame();
+      } else {
+        script.onload = initializeGame;
+        script.onerror = () => console.error("Failed to load words.js");
+      }
+    });
   </script>
-</body>
-</html>
 </body>
 </html>
