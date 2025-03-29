@@ -525,8 +525,8 @@
 
   <script>
     let currentLevel = 0;
-    let levelStates = {}; // { level: { failCount, wordsCompleted, wordIndices, indexPointer, isReviewMode, missedWords, currentIndex, currentWord } }
-    let levelCompletions = {}; // { level: completionCount }
+    let levelStates = {};
+    let levelCompletions = {};
     let lastPronouncedIndex = -1;
     let isSpeaking = false;
     let tapCount = 0;
@@ -605,6 +605,7 @@
       if (!levelStates[currentLevel]) {
         initializeLevelState(currentLevel);
       }
+      console.log("Loaded state:", { currentLevel, levelStates, wordsLength: words.length });
     }
   
     function initializeLevelState(level) {
@@ -637,12 +638,13 @@
   
     function initializeWordIndices(level) {
       const state = levelStates[level];
-      state.wordIndices = Array.from({ length: 10 }, (_, i) => i); // Always 10 words for a new level
+      state.wordIndices = Array.from({ length: 10 }, (_, i) => i);
       shuffle(state.wordIndices);
       state.indexPointer = 0;
-      state.isReviewMode = false; // Ensure new level starts in normal mode
+      state.isReviewMode = false;
       updateProgress();
       saveGameState();
+      console.log(`Initialized indices for level ${level}:`, state.wordIndices);
     }
   
     function updateLevelSelect() {
@@ -704,21 +706,26 @@
       const state = levelStates[currentLevel];
       if (state.isReviewMode) return state.missedWords;
       const start = currentLevel * 10;
-      return words.slice(start, start + 10);
+      const levelWords = words.slice(start, start + 10);
+      console.log(`Level ${currentLevel} words:`, levelWords);
+      return levelWords;
     }
   
     function showWord() {
       const state = levelStates[currentLevel];
-      if (state.indexPointer >= getLevelWords().length) {
-        if (state.isReviewMode) {
-          endReviewMode();
-        } else {
-          showReviewMode();
-        }
+      console.log(`Showing word for level ${currentLevel}:`, state);
+      if (!state.wordIndices.length || state.indexPointer >= state.wordIndices.length) {
+        console.log("No valid word indices, initializing...");
+        initializeWordIndices(currentLevel);
+      }
+      const levelWords = getLevelWords();
+      if (levelWords.length === 0) {
+        console.error("No words available for this level!");
         return;
       }
       state.currentIndex = state.wordIndices[state.indexPointer];
-      const w = getLevelWords()[state.currentIndex];
+      const w = levelWords[state.currentIndex];
+      console.log("Displaying word:", w);
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
       document.getElementById("wordIndex").innerText = "Word #" + w.no;
@@ -971,12 +978,10 @@
       if (currentLevel < 14) {
         currentLevel++;
       } else {
-        currentLevel = 0; // Loop back to Level 1-a after Level 7
+        currentLevel = 0;
       }
       document.getElementById("levelSelect").value = currentLevel;
       initializeLevelState(currentLevel);
-      initializeWordIndices(currentLevel); // Ensure indices are set
-      isSpeaking = false;
       showWord();
       saveGameState();
     }
@@ -1065,7 +1070,7 @@
   
     function changeLevel() {
       const newLevel = parseInt(document.getElementById("levelSelect").value);
-      saveGameState(); // Save current level state before switching
+      saveGameState();
       currentLevel = newLevel;
       if (!levelStates[currentLevel]) {
         initializeLevelState(currentLevel);
