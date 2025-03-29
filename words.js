@@ -75,7 +75,7 @@ const words = [
     {"no": "74", "word": "poem", "part": "noun", "definition": "writing in verse"},
     {"no": "75", "word": "pillow", "part": "noun", "definition": "a sack made typically of cloth and filled with a soft material used to support the head of a person resting or sleeping"},
     {"no": "76", "word": "steady", "part": "adjective", "definition": "firm in standing or position : not tottering or shaking : fixed"},
-    {"no": "77", "word": "Saturday", "part": "noun", "definition": "the seventh day of the week : the day following Friday"},
+    {"no": "77", "word": "saturday", "part": "noun", "definition": "the seventh day of the week : the day following Friday"},
     {"no": "78", "word": "needle", "part": "noun", "definition": "a small slender rodlike instrument for hand sewing that has a round or elongated eye for thread at one end and a blunt or sharp point at the other and that is made usually of steel or bone in straight or curved form"},
     {"no": "79", "word": "above", "part": "adverb", "definition": "in a higher place : overhead"},
     {"no": "80", "word": "honking", "part": "verb", "definition": "causing (as a horn) to make a noise resembling the cry of a goose"},
