@@ -1,4 +1,5 @@
-import { currentLevel, levelStates } from './storage.js';
+import { currentLevel } from './levelSelector.js';
+import { levelStates } from './storage.js';
 import { initializeLevelState } from './levelSelector.js';
 import { saveGameState } from './storage.js';
 import { showWord } from './main.js';
