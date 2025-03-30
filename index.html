@@ -8,19 +8,20 @@
 </head>
 <body>
   <!-- Same HTML structure as before -->
+  <script src="js/storage.js" type="module"></script>
+  <script src="js/levelSelector.js" type="module"></script>
+  <script src="js/pronunciation.js" type="module"></script>
+  <script src="js/keyboard.js" type="module"></script>
+  <script src="js/ui.js" type="module"></script>
+  <script src="js/main.js" type="module"></script>
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
-  <script src="js/storage.js"></script>
-  <script src="js/levelSelector.js"></script>
-  <script src="js/pronunciation.js"></script>
-  <script src="js/keyboard.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/main.js"></script>
-  <script>
+  <script type="module">
+    import { startGame } from './js/main.js';
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof words !== 'undefined' && words.length > 0) {
         startGame();
       } else {
-        document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onload = startGame;
+        document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onload = () => startGame();
       }
     });
   </script>
