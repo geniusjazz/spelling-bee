@@ -1,6 +1,5 @@
-import { currentLevel } from './levelSelector.js';
-import { levelStates } from './storage.js';
-import { initializeLevelState } from './levelSelector.js';
+import { currentLevel, initializeLevelState, changeLevel } from './levelSelector.js'; // Added changeLevel
+import { levelStates, levelCompletions } from './storage.js'; // Added levelCompletions
 import { saveGameState } from './storage.js';
 import { showWord } from './main.js';
 
@@ -138,7 +137,8 @@ function hideLevelComplete() {
     currentIndex: 0,
     currentWord: ""
   };
-  currentLevel = currentLevel < 18 ? currentLevel + 1 : 0;
+  const nextLevel = currentLevel < 18 ? currentLevel + 1 : 0;
+  changeLevel(nextLevel); // Use setter instead of direct assignment
   document.getElementById("levelSelect").value = currentLevel;
   initializeLevelState(currentLevel);
   showWord();
