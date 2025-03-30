@@ -49,7 +49,7 @@ function setupKeyboardShortcuts() {
   });
 }
 
-function getLevelWords() {
+export function getLevelWords() {
   const state = levelStates[currentLevel];
   if (state.isReviewMode) return state.missedWords;
   let start;
@@ -205,4 +205,4 @@ function hideResetConfirmPopup() {
   document.getElementById("resetConfirmPopup").style.display = "none";
 }
 
-export { nextWord };
+export { nextWord, getLevelWords }; // Added getLevelWords to exports
