@@ -1,4 +1,7 @@
 import { currentLevel, levelStates } from './storage.js';
+import { initializeLevelState } from './levelSelector.js';
+import { saveGameState } from './storage.js';
+import { showWord } from './main.js';
 
 export function updateDisplay() {
   const wordDisplay = document.getElementById("wordDisplay");
@@ -136,9 +139,9 @@ function hideLevelComplete() {
   };
   currentLevel = currentLevel < 18 ? currentLevel + 1 : 0;
   document.getElementById("levelSelect").value = currentLevel;
-  initializeLevelState(currentLevel); // From levelSelector.js
-  showWord(); // From main.js
-  saveGameState(); // From storage.js
+  initializeLevelState(currentLevel);
+  showWord();
+  saveGameState();
 }
 
 export function enableButtons() {
@@ -151,4 +154,15 @@ export function enableButtons() {
 
 export function disableButtons() {
   document.getElementById("pronounce").disabled = true;
-  document.getElementById("showAnswer").disabled =
+  document.getElementById("showAnswer").disabled = true;
+  document.getElementById("levelSelect").disabled = true;
+}
+
+function playSound(type) {
+  const audio = new Audio();
+  if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/button-3.mp3';
+  else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
+  else if (type === 'levelComplete') audio.src = 'https://www.soundjay.com/human/sounds/cheering-01.mp3';
+  audio.volume = 0.7;
+  audio.play().catch(() => console.log(`Sound ${type} failed to play.`));
+}
