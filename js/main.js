@@ -7,25 +7,41 @@ import { saveGameState, loadGameState, levelStates, levelCompletions, resetProgr
 export function startGame() {
   console.log("Starting game...");
   document.getElementById("mainContent").innerText = "Loading game...";
+  console.log("Calling setupKeyboard...");
   setupKeyboard();
+  console.log("Calling setupPronunciation...");
   setupPronunciation();
+  console.log("Calling setupLevelSelector...");
   setupLevelSelector();
+  console.log("Calling setupButtons...");
   setupButtons();
+  console.log("Calling setupKeyboardShortcuts...");
   setupKeyboardShortcuts();
+  console.log("Calling loadGameState...");
   loadGameState();
+  console.log("Checking level state...");
   if (!levelStates[currentLevel] || levelStates[currentLevel].wordIndices.length === 0) {
     initializeLevelState(currentLevel);
   }
+  console.log("Calling showWord...");
   showWord();
   console.log("Game started.");
   document.getElementById("mainContent").innerText = "Game Loaded!";
 }
 
 function setupButtons() {
-  document.getElementById("checkAnswer").onclick = checkSpelling;
-  document.getElementById("showAnswer").onclick = showAnswer;
-  document.getElementById("wordListButton").onclick = showConfirmPopup;
-  document.getElementById("resetButton").onclick = showResetConfirmPopup;
+  const checkAnswerBtn = document.getElementById("checkAnswer");
+  const showAnswerBtn = document.getElementById("showAnswer");
+  const wordListBtn = document.getElementById("wordListButton");
+  const resetBtn = document.getElementById("resetButton");
+  if (!checkAnswerBtn) console.error("Element with ID 'checkAnswer' not found!");
+  if (!showAnswerBtn) console.error("Element with ID 'showAnswer' not found!");
+  if (!wordListBtn) console.error("Element with ID 'wordListButton' not found!");
+  if (!resetBtn) console.error("Element with ID 'resetButton' not found!");
+  if (checkAnswerBtn) checkAnswerBtn.onclick = checkSpelling;
+  if (showAnswerBtn) showAnswerBtn.onclick = showAnswer;
+  if (wordListBtn) wordListBtn.onclick = showConfirmPopup;
+  if (resetBtn) resetBtn.onclick = showResetConfirmPopup;
 }
 
 function setupKeyboardShortcuts() {
