@@ -536,7 +536,7 @@
     let tapTimeout;
     let fullPronounceEnabled = true;
   
-    // Build keyboard (unchanged)
+    // Build keyboard
     const keyboard = document.getElementById("keyboard");
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     letters.forEach(letter => {
@@ -559,7 +559,7 @@
     clear.onclick = clearWord;
     keyboard.appendChild(clear);
   
-    // Button event listeners (unchanged)
+    // Button event listeners
     document.getElementById("pronounce").onclick = pronounceWord;
     document.getElementById("checkAnswer").onclick = checkSpelling;
     document.getElementById("showAnswer").onclick = showAnswer;
@@ -567,7 +567,7 @@
     document.getElementById("wordListBtn").onclick = goToWordList;
     document.getElementById("levelSelect").onchange = changeLevel;
   
-    // Sound effects (unchanged)
+    // Sound effects
     function playSound(type) {
       const audio = new Audio();
       if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/button-3.mp3';
@@ -577,7 +577,7 @@
       audio.play().catch(() => {});
     }
   
-    // Fisher-Yates shuffle (unchanged)
+    // Fisher-Yates shuffle
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -834,7 +834,7 @@
     function nextWord() {
       const state = levelStates[currentLevel];
       state.indexPointer++;
-      if (state.indexPointer >= state.wordIndices.length) { // Use wordIndices.length, not getLevelWords().length
+      if (state.indexPointer >= state.wordIndices.length) {
         if (state.isReviewMode) {
           endReviewMode();
         } else {
@@ -1043,7 +1043,7 @@
       isSpeaking = false;
       state.currentWord = "";
       state.wordIndices = [];
-      initializeWordIndices(currentLevel); // Will use missedWords.length due to isReviewMode
+      initializeWordIndices(currentLevel);
       showWord();
       enableButtons();
       saveGameState();
@@ -1133,15 +1133,32 @@
       hideResetConfirmPopup();
     }
   
-    document.addEventListener('keydown', (event) => {
-      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
-        if (isSpeaking) return;
-        const state = levelStates[currentLevel];
-        state.currentWord = getLevelWords()[state.currentIndex].word;
-        updateDisplay();
-        checkSpelling();
-      }
-    });
+    // Ctrl+Shift+Z hack with debug
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
+          console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking);
+          if (isSpeaking) {
+            console.log("Blocked by isSpeaking");
+            return;
+          }
+          const state = levelStates[currentLevel];
+          if (!state || state.indexPointer >= state.wordIndices.length) {
+            console.log("Invalid state or level complete:", state);
+            return;
+          }
+          const levelWords = getLevelWords();
+          if (!levelWords[state.currentIndex]) {
+            console.log("No word at currentIndex:", state.currentIndex, levelWords);
+            return;
+          }
+          state.currentWord = levelWords[state.currentIndex].word;
+          console.log("Set currentWord to:", state.currentWord);
+          updateDisplay();
+          checkSpelling();
+        }
+      });
+    }
   
     const mascot = document.getElementById("mascot");
     mascot.addEventListener('touchstart', () => {
@@ -1163,6 +1180,7 @@
       initializeLevelState(currentLevel);
     }
     showWord();
+    setupKeyboardShortcuts(); // Add listener after setup
   </script>
 </body>
 </html>
