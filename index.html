@@ -535,7 +535,7 @@
     let tapCount = 0;
     let tapTimeout;
     let fullPronounceEnabled = true;
-  
+
     // Build keyboard
     function setupKeyboard() {
       const keyboard = document.getElementById("keyboard");
@@ -560,7 +560,7 @@
       clear.onclick = clearWord;
       keyboard.appendChild(clear);
     }
-  
+
     // Button event listeners
     function setupButtons() {
       document.getElementById("pronounce").onclick = pronounceWord;
@@ -570,7 +570,7 @@
       document.getElementById("wordListBtn").onclick = goToWordList;
       document.getElementById("levelSelect").onchange = changeLevel;
     }
-  
+
     // Sound effects
     function playSound(type) {
       const audio = new Audio();
@@ -580,7 +580,7 @@
       audio.volume = 0.7;
       audio.play().catch(() => {});
     }
-  
+
     // Fisher-Yates shuffle
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -589,7 +589,7 @@
       }
       return array;
     }
-  
+
     // Save and load game state
     function saveGameState() {
       const currentState = {
@@ -608,7 +608,7 @@
       localStorage.setItem('levelCompletions', JSON.stringify(levelCompletions));
       localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled);
     }
-  
+
     function loadGameState() {
       currentLevel = parseInt(localStorage.getItem('currentLevel')) || 0;
       levelStates = JSON.parse(localStorage.getItem('levelStates')) || {};
@@ -622,7 +622,7 @@
       }
       console.log("Loaded state:", { currentLevel, levelStates, wordsLength: words.length });
     }
-  
+
     function initializeLevelState(level) {
       if (!levelStates[level]) {
         levelStates[level] = {
@@ -638,19 +638,19 @@
         initializeWordIndices(level);
       }
     }
-  
+
     function updatePronounceButton() {
       const btn = document.getElementById("fullPronounce");
       btn.innerText = `Full Pronunciation: ${fullPronounceEnabled ? 'On' : 'Off'}`;
       btn.className = fullPronounceEnabled ? '' : 'off';
     }
-  
+
     function togglePronounce() {
       fullPronounceEnabled = !fullPronounceEnabled;
       updatePronounceButton();
       saveGameState();
     }
-  
+
     function initializeWordIndices(level) {
       const state = levelStates[level];
       const totalWords = state.isReviewMode ? state.missedWords.length : 10;
@@ -661,7 +661,7 @@
       saveGameState();
       console.log(`Initialized indices for level ${level} (${state.isReviewMode ? 'review' : 'normal'}):`, state.wordIndices);
     }
-  
+
     function updateLevelSelect() {
       const select = document.getElementById("levelSelect");
       const baseOptions = [
@@ -680,25 +680,25 @@
         select.options[i].text = baseOptions[i] + suffix;
       }
     }
-  
+
     function appendLetter(letter) {
       levelStates[currentLevel].currentWord += letter;
       updateDisplay();
       saveGameState();
     }
-  
+
     function removeLetter() {
       levelStates[currentLevel].currentWord = levelStates[currentLevel].currentWord.slice(0, -1);
       updateDisplay();
       saveGameState();
     }
-  
+
     function clearWord() {
       levelStates[currentLevel].currentWord = "";
       updateDisplay();
       saveGameState();
     }
-  
+
     function updateDisplay() {
       const wordDisplay = document.getElementById("wordDisplay");
       wordDisplay.classList.add("fade");
@@ -707,7 +707,7 @@
         wordDisplay.classList.remove("fade");
       }, 150);
     }
-  
+
     function updateProgress() {
       const state = levelStates[currentLevel];
       const progressBar = document.getElementById("progress-bar");
@@ -716,7 +716,7 @@
       progressBar.style.width = `${(state.wordsCompleted / totalWords) * 100}%`;
       progressText.innerHTML = `Words Completed: ${state.wordsCompleted}/${totalWords} <div class="bee"></div>`;
     }
-  
+
     function getLevelWords() {
       const state = levelStates[currentLevel];
       if (state.isReviewMode) return state.missedWords;
@@ -725,7 +725,7 @@
       console.log(`Level ${currentLevel} words:`, levelWords);
       return levelWords;
     }
-  
+
     function showWord() {
       const state = levelStates[currentLevel];
       console.log(`Showing word for level ${currentLevel}:`, state);
@@ -755,7 +755,7 @@
       updateProgress();
       enableButtons();
     }
-  
+
     function pronounceWord() {
       if (isSpeaking) return;
       isSpeaking = true;
@@ -763,7 +763,7 @@
       const state = levelStates[currentLevel];
       const w = getLevelWords()[state.currentIndex];
       const word = w.word.toLowerCase();
-  
+
       const speakText = (text) => {
         return new Promise((resolve) => {
           const utterance = new SpeechSynthesisUtterance(text);
@@ -774,7 +774,7 @@
           speechSynthesis.speak(utterance);
         });
       };
-  
+
       const playHowjsayAudio = () => {
         const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
         audio.volume = 0.7;
@@ -785,7 +785,7 @@
           setTimeout(() => reject(new Error("Audio load timeout")), 3000);
         });
       };
-  
+
       const pronounceSequence = async () => {
         try {
           if (fullPronounceEnabled && state.currentIndex !== lastPronouncedIndex) {
@@ -813,16 +813,16 @@
           enableButtons();
         }
       };
-  
+
       pronounceSequence();
     }
-  
+
     function disableButtons() {
       document.getElementById("pronounce").disabled = true;
       document.getElementById("showAnswer").disabled = true;
       document.getElementById("levelSelect").disabled = true;
     }
-  
+
     function enableButtons() {
       const state = levelStates[currentLevel];
       document.getElementById("pronounce").disabled = false;
@@ -830,7 +830,7 @@
       document.getElementById("showAnswer").disabled = state.failCount < 3;
       document.getElementById("levelSelect").disabled = false;
     }
-  
+
     function nextWord() {
       const state = levelStates[currentLevel];
       state.indexPointer++;
@@ -848,7 +848,7 @@
       showWord();
       saveGameState();
     }
-  
+
     function endReviewMode() {
       levelStates[currentLevel].isReviewMode = false;
       levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
@@ -856,7 +856,7 @@
       updateLevelSelect();
       showLevelComplete();
     }
-  
+
     function showFeedback(message, isCorrect) {
       const feedback = document.getElementById("feedback");
       const mascot = document.getElementById("mascot");
@@ -871,12 +871,12 @@
         }, 1500);
       }
     }
-  
+
     function hideFeedback() {
       document.getElementById("feedback").style.display = "none";
       document.getElementById("mascot").className = "";
     }
-  
+
     function showCelebration() {
       const celebration = document.getElementById("celebration");
       document.getElementById("mainContent").style.display = "none";
@@ -890,7 +890,7 @@
       if (Math.random() > 0.5) effects.push(2);
       if (Math.random() > 0.5) effects.push(3);
       if (effects.length === 0) effects.push(type);
-  
+
       effects.forEach(effectType => {
         for (let i = 0; i < count; i++) {
           const el = document.createElement("div");
@@ -915,10 +915,10 @@
           celebration.appendChild(el);
         }
       });
-  
+
       setTimeout(() => hideCelebration(), 2000);
     }
-  
+
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
       while (celebration.firstChild && celebration.firstChild !== celebration.querySelector(".celebration-text")) {
@@ -928,7 +928,7 @@
       document.getElementById("mainContent").style.display = "block";
       nextWord();
     }
-  
+
     function showLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       const levelCompleteText = levelComplete.querySelector(".level-complete-text");
@@ -977,7 +977,7 @@
       }
       setTimeout(() => hideLevelComplete(), 4000);
     }
-  
+
     function hideLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
       while (levelComplete.firstChild && levelComplete.firstChild !== levelComplete.querySelector(".level-complete-text")) {
@@ -1004,7 +1004,7 @@
       showWord();
       saveGameState();
     }
-  
+
     function showReviewMode() {
       const state = levelStates[currentLevel];
       if (state.missedWords.length === 0) {
@@ -1032,7 +1032,7 @@
       reviewDiv.appendChild(redoBtn);
       document.body.appendChild(reviewDiv);
     }
-  
+
     function redoMissedWords() {
       document.getElementById("review-mode").remove();
       document.getElementById("mainContent").style.display = "block";
@@ -1048,7 +1048,7 @@
       enableButtons();
       saveGameState();
     }
-  
+
     function checkSpelling() {
       const state = levelStates[currentLevel];
       if (isSpeaking) {
@@ -1080,14 +1080,14 @@
         saveGameState();
       }
     }
-  
+
     function showAnswer() {
       if (isSpeaking) return;
       const state = levelStates[currentLevel];
       const w = getLevelWords()[state.currentIndex];
       showFeedback(`Answer: ${w.word}`, false);
     }
-  
+
     function changeLevel() {
       const newLevel = parseInt(document.getElementById("levelSelect").value);
       saveGameState();
@@ -1099,28 +1099,28 @@
       showWord();
       saveGameState();
     }
-  
+
     function showConfirmPopup() {
       document.getElementById("confirmPopup").style.display = "block";
     }
-  
+
     function hideConfirmPopup() {
       document.getElementById("confirmPopup").style.display = "none";
     }
-  
+
     function goToWordList() {
       saveGameState();
       window.location.href = 'wordlist.html';
     }
-  
+
     function showResetConfirmPopup() {
       document.getElementById("resetConfirmPopup").style.display = "block";
     }
-  
+
     function hideResetConfirmPopup() {
       document.getElementById("resetConfirmPopup").style.display = "none";
     }
-  
+
     function resetProgress() {
       currentLevel = 0;
       levelStates = {};
@@ -1132,12 +1132,12 @@
       saveGameState();
       hideResetConfirmPopup();
     }
-  
+
     // Ctrl+Shift+Z hack
     function setupKeyboardShortcuts() {
       document.addEventListener('keydown', (event) => {
         if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
-          console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking);
+          console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking, "currentLevel:", currentLevel);
           if (isSpeaking) {
             console.log("Blocked by isSpeaking");
             return;
@@ -1145,11 +1145,13 @@
           const state = levelStates[currentLevel];
           if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) {
             console.log("Invalid state or level complete:", state);
+            alert("Cannot use shortcut: Game state not ready or level complete.");
             return;
           }
           const levelWords = getLevelWords();
           if (!levelWords || !levelWords[state.currentIndex]) {
             console.log("No word at currentIndex:", state.currentIndex, levelWords);
+            alert("Cannot use shortcut: No word available.");
             return;
           }
           state.currentWord = levelWords[state.currentIndex].word;
@@ -1159,7 +1161,7 @@
         }
       });
     }
-  
+
     const mascot = document.getElementById("mascot");
     mascot.addEventListener('touchstart', () => {
       tapCount++;
@@ -1173,9 +1175,9 @@
         tapCount = 0;
       }
     });
-  
-    // Initial setup with DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', () => {
+
+    // Initial setup
+    function startGame() {
       setupKeyboard();
       setupButtons();
       setupKeyboardShortcuts();
@@ -1183,7 +1185,25 @@
       if (!levelStates[currentLevel] || levelStates[currentLevel].wordIndices.length === 0) {
         initializeLevelState(currentLevel);
       }
-      showWord(); // Ensure word displays on load
+      showWord();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const wordsScript = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]');
+      if (typeof words !== 'undefined' && words.length > 0) {
+        console.log("words.js already loaded:", words.length);
+        startGame();
+      } else {
+        console.log("Waiting for words.js to load...");
+        wordsScript.onload = () => {
+          console.log("words.js loaded successfully:", words.length);
+          startGame();
+        };
+        wordsScript.onerror = () => {
+          console.error("Failed to load words.js!");
+          alert("Error: Could not load word list. Please refresh the page.");
+        };
+      }
     });
   </script>
 </body>
