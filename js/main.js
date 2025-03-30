@@ -205,4 +205,4 @@ function hideResetConfirmPopup() {
   document.getElementById("resetConfirmPopup").style.display = "none";
 }
 
-export { nextWord, getLevelWords }; // Added getLevelWords to exports
+export { nextWord }; // Removed getLevelWords from here
