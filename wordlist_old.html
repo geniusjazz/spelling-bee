@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spelling Bee Word List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Comic Neue', cursive !important;
+    }
+    body {
+      text-align: center;
+      padding: 20px;
+      background: url('https://subtlepatterns.com/patterns/honey_im_subtle.png') #fff9e6;
+      margin: 0;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 48px;
+      color: #e91e63;
+      text-shadow: 2px 2px #ffeb3b;
+    }
+    select {
+      width: 90%;
+      max-width: 300px;
+      padding: 15px;
+      font-size: 24px;
+      margin: 15px auto;
+      display: block;
+      background: #ffeb3b;
+      color: #d81b60;
+      border: 3px solid #f06292;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    #wordList {
+      max-width: 700px;
+      margin: 20px auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+    .word-button {
+      padding: 10px 20px;
+      font-size: 28px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #2196f3, #42a5f5);
+      color: white;
+      border: 4px solid #1976d2;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .word-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+    .word-button:active {
+      transform: scale(0.95);
+    }
+    #wordDetails {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 235, 59, 0.9);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      z-index: 1000;
+      text-align: center;
+      max-width: 80%;
+    }
+    #wordDetails p {
+      font-size: 24px;
+      color: #d81b60;
+      margin: 10px 0;
+    }
+    #wordDetails button {
+      padding: 15px 25px;
+      font-size: 20px;
+      margin: 10px auto;
+      display: block;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    #wordDetails button:hover {
+      transform: scale(1.1);
+    }
+    #pronounceWord {
+      background: #4caf50;
+    }
+    #closeDetails {
+      background: #f44336;
+    }
+    #backToGame {
+      width: 90%;
+      max-width: 300px;
+      background: #ff5722;
+      padding: 20px 30px;
+      font-size: 24px;
+      margin: 20px auto;
+      margin-top: auto;
+      border: 4px solid #e64a19;
+    }
+    #backToGame:hover {
+      transform: scale(1.1);
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 36px; }
+      select { font-size: 20px; padding: 10px; }
+      .word-button { font-size: 22px; padding: 8px 15px; }
+      #wordDetails p { font-size: 20px; }
+      #wordDetails button { font-size: 18px; padding: 12px 20px; }
+      #backToGame { font-size: 20px; padding: 15px 25px; max-width: 250px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Word List</h1>
+  <select id="levelSelect" onchange="updateWordList()">
+    <option value="0">Level 1-a</option>
+    <option value="1">Level 1-b</option>
+    <option value="2">Level 1-c</option>
+    <option value="3">Level 1-d</option>
+    <option value="4">Level 1-e</option>
+    <option value="5">Level 2-a</option>
+    <option value="6">Level 2-b</option>
+    <option value="7">Level 2-c</option>
+    <option value="8">Level 2-d</option>
+    <option value="9">Level 2-e</option>
+    <option value="10">Level 3-a</option>
+    <option value="11">Level 3-b</option>
+    <option value="12">Level 3-c</option>
+    <option value="13">Level 3-d</option>
+    <option value="14">Level 3-e</option>
+    <option value="15">Level 4</option>
+    <option value="16">Level 5</option>
+    <option value="17">Level 6</option>
+    <option value="18">Level 7</option>
+  </select>
+  <div id="wordList"></div>
+  <div id="wordDetails">
+    <p id="detailWord"></p>
+    <p id="detailPart"></p>
+    <p id="detailDefinition"></p>
+    <button id="pronounceWord" onclick="pronounceCurrentWord()">Pronounce</button>
+    <button id="closeDetails" onclick="hideDetails()">Close</button>
+  </div>
+  <button id="backToGame" onclick="window.location.href='index.html'">Back to Game</button>
+
+  <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
+  <script>
+    let currentWord = null;
+    let isSpeaking = false;
+
+    function updateWordList() {
+      const level = parseInt(document.getElementById("levelSelect").value);
+      let start;
+      if (level < 5) {
+        start = level * 10; // Level 1-a to 1-e: 0-49
+      } else if (level < 10) {
+        start = 50 + (level - 5) * 10; // Level 2-a to 2-e: 50-99
+      } else if (level < 15) {
+        start = 100 + (level - 10) * 10; // Level 3-a to 3-e: 100-149
+      } else {
+        start = 150 + (level - 15) * 50; // Level 4-7: 150-349
+      }
+      const wordCount = level < 15 ? 10 : 50;
+      const levelWords = words.slice(start, start + wordCount);
+      const wordList = document.getElementById("wordList");
+      wordList.innerHTML = "";
+
+      levelWords.forEach((w) => {
+        const btn = document.createElement("button");
+        btn.className = "word-button";
+        btn.innerText = w.word;
+        btn.onclick = () => showDetails(w);
+        wordList.appendChild(btn);
+      });
+    }
+
+    function showDetails(word) {
+      currentWord = word;
+      document.getElementById("detailWord").innerText = `Word: ${word.word}`;
+      document.getElementById("detailPart").innerText = `Part of Speech: ${word.part}`;
+      document.getElementById("detailDefinition").innerText = `Definition: ${word.definition}`;
+      document.getElementById("wordDetails").style.display = "block";
+    }
+
+    function hideDetails() {
+      document.getElementById("wordDetails").style.display = "none";
+      currentWord = null;
+    }
+
+    function pronounceCurrentWord() {
+      if (isSpeaking || !currentWord) return;
+      isSpeaking = true;
+      document.getElementById("pronounceWord").disabled = true;
+
+      const word = currentWord.word.toLowerCase();
+
+      const speakText = (text) => {
+        return new Promise((resolve) => {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "en-US";
+          utterance.rate = 0.7;
+          utterance.pitch = 0.7;
+          utterance.onend = resolve;
+          speechSynthesis.speak(utterance);
+        });
+      };
+
+      const playHowjsayAudio = () => {
+        const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
+        audio.volume = 0.7;
+        return new Promise((resolve, reject) => {
+          audio.oncanplaythrough = () => audio.play().then(resolve).catch(reject);
+          audio.onerror = () => reject(new Error(`Howjsay audio failed for "${word}"`));
+          audio.onended = resolve;
+          setTimeout(() => reject(new Error("Audio load timeout")), 3000);
+        });
+      };
+
+      const pronounceSequence = async () => {
+        try {
+          await speakText(word); // First pronunciation with SpeechSynthesis
+          await new Promise(resolve => setTimeout(resolve, 500)); // Reduced to 500ms
+          await playHowjsayAudio().catch(() => speakText(word)); // Second with Howjsay
+          isSpeaking = false;
+          document.getElementById("pronounceWord").disabled = false;
+        } catch (error) {
+          console.error("Pronunciation failed:", error);
+          isSpeaking = false;
+          document.getElementById("pronounceWord").disabled = false;
+        }
+      };
+
+      pronounceSequence();
+    }
+
+    // Initial load
+    updateWordList();
+  </script>
+</body>
+</html>
