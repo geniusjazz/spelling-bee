@@ -6,6 +6,9 @@ import { saveGameState, loadGameState, levelStates, levelCompletions, resetProgr
 
 export function startGame() {
   console.log("Starting game...");
+  console.log("mainContent:", document.getElementById("mainContent"));
+  console.log("pronounce:", document.getElementById("pronounce"));
+  console.log("part:", document.getElementById("part"));
   document.getElementById("mainContent").innerText = "Loading game...";
   console.log("Calling setupKeyboard...");
   setupKeyboard();
