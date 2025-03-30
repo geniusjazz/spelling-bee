@@ -1,7 +1,7 @@
 import { currentLevel } from './levelSelector.js';
 import { initializeLevelState, updateLevelSelect } from './levelSelector.js';
 import { showWord } from './main.js';
-import { updatePronounceButton, fullPronounceEnabled } from './pronunciation.js';
+import { updatePronounceButton, setFullPronounceEnabled } from './pronunciation.js';
 
 export let levelStates = {};
 export let levelCompletions = {};
@@ -21,7 +21,7 @@ export function saveGameState() {
   localStorage.setItem('currentLevel', currentLevel);
   localStorage.setItem('levelStates', JSON.stringify(levelStates));
   localStorage.setItem('levelCompletions', JSON.stringify(levelCompletions));
-  localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled);
+  localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled); // Still reads directly here
   console.log("Game state saved:", currentState);
 }
 
@@ -31,7 +31,7 @@ export function loadGameState() {
   levelStates = JSON.parse(localStorage.getItem('levelStates')) || {};
   levelCompletions = JSON.parse(localStorage.getItem('levelCompletions')) || {};
   const savedPronounce = localStorage.getItem('fullPronounceEnabled');
-  if (savedPronounce !== null) fullPronounceEnabled = savedPronounce !== 'false';
+  if (savedPronounce !== null) setFullPronounceEnabled(savedPronounce !== 'false');
   document.getElementById("levelSelect").value = savedLevel;
   updatePronounceButton();
   updateLevelSelect();
