@@ -63,16 +63,20 @@ function getLevelWords() {
 
 export function showWord() {
   const state = levelStates[currentLevel];
+  console.log("showWord: state =", state);
   const levelWords = getLevelWords();
+  console.log("showWord: levelWords length =", levelWords.length, "words defined =", typeof words !== 'undefined');
   if (!words || levelWords.length === 0) {
     console.error("No words available for this level!");
     return;
   }
   if (!state.wordIndices.length || state.indexPointer >= state.wordIndices.length) {
+    console.log("Initializing level state for level", currentLevel);
     initializeLevelState(currentLevel);
   }
   state.currentIndex = state.wordIndices[state.indexPointer];
   const w = levelWords[state.currentIndex];
+  console.log("showWord: current word =", w);
   document.getElementById("part").innerText = "Part of Speech: " + w.part;
   document.getElementById("definition").innerText = "Definition: " + w.definition;
   document.getElementById("wordIndex").innerText = "Word #" + w.no;
@@ -201,4 +205,4 @@ function hideResetConfirmPopup() {
   document.getElementById("resetConfirmPopup").style.display = "none";
 }
 
-export { nextWord }; // Only export nextWord, since showWord is already exported above
+export { nextWord };
