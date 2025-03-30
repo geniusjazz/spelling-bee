@@ -1,6 +1,12 @@
-let isSpeaking = false;
-let lastPronouncedIndex = -1;
-let fullPronounceEnabled = true;
+import { levelStates } from './storage.js';
+import { currentLevel } from './levelSelector.js';
+import { getLevelWords } from './main.js';
+import { disableButtons, enableButtons } from './ui.js';
+import { saveGameState } from './storage.js';
+
+export let isSpeaking = false;
+export let lastPronouncedIndex = -1;
+export let fullPronounceEnabled = true;
 
 export function setupPronunciation() {
   document.getElementById("fullPronounce").onclick = togglePronounce;
@@ -65,16 +71,16 @@ function playHowjsayAudio(word) {
   });
 }
 
-function togglePronounce() {
+export function togglePronounce() {
   fullPronounceEnabled = !fullPronounceEnabled;
   updatePronounceButton();
   saveGameState(); // From storage.js
 }
 
-function updatePronounceButton() {
+export function updatePronounceButton() {
   const btn = document.getElementById("fullPronounce");
   btn.innerText = `Full Pronunciation: ${fullPronounceEnabled ? 'On' : 'Off'}`;
   btn.className = fullPronounceEnabled ? '' : 'off';
 }
 
-export { isSpeaking };
+export { isSpeaking }; // Already exported, kept for compatibility
