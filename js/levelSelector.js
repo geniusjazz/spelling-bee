@@ -5,6 +5,19 @@ export let currentLevel = 0;
 
 export function setupLevelSelector() {
   const levelSelect = document.getElementById("levelSelect");
+  const baseOptions = [
+    "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e",
+    "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
+    "Level 3-a", "Level 3-b", "Level 3-c", "Level 3-d", "Level 3-e",
+    "Level 4", "Level 5", "Level 6", "Level 7"
+  ];
+  levelSelect.innerHTML = ""; // Clear existing options
+  baseOptions.forEach((text, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.text = text;
+    levelSelect.appendChild(option);
+  });
   levelSelect.onchange = () => changeLevel(parseInt(levelSelect.value));
   updateLevelSelect();
 }
