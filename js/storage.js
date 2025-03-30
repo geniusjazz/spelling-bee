@@ -1,7 +1,7 @@
 import { currentLevel } from './levelSelector.js';
 import { initializeLevelState, updateLevelSelect } from './levelSelector.js';
 import { showWord } from './main.js';
-import { updatePronounceButton, setFullPronounceEnabled } from './pronunciation.js';
+import { updatePronounceButton, setFullPronounceEnabled, fullPronounceEnabled } from './pronunciation.js'; // Added fullPronounceEnabled
 
 export let levelStates = {};
 export let levelCompletions = {};
@@ -21,7 +21,7 @@ export function saveGameState() {
   localStorage.setItem('currentLevel', currentLevel);
   localStorage.setItem('levelStates', JSON.stringify(levelStates));
   localStorage.setItem('levelCompletions', JSON.stringify(levelCompletions));
-  localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled); // Still reads directly here
+  localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled);
   console.log("Game state saved:", currentState);
 }
 
