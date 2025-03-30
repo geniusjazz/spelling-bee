@@ -17,7 +17,7 @@ export function setupPronunciation() {
 export function pronounceWord() {
   if (isSpeaking) return;
   isSpeaking = true;
-  disableButtons(); // From ui.js
+  disableButtons();
   const state = levelStates[currentLevel];
   const w = getLevelWords()[state.currentIndex];
   const word = w.word.toLowerCase();
@@ -29,7 +29,7 @@ export function pronounceWord() {
   pronounceSequence(sequence).then(() => {
     if (fullPronounceEnabled) lastPronouncedIndex = state.currentIndex;
     isSpeaking = false;
-    enableButtons(); // From ui.js
+    enableButtons();
   }).catch(error => {
     console.error("Pronunciation failed:", error);
     isSpeaking = false;
@@ -42,7 +42,7 @@ async function pronounceSequence(sequence) {
     if (typeof item === 'number') {
       await new Promise(resolve => setTimeout(resolve, item));
     } else if (typeof item === 'function') {
-      await item().catch(() => speakText(sequence[0])); // Fallback to SpeechSynthesis
+      await item().catch(() => speakText(sequence[0]));
     } else {
       await speakText(item);
     }
@@ -74,7 +74,7 @@ function playHowjsayAudio(word) {
 export function togglePronounce() {
   fullPronounceEnabled = !fullPronounceEnabled;
   updatePronounceButton();
-  saveGameState(); // From storage.js
+  saveGameState();
 }
 
 export function updatePronounceButton() {
@@ -83,4 +83,9 @@ export function updatePronounceButton() {
   btn.className = fullPronounceEnabled ? '' : 'off';
 }
 
-export { isSpeaking }; // Already exported, kept for compatibility
+export function setFullPronounceEnabled(value) {
+  fullPronounceEnabled = value;
+  updatePronounceButton();
+}
+
+export { isSpeaking };
