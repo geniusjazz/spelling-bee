@@ -37,22 +37,34 @@
   <script type="module" src="./js/main.js"></script>
   <script type="module">
     import { startGame } from './js/main.js';
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log("DOM loaded");
+
+    function initGame() {
+      console.log("Checking DOM readiness...");
+      if (!document.getElementById("mainContent")) {
+        console.log("DOM not ready, retrying...");
+        setTimeout(initGame, 100);
+        return;
+      }
+      console.log("DOM ready, checking words.js...");
       if (typeof words !== 'undefined' && words.length > 0) {
         console.log("words.js loaded, starting game...");
-        setTimeout(() => startGame(), 100); // Small delay
+        startGame();
       } else {
         console.log("Waiting for words.js...");
         document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onload = () => {
           console.log("words.js loaded, starting game...");
-          setTimeout(() => startGame(), 100); // Small delay
+          startGame();
         };
         document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onerror = () => {
           console.error("Failed to load words.js");
           document.getElementById("mainContent").innerText = "Error: Could not load word list.";
         };
       }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log("DOM loaded");
+      initGame();
     });
   </script>
 </body>
