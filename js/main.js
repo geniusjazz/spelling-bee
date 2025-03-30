@@ -6,6 +6,7 @@ import { saveGameState, loadGameState, levelStates, levelCompletions, resetProgr
 
 export function startGame() {
   console.log("Starting game...");
+  document.getElementById("mainContent").innerText = "Loading game...";
   setupKeyboard();
   setupPronunciation();
   setupLevelSelector();
@@ -17,6 +18,7 @@ export function startGame() {
   }
   showWord();
   console.log("Game started.");
+  document.getElementById("mainContent").innerText = "Game Loaded!";
 }
 
 function setupButtons() {
@@ -199,5 +201,4 @@ function hideResetConfirmPopup() {
   document.getElementById("resetConfirmPopup").style.display = "none";
 }
 
-// Exported for use in ui.js
-export { nextWord, showWord };
+export { nextWord }; // Only export nextWord, since showWord is already exported above
