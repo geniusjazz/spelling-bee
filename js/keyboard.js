@@ -1,6 +1,15 @@
+import { levelStates } from './storage.js';
+import { currentLevel } from './levelSelector.js';
+import { updateDisplay } from './ui.js';
+import { saveGameState } from './storage.js';
+
 export function setupKeyboard() {
   console.log("Setting up keyboard...");
   const keyboard = document.getElementById("keyboard");
+  if (!keyboard) {
+    console.error("Element with ID 'keyboard' not found in HTML!");
+    return;
+  }
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   letters.forEach(letter => {
     const btn = document.createElement("button");
@@ -24,21 +33,21 @@ export function setupKeyboard() {
   console.log("Keyboard setup complete.");
 }
 
-function appendLetter(letter) {
-  const state = levelStates[currentLevel]; // From storage.js
+export function appendLetter(letter) {
+  const state = levelStates[currentLevel];
   state.currentWord += letter;
-  updateDisplay(); // From ui.js
-  saveGameState(); // From storage.js
+  updateDisplay();
+  saveGameState();
 }
 
-function removeLetter() {
+export function removeLetter() {
   const state = levelStates[currentLevel];
   state.currentWord = state.currentWord.slice(0, -1);
   updateDisplay();
   saveGameState();
 }
 
-function clearWord() {
+export function clearWord() {
   const state = levelStates[currentLevel];
   state.currentWord = "";
   updateDisplay();
