@@ -537,35 +537,39 @@
     let fullPronounceEnabled = true;
   
     // Build keyboard
-    const keyboard = document.getElementById("keyboard");
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    letters.forEach(letter => {
-      const btn = document.createElement("button");
-      btn.className = "key";
-      btn.innerText = letter;
-      btn.onclick = () => appendLetter(letter.toLowerCase());
-      keyboard.appendChild(btn);
-    });
-    const backspace = document.createElement("button");
-    backspace.id = "backspace";
-    backspace.className = "key";
-    backspace.innerText = "Back";
-    backspace.onclick = removeLetter;
-    keyboard.appendChild(backspace);
-    const clear = document.createElement("button");
-    clear.id = "clear";
-    clear.className = "key";
-    clear.innerText = "Clear";
-    clear.onclick = clearWord;
-    keyboard.appendChild(clear);
+    function setupKeyboard() {
+      const keyboard = document.getElementById("keyboard");
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+      letters.forEach(letter => {
+        const btn = document.createElement("button");
+        btn.className = "key";
+        btn.innerText = letter;
+        btn.onclick = () => appendLetter(letter.toLowerCase());
+        keyboard.appendChild(btn);
+      });
+      const backspace = document.createElement("button");
+      backspace.id = "backspace";
+      backspace.className = "key";
+      backspace.innerText = "Back";
+      backspace.onclick = removeLetter;
+      keyboard.appendChild(backspace);
+      const clear = document.createElement("button");
+      clear.id = "clear";
+      clear.className = "key";
+      clear.innerText = "Clear";
+      clear.onclick = clearWord;
+      keyboard.appendChild(clear);
+    }
   
     // Button event listeners
-    document.getElementById("pronounce").onclick = pronounceWord;
-    document.getElementById("checkAnswer").onclick = checkSpelling;
-    document.getElementById("showAnswer").onclick = showAnswer;
-    document.getElementById("fullPronounce").onclick = togglePronounce;
-    document.getElementById("wordListBtn").onclick = goToWordList;
-    document.getElementById("levelSelect").onchange = changeLevel;
+    function setupButtons() {
+      document.getElementById("pronounce").onclick = pronounceWord;
+      document.getElementById("checkAnswer").onclick = checkSpelling;
+      document.getElementById("showAnswer").onclick = showAnswer;
+      document.getElementById("fullPronounce").onclick = togglePronounce;
+      document.getElementById("wordListBtn").onclick = goToWordList;
+      document.getElementById("levelSelect").onchange = changeLevel;
+    }
   
     // Sound effects
     function playSound(type) {
@@ -730,20 +734,16 @@
         console.error("No words available for this level!");
         return;
       }
-      if (!state.wordIndices.length) {
-        console.log("Word indices empty, initializing...");
+      if (!state.wordIndices.length || state.indexPointer >= state.wordIndices.length) {
+        console.log("Word indices empty or complete, initializing...");
         initializeWordIndices(currentLevel);
-      }
-      if (state.indexPointer >= state.wordIndices.length) {
-        if (state.isReviewMode) {
-          endReviewMode();
-        } else {
-          showReviewMode();
-        }
-        return;
       }
       state.currentIndex = state.wordIndices[state.indexPointer];
       const w = levelWords[state.currentIndex];
+      if (!w) {
+        console.error("No word at currentIndex:", state.currentIndex, levelWords);
+        return;
+      }
       console.log("Displaying word:", w);
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
@@ -1133,7 +1133,7 @@
       hideResetConfirmPopup();
     }
   
-    // Ctrl+Shift+Z hack with debug
+    // Ctrl+Shift+Z hack
     function setupKeyboardShortcuts() {
       document.addEventListener('keydown', (event) => {
         if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
@@ -1143,12 +1143,12 @@
             return;
           }
           const state = levelStates[currentLevel];
-          if (!state || state.indexPointer >= state.wordIndices.length) {
+          if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) {
             console.log("Invalid state or level complete:", state);
             return;
           }
           const levelWords = getLevelWords();
-          if (!levelWords[state.currentIndex]) {
+          if (!levelWords || !levelWords[state.currentIndex]) {
             console.log("No word at currentIndex:", state.currentIndex, levelWords);
             return;
           }
@@ -1174,13 +1174,17 @@
       }
     });
   
-    // Initial setup
-    loadGameState();
-    if (!levelStates[currentLevel] || levelStates[currentLevel].wordIndices.length === 0) {
-      initializeLevelState(currentLevel);
-    }
-    showWord();
-    setupKeyboardShortcuts(); // Add listener after setup
+    // Initial setup with DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      setupKeyboard();
+      setupButtons();
+      setupKeyboardShortcuts();
+      loadGameState();
+      if (!levelStates[currentLevel] || levelStates[currentLevel].wordIndices.length === 0) {
+        initializeLevelState(currentLevel);
+      }
+      showWord(); // Ensure word displays on load
+    });
   </script>
 </body>
 </html>
