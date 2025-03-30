@@ -1,5 +1,11 @@
+import { currentLevel } from './levelSelector.js';
+import { initializeLevelState, updateLevelSelect } from './levelSelector.js';
+import { showWord } from './main.js';
+import { updatePronounceButton } from './pronunciation.js';
+
 export let levelStates = {};
 export let levelCompletions = {};
+export let fullPronounceEnabled = true; // Assuming this belongs here; move to pronunciation.js if needed
 
 export function saveGameState() {
   const currentState = {
@@ -16,33 +22,32 @@ export function saveGameState() {
   localStorage.setItem('currentLevel', currentLevel);
   localStorage.setItem('levelStates', JSON.stringify(levelStates));
   localStorage.setItem('levelCompletions', JSON.stringify(levelCompletions));
-  localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled); // From pronunciation.js
+  localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled);
   console.log("Game state saved:", currentState);
 }
 
 export function loadGameState() {
   console.log("Loading game state...");
-  currentLevel = parseInt(localStorage.getItem('currentLevel')) || 0; // From levelSelector.js
+  const savedLevel = parseInt(localStorage.getItem('currentLevel')) || 0;
   levelStates = JSON.parse(localStorage.getItem('levelStates')) || {};
   levelCompletions = JSON.parse(localStorage.getItem('levelCompletions')) || {};
-  fullPronounceEnabled = localStorage.getItem('fullPronounceEnabled') !== 'false'; // From pronunciation.js
-  document.getElementById("levelSelect").value = currentLevel;
-  updatePronounceButton(); // From pronunciation.js
-  updateLevelSelect(); // From levelSelector.js
+  fullPronounceEnabled = localStorage.getItem('fullPronounceEnabled') !== 'false';
+  document.getElementById("levelSelect").value = savedLevel;
+  updatePronounceButton();
+  updateLevelSelect();
   if (!levelStates[currentLevel]) {
-    initializeLevelState(currentLevel); // From levelSelector.js
+    initializeLevelState(currentLevel);
   }
   console.log("Loaded state:", { currentLevel, levelStates, wordsLength: words ? words.length : "undefined" });
 }
 
 export function resetProgress() {
-  currentLevel = 0;
   levelStates = {};
   levelCompletions = {};
   document.getElementById("levelSelect").value = 0;
-  initializeLevelState(0); // From levelSelector.js
-  updateLevelSelect(); // From levelSelector.js
-  showWord(); // From main.js
+  initializeLevelState(0);
+  updateLevelSelect();
+  showWord();
   saveGameState();
   document.getElementById("resetConfirmPopup").style.display = "none";
 }
