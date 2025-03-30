@@ -41,12 +41,12 @@
       console.log("DOM loaded");
       if (typeof words !== 'undefined' && words.length > 0) {
         console.log("words.js loaded, starting game...");
-        startGame();
+        setTimeout(() => startGame(), 100); // Small delay
       } else {
         console.log("Waiting for words.js...");
         document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onload = () => {
           console.log("words.js loaded, starting game...");
-          startGame();
+          setTimeout(() => startGame(), 100); // Small delay
         };
         document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onerror = () => {
           console.error("Failed to load words.js");
