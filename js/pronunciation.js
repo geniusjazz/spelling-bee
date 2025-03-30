@@ -9,8 +9,13 @@ export let lastPronouncedIndex = -1;
 export let fullPronounceEnabled = true;
 
 export function setupPronunciation() {
-  document.getElementById("fullPronounce").onclick = togglePronounce;
-  document.getElementById("pronounce").onclick = pronounceWord;
+  console.log("Setting up pronunciation...");
+  const pronounceBtn = document.getElementById("pronounce");
+  const fullPronounceBtn = document.getElementById("fullPronounce");
+  if (!pronounceBtn) console.error("Element with ID 'pronounce' not found!");
+  if (!fullPronounceBtn) console.error("Element with ID 'fullPronounce' not found!");
+  if (pronounceBtn) pronounceBtn.onclick = pronounceWord;
+  if (fullPronounceBtn) fullPronounceBtn.onclick = togglePronounce;
   updatePronounceButton();
 }
 
@@ -79,8 +84,10 @@ export function togglePronounce() {
 
 export function updatePronounceButton() {
   const btn = document.getElementById("fullPronounce");
-  btn.innerText = `Full Pronunciation: ${fullPronounceEnabled ? 'On' : 'Off'}`;
-  btn.className = fullPronounceEnabled ? '' : 'off';
+  if (btn) {
+    btn.innerText = `Full Pronunciation: ${fullPronounceEnabled ? 'On' : 'Off'}`;
+    btn.className = fullPronounceEnabled ? '' : 'off';
+  }
 }
 
 export function setFullPronounceEnabled(value) {
