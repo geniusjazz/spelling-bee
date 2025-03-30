@@ -4,24 +4,98 @@
   <title>Spelling Bee Adventure</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
-  <!-- Same HTML structure as before -->
-  <script src="js/storage.js" type="module"></script>
-  <script src="js/levelSelector.js" type="module"></script>
-  <script src="js/pronunciation.js" type="module"></script>
-  <script src="js/keyboard.js" type="module"></script>
-  <script src="js/ui.js" type="module"></script>
-  <script src="js/main.js" type="module"></script>
+  <div id="header">
+    <div id="pronounce-toggle">
+      <button id="fullPronounce">Full Pronunciation: On</button>
+    </div>
+    <button id="wordListButton">Word List</button>
+    <button id="resetButton">Reset Progress</button>
+  </div>
+  <h1>Spelling Bee Adventure</h1>
+  <div id="mainContent">
+    <select id="levelSelect">
+      <option value="0">Level 1-a</option>
+      <option value="1">Level 1-b</option>
+      <option value="2">Level 1-c</option>
+      <option value="3">Level 1-d</option>
+      <option value="4">Level 1-e</option>
+      <option value="5">Level 2-a</option>
+      <option value="6">Level 2-b</option>
+      <option value="7">Level 2-c</option>
+      <option value="8">Level 2-d</option>
+      <option value="9">Level 2-e</option>
+      <option value="10">Level 3-a</option>
+      <option value="11">Level 3-b</option>
+      <option value="12">Level 3-c</option>
+      <option value="13">Level 3-d</option>
+      <option value="14">Level 3-e</option>
+      <option value="15">Level 4</option>
+      <option value="16">Level 5</option>
+      <option value="17">Level 6</option>
+      <option value="18">Level 7</option>
+    </select>
+    <div id="progress"></div>
+    <div id="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="progress-text">Words Completed: 0/10 <div class="bee"></div></div>
+    <div id="part"></div>
+    <div id="definition"></div>
+    <div id="wordIndex"></div>
+    <button id="pronounce">Pronounce</button>
+    <div id="wordDisplay"></div>
+    <div id="keyboard"></div>
+    <button id="checkAnswer">Check Answer</button>
+    <button id="showAnswer">Show Answer</button>
+  </div>
+  <div id="feedback"></div>
+  <div id="celebration"><div class="celebration-text">🎉 Great Job! 🎉</div></div>
+  <div id="level-complete"><div class="level-complete-text"><span>🎉 Level Complete! 🎉</span><span></span></div></div>
+  <div id="mascot"></div>
+  <div id="confirmPopup">
+    <p>Want to peek at the word list?</p>
+    <button id="confirmYes">Yes</button>
+    <button id="confirmNo">No</button>
+  </div>
+  <div id="resetConfirmPopup">
+    <p>Are you sure you want to reset all progress?</p>
+    <button id="resetYes">Yes</button>
+    <button id="resetNo">No</button>
+  </div>
+
+  <!-- Load words.js as a classic script (no module) -->
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
+  
+  <!-- Load all JS files as modules -->
+  <script type="module" src="./js/storage.js"></script>
+  <script type="module" src="./js/levelSelector.js"></script>
+  <script type="module" src="./js/pronunciation.js"></script>
+  <script type="module" src="./js/keyboard.js"></script>
+  <script type="module" src="./js/ui.js"></script>
+  <script type="module" src="./js/main.js"></script>
+
+  <!-- Inline module script to start the game -->
   <script type="module">
     import { startGame } from './js/main.js';
     document.addEventListener('DOMContentLoaded', () => {
+      console.log("DOM loaded");
       if (typeof words !== 'undefined' && words.length > 0) {
+        console.log("words.js loaded, starting game...");
         startGame();
       } else {
-        document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onload = () => startGame();
+        console.log("Waiting for words.js...");
+        const wordsScript = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]');
+        wordsScript.onload = () => {
+          console.log("words.js loaded, starting game...");
+          startGame();
+        };
+        wordsScript.onerror = () => {
+          console.error("Failed to load words.js");
+          document.getElementById("mainContent").innerText = "Error: Could not load word list.";
+        };
       }
     });
   </script>
