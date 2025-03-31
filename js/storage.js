@@ -1,10 +1,12 @@
-import { currentLevel } from './levelSelector.js';
-import { initializeLevelState, updateLevelSelect } from './levelSelector.js';
+// js/storage.js
+import { currentLevel as importedCurrentLevel, levelStates as importedLevelStates, levelCompletions as importedLevelCompletions, initializeLevelState, updateLevelSelect } from './levelSelector.js';
 import { showWord } from './main.js';
-import { updatePronounceButton, setFullPronounceEnabled, fullPronounceEnabled } from './pronunciation.js'; // Added fullPronounceEnabled
+import { updatePronounceButton, setFullPronounceEnabled, fullPronounceEnabled } from './pronunciation.js';
 
-export let levelStates = {};
-export let levelCompletions = {};
+// Use imported variables to avoid conflicts
+let currentLevel = importedCurrentLevel;
+export let levelStates = importedLevelStates;
+export let levelCompletions = importedLevelCompletions;
 
 export function saveGameState() {
   const currentState = {
@@ -28,26 +30,29 @@ export function saveGameState() {
 export function loadGameState() {
   console.log("Loading game state...");
   const savedLevel = parseInt(localStorage.getItem('currentLevel')) || 0;
+  // Update currentLevel to match the saved level
+  currentLevel = savedLevel;
   levelStates = JSON.parse(localStorage.getItem('levelStates')) || {};
   levelCompletions = JSON.parse(localStorage.getItem('levelCompletions')) || {};
   const savedPronounce = localStorage.getItem('fullPronounceEnabled');
   if (savedPronounce !== null) setFullPronounceEnabled(savedPronounce !== 'false');
-  document.getElementById("levelSelect").value = savedLevel;
+  updateLevelSelect(); // Sync the dropdown with the loaded level
   updatePronounceButton();
-  updateLevelSelect();
   if (!levelStates[currentLevel]) {
     initializeLevelState(currentLevel);
   }
-  console.log("Loaded state:", { currentLevel, levelStates, wordsLength: words ? words.length : "undefined" });
+  showWord(); // Ensure a word is displayed after loading state
+  console.log("Loaded state:", { currentLevel, levelStates, wordsLength: window.words ? window.words.length : "undefined" });
 }
 
 export function resetProgress() {
+  currentLevel = 0; // Explicitly reset currentLevel
   levelStates = {};
   levelCompletions = {};
-  document.getElementById("levelSelect").value = 0;
-  initializeLevelState(0);
-  updateLevelSelect();
-  showWord();
+  initializeLevelState(currentLevel);
+  updateLevelSelect(); // Sync the dropdown
+  showWord(); // Display the first word of the new level
   saveGameState();
   document.getElementById("resetConfirmPopup").style.display = "none";
+  console.log("Progress reset, starting at level 0");
 }
