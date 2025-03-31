@@ -271,10 +271,3 @@ function removeLetter() {
     wordDisplay.innerText = wordDisplay.innerText.slice(0, -1);
   }
 }
-
-function clearWord() {
-  const wordDisplay = document.getElementById("wordDisplay");
-  if (wordDisplay) {
-    wordDisplay.innerText = "";
-  }
-}
