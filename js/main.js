@@ -10,10 +10,13 @@ export function startGame() {
   console.log("pronounce:", document.getElementById("pronounce"));
   console.log("part:", document.getElementById("part"));
   document.getElementById("mainContent").innerText = "Loading game...";
+  console.log("After mainContent update:", document.getElementById("mainContent"));
   console.log("Calling setupKeyboard...");
   setupKeyboard();
+  console.log("After setupKeyboard:", document.getElementById("pronounce"), document.getElementById("part"));
   console.log("Calling setupPronunciation...");
   setupPronunciation();
+  console.log("After setupPronunciation:", document.getElementById("pronounce"), document.getElementById("part"));
   console.log("Calling setupLevelSelector...");
   setupLevelSelector();
   console.log("Calling setupButtons...");
@@ -47,27 +50,6 @@ function setupButtons() {
   if (resetBtn) resetBtn.onclick = showResetConfirmPopup;
 }
 
-function setupKeyboardShortcuts() {
-  document.addEventListener('keydown', (event) => {
-    if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
-      if (isSpeaking) return;
-      const state = levelStates[currentLevel];
-      if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) {
-        alert("Cannot use shortcut: Game state not ready or level complete.");
-        return;
-      }
-      const levelWords = getLevelWords();
-      if (!levelWords || !levelWords[state.currentIndex]) {
-        alert("Cannot use shortcut: No word available.");
-        return;
-      }
-      state.currentWord = levelWords[state.currentIndex].word;
-      updateDisplay();
-      checkSpelling();
-    }
-  });
-}
-
 export function getLevelWords() {
   const state = levelStates[currentLevel];
   if (state.isReviewMode) return state.missedWords;
@@ -96,15 +78,45 @@ export function showWord() {
   state.currentIndex = state.wordIndices[state.indexPointer];
   const w = levelWords[state.currentIndex];
   console.log("showWord: current word =", w);
-  document.getElementById("part").innerText = "Part of Speech: " + w.part;
-  document.getElementById("definition").innerText = "Definition: " + w.definition;
-  document.getElementById("wordIndex").innerText = "Word #" + w.no;
+  console.log("Before updating DOM:", document.getElementById("part"), document.getElementById("pronounce"));
+  const partEl = document.getElementById("part");
+  const defEl = document.getElementById("definition");
+  const indexEl = document.getElementById("wordIndex");
+  const showAnswerBtn = document.getElementById("showAnswer");
+  if (!partEl) console.error("Element with ID 'part' not found!");
+  if (!defEl) console.error("Element with ID 'definition' not found!");
+  if (!indexEl) console.error("Element with ID 'wordIndex' not found!");
+  if (!showAnswerBtn) console.error("Element with ID 'showAnswer' not found!");
+  if (partEl) partEl.innerText = "Part of Speech: " + w.part;
+  if (defEl) defEl.innerText = "Definition: " + w.definition;
+  if (indexEl) indexEl.innerText = "Word #" + w.no;
   updateDisplay();
-  document.getElementById("showAnswer").style.display = state.failCount >= 3 ? "block" : "none";
+  if (showAnswerBtn) showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
   document.getElementById("mainContent").style.display = "block";
   document.getElementById("mascot").className = "";
   updateProgress();
   enableButtons();
+}
+
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
+      if (isSpeaking) return;
+      const state = levelStates[currentLevel];
+      if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) {
+        alert("Cannot use shortcut: Game state not ready or level complete.");
+        return;
+      }
+      const levelWords = getLevelWords();
+      if (!levelWords || !levelWords[state.currentIndex]) {
+        alert("Cannot use shortcut: No word available.");
+        return;
+      }
+      state.currentWord = levelWords[state.currentIndex].word;
+      updateDisplay();
+      checkSpelling();
+    }
+  });
 }
 
 function nextWord() {
