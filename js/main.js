@@ -73,7 +73,6 @@ function setupKeyboardShortcuts() {
     if (isSpeaking) return;
     const key = event.key.toLowerCase();
 
-    // Ctrl-Shift-Z hack to auto-answer
     if (event.ctrlKey && event.shiftKey && key === 'z') {
       event.preventDefault();
       const state = levelStates[currentLevel];
@@ -98,6 +97,10 @@ function setupKeyboardShortcuts() {
 
 export function getLevelWords() {
   const state = levelStates[currentLevel];
+  if (!state) {
+    console.error("Level state not found for level", currentLevel);
+    return [];
+  }
   if (state.isReviewMode) return state.missedWords;
   let start;
   if (currentLevel < 5) start = currentLevel * 10;
@@ -110,6 +113,10 @@ export function getLevelWords() {
 
 export function showWord() {
   const state = levelStates[currentLevel];
+  if (!state) {
+    console.error("Level state not found for level", currentLevel);
+    return;
+  }
   console.log("showWord: state =", state);
   const levelWords = getLevelWords();
   console.log("showWord: levelWords length =", levelWords.length, "words defined =", typeof words !== 'undefined');
@@ -211,7 +218,7 @@ function showAnswer() {
   if (isSpeaking) return;
   const state = levelStates[currentLevel];
   const w = getLevelWords()[state.currentIndex];
-  showAnswerPopup(w.word); // Use the custom answer popup
+  showAnswerPopup(w.word);
   state.failCount = 0;
   state.indexPointer++;
   if (state.indexPointer >= state.wordIndices.length) {
