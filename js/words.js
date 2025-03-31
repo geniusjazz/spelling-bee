@@ -1,4 +1,4 @@
-const words = [
+var words = [
     {"no": "1", "word": "deep", "part": "adjective", "definition": "extending downward to a considerable degree"},
     {"no": "2", "word": "happy", "part": "adjective", "definition": "having the feeling arising from the consciousness of well-being"},
     {"no": "3", "word": "bump", "part": "verb", "definition": "to hit or knock typically with a degree of force or violence and making a thudding impact and usually with a degree of injury or damage"},
