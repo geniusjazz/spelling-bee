@@ -29,17 +29,49 @@ export function showFeedback(message, isCorrect) {
     console.error("Feedback element not found!");
     return;
   }
-  console.log("Showing feedback:", message, isCorrect); // Debug log
+  console.log("Showing feedback:", message, isCorrect);
   feedback.innerText = message;
-  feedback.className = isCorrect ? "correct" : "wrong"; // Ensure class is set for both cases
-  feedback.style.display = "block"; // Always show feedback
+  feedback.className = isCorrect ? "correct" : "wrong";
+  feedback.style.display = "block";
   mascot.className = isCorrect ? "happy" : "sad";
   setTimeout(() => {
     feedback.style.display = "none";
     if (!isCorrect) {
       mascot.className = "";
     }
-  }, 3000); // Increased to 3 seconds
+  }, 3000);
+}
+
+export function hideFeedback() {
+  const feedback = document.getElementById("feedback");
+  const mascot = document.getElementById("mascot");
+  if (feedback) {
+    feedback.style.display = "none";
+  }
+  if (mascot) {
+    mascot.className = "";
+  }
+}
+
+export function showAnswerPopup(answer) {
+  const answerPopup = document.getElementById("answerPopup");
+  const answerText = document.getElementById("answerText");
+  if (!answerPopup || !answerText) {
+    console.error("Answer popup elements not found!");
+    return;
+  }
+  answerText.innerText = `The correct answer is: ${answer}`;
+  answerPopup.style.display = "block";
+  setTimeout(() => {
+    answerPopup.style.display = "none";
+  }, 3000);
+}
+
+export function hideAnswerPopup() {
+  const answerPopup = document.getElementById("answerPopup");
+  if (answerPopup) {
+    answerPopup.style.display = "none";
+  }
 }
 
 export function showCelebration(nextWordCallback) {
@@ -83,7 +115,7 @@ function hideCelebration(nextWordCallback) {
   celebration.style.display = "none";
   document.getElementById("mainContent").style.display = "block";
   if (typeof nextWordCallback === 'function') {
-    nextWordCallback(); // Only call if it’s a function
+    nextWordCallback();
   }
 }
 
@@ -157,10 +189,9 @@ export function enableButtons() {
   document.getElementById("pronounce").disabled = false;
   document.getElementById("checkAnswer").disabled = false;
   document.getElementById("levelSelect").disabled = false;
-  // Remove disabled logic for showAnswer since we control visibility with style.display
   const showAnswerBtn = document.getElementById("showAnswer");
   if (showAnswerBtn) {
-    console.log("Enabling buttons, failCount =", state.failCount); // Debug log
+    console.log("Enabling buttons, failCount =", state.failCount);
     showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
   }
 }
