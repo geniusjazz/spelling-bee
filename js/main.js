@@ -1,6 +1,6 @@
 import { currentLevel, setupLevelSelector, changeLevel, initializeLevelState } from './levelSelector.js';
 import { setupPronunciation, pronounceWord, isSpeaking } from './pronunciation.js';
-import { setupKeyboard } from './keyboard.js';
+import { setupKeyboard, clearWord } from './keyboard.js'; // Import clearWord
 import { showFeedback, showCelebration, showLevelComplete, updateProgress, enableButtons, disableButtons, updateDisplay } from './ui.js';
 import { saveGameState, loadGameState, levelStates, levelCompletions, resetProgress } from './storage.js';
 
@@ -72,6 +72,18 @@ function setupKeyboardShortcuts() {
   document.addEventListener("keydown", (event) => {
     if (isSpeaking) return;
     const key = event.key.toLowerCase();
+
+    // Ctrl-Shift-Z hack to auto-answer
+    if (event.ctrlKey && event.shiftKey && key === 'z') {
+      event.preventDefault(); // Prevent 'z' from being appended
+      const state = levelStates[currentLevel];
+      const levelWords = getLevelWords();
+      const w = levelWords[state.currentIndex];
+      document.getElementById("wordDisplay").innerText = w.word;
+      checkSpelling();
+      return;
+    }
+
     if (key === "enter") {
       checkSpelling();
     } else if (key === "backspace") {
@@ -141,6 +153,7 @@ function checkSpelling() {
   const levelWords = getLevelWords();
   const w = levelWords[state.currentIndex];
   const userInput = document.getElementById("wordDisplay").innerText.trim().toLowerCase();
+  console.log("Checking spelling: userInput =", userInput, "correct answer =", w.word.toLowerCase()); // Debug log
   if (userInput === w.word.toLowerCase()) {
     showFeedback("Correct!", "correct");
     state.wordsCompleted++;
@@ -164,7 +177,7 @@ function checkSpelling() {
       }
     }
     setTimeout(() => {
-      document.getElementById("wordDisplay").innerText = "";
+      clearWord(); // Clear state.currentWord and update display
       showWord();
     }, 1000);
   } else {
