@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Spelling Bee</title>
+  <link rel="icon" type="image/x-icon" href="/spelling-bee/favicon.ico">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -15,7 +16,7 @@
   </div>
   <h1>Spelling Bee Adventure</h1>
   <div id="mainContent">
-    <select id="levelSelect"></select>
+    <select id="levelSelect" disabled></select>
     <div id="progress"></div>
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
@@ -62,16 +63,21 @@
         return;
       }
       console.log("DOM ready, checking words.js...");
-      if (typeof words !== 'undefined' && words.length > 0) {
+      if (typeof window.words !== 'undefined' && window.words.length > 0) {
         console.log("words.js loaded, starting game...");
+        const levelSelect = document.getElementById("levelSelect");
+        if (levelSelect) levelSelect.disabled = false; // Enable level selector
         startGame();
       } else {
         console.log("Waiting for words.js...");
-        document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onload = () => {
+        const wordsScript = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]');
+        wordsScript.onload = () => {
           console.log("words.js loaded, starting game...");
+          const levelSelect = document.getElementById("levelSelect");
+          if (levelSelect) levelSelect.disabled = false; // Enable level selector
           startGame();
         };
-        document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]').onerror = () => {
+        wordsScript.onerror = () => {
           console.error("Failed to load words.js");
           document.getElementById("mainContent").innerText = "Error: Could not load word list.";
         };
