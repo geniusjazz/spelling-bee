@@ -1,7 +1,7 @@
 import { currentLevel, setupLevelSelector, changeLevel, initializeLevelState } from './levelSelector.js';
 import { setupPronunciation, pronounceWord, isSpeaking } from './pronunciation.js';
 import { setupKeyboard, clearWord } from './keyboard.js';
-import { showFeedback, showCelebration, showLevelComplete, updateProgress, enableButtons, disableButtons, updateDisplay } from './ui.js';
+import { showFeedback, showCelebration, showLevelComplete, updateProgress, enableButtons, disableButtons, updateDisplay, showAnswerPopup } from './ui.js';
 import { saveGameState, loadGameState, levelStates, levelCompletions, resetProgress } from './storage.js';
 
 export function startGame() {
@@ -139,10 +139,10 @@ export function showWord() {
   if (partEl) partEl.innerText = "Part of Speech: " + w.part;
   if (defEl) defEl.innerText = "Definition: " + w.definition;
   if (indexEl) indexEl.innerText = "Word #" + w.no;
-  if (wordDisplay) wordDisplay.innerText = ""; // Clear previous content
+  if (wordDisplay) wordDisplay.innerText = "";
   updateDisplay();
   if (showAnswerBtn) {
-    console.log("showWord: failCount =", state.failCount); // Debug log
+    console.log("showWord: failCount =", state.failCount);
     showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
   }
   document.getElementById("mainContent").style.display = "block";
@@ -174,7 +174,7 @@ function checkSpelling() {
         levelCompletions[currentLevel] = true;
         currentLevel++;
         if (currentLevel >= 19) {
-          currentLevel = 0; // Reset to first level if all levels completed
+          currentLevel = 0;
         }
         initializeLevelState(currentLevel);
       }
@@ -186,7 +186,7 @@ function checkSpelling() {
   } else {
     showFeedback("Try Again!", false);
     state.failCount++;
-    console.log("Incorrect answer, failCount =", state.failCount); // Debug log
+    console.log("Incorrect answer, failCount =", state.failCount);
     if (!state.missedWords.some(mw => mw.word === w.word)) {
       state.missedWords.push(w);
     }
@@ -204,7 +204,7 @@ function showAnswer() {
   const state = levelStates[currentLevel];
   const levelWords = getLevelWords();
   const w = levelWords[state.currentIndex];
-  document.getElementById("wordDisplay").innerText = w.word;
+  showAnswerPopup(w.word); // Show the answer in a popup instead of filling it in
   state.failCount = 0;
   state.indexPointer++;
   if (state.indexPointer >= state.wordIndices.length) {
