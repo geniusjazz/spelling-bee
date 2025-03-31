@@ -33,6 +33,20 @@ export function setupLevelSelector() {
   console.log("Level selector set up with", levelNames.length, "levels");
 }
 
+export function updateLevelSelect() {
+  const select = document.getElementById("levelSelect");
+  if (!select) {
+    console.error("Level selector element not found!");
+    return;
+  }
+  // Ensure the currentLevel is reflected in the dropdown
+  const options = select.options;
+  for (let i = 0; i < options.length; i++) {
+    options[i].selected = (parseInt(options[i].value) === currentLevel);
+  }
+  console.log("Level selector updated to", levelNames[currentLevel]);
+}
+
 export function changeLevel(newLevel) {
   if (newLevel < 0 || newLevel >= levelNames.length) {
     console.error("Invalid level index:", newLevel);
@@ -49,6 +63,7 @@ export function changeLevel(newLevel) {
       console.error("showWord function not available in main module");
     }
     saveGameState(); // Save the new level state
+    updateLevelSelect(); // Sync the dropdown
     console.log("Changed to level:", levelNames[currentLevel]);
   }
 }
@@ -66,9 +81,9 @@ export function initializeLevelState(level) {
     };
   }
   // Populate wordIndices with unique random indices for the level
-  const levelWords = getLevelWords(level); // Pass level to get correct word slice
+  const levelWords = getLevelWords(level);
   if (levelWords && levelWords.length > 0) {
-    const wordCount = Math.min(10, levelWords.length); // Ensure we don't exceed available words
+    const wordCount = Math.min(10, levelWords.length);
     const indices = [];
     while (indices.length < wordCount) {
       const randomIndex = Math.floor(Math.random() * levelWords.length);
