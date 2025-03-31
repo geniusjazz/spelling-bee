@@ -69,6 +69,7 @@
       // Check if words.js has already loaded
       if (typeof window.words !== 'undefined' && window.words.length > 0) {
         console.log("words.js already loaded, starting game...");
+        console.log("Number of words loaded:", window.words.length);
         if (levelSelect) levelSelect.disabled = false;
         startGame();
       } else {
@@ -95,6 +96,7 @@
             document.getElementById("mainContent").innerText = "Error: Word list is empty.";
             return;
           }
+          console.log("Number of words loaded:", window.words.length);
           if (levelSelect) levelSelect.disabled = false;
           startGame();
         };
