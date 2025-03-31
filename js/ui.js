@@ -202,7 +202,7 @@ export function disableButtons() {
   document.getElementById("levelSelect").disabled = true;
 }
 
-function playSound(type) {
+export function playSound(type) {
   const audio = new Audio();
   if (type === 'correct') audio.src = 'https://www.soundjay.com/buttons/sounds/button-3.mp3';
   else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
