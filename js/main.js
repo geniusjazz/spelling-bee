@@ -105,8 +105,9 @@ export function showWord() {
     console.error("No words available for this level!");
     return;
   }
+  // If wordIndices is empty, re-initialize the state
   if (!state.wordIndices.length || state.indexPointer >= state.wordIndices.length) {
-    console.log("Initializing level state for level", currentLevel);
+    console.log("Re-initializing level state for level", currentLevel);
     initializeLevelState(currentLevel);
   }
   state.currentIndex = state.wordIndices[state.indexPointer];
@@ -117,13 +118,16 @@ export function showWord() {
   const defEl = document.getElementById("definition");
   const indexEl = document.getElementById("wordIndex");
   const showAnswerBtn = document.getElementById("showAnswer");
+  const wordDisplay = document.getElementById("wordDisplay");
   if (!partEl) console.error("Element with ID 'part' not found!");
   if (!defEl) console.error("Element with ID 'definition' not found!");
   if (!indexEl) console.error("Element with ID 'wordIndex' not found!");
   if (!showAnswerBtn) console.error("Element with ID 'showAnswer' not found!");
+  if (!wordDisplay) console.error("Element with ID 'wordDisplay' not found!");
   if (partEl) partEl.innerText = "Part of Speech: " + w.part;
   if (defEl) defEl.innerText = "Definition: " + w.definition;
   if (indexEl) indexEl.innerText = "Word #" + w.no;
+  if (wordDisplay) wordDisplay.innerText = ""; // Clear previous content
   updateDisplay();
   if (showAnswerBtn) showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
   document.getElementById("mainContent").style.display = "block";
