@@ -9,7 +9,6 @@ export function startGame() {
   console.log("mainContent:", document.getElementById("mainContent"));
   console.log("pronounce:", document.getElementById("pronounce"));
   console.log("part:", document.getElementById("part"));
-  // Avoid overwriting children
   const status = document.createElement("div");
   status.id = "status";
   status.innerText = "Loading game...";
@@ -19,7 +18,7 @@ export function startGame() {
   setupKeyboard();
   console.log("After setupKeyboard:", document.getElementById("pronounce"), document.getElementById("part"));
   console.log("Calling setupPronunciation...");
-  setupPronunciation();
+  setupPronunciation(document.getElementById("pronounce"));
   console.log("After setupPronunciation:", document.getElementById("pronounce"), document.getElementById("part"));
   console.log("Calling setupLevelSelector...");
   setupLevelSelector();
@@ -40,21 +39,49 @@ export function startGame() {
   document.getElementById("mainContent").removeChild(status);
 }
 
-// ... rest of main.js unchanged (setupButtons, getLevelWords, showWord, etc.) ...
-
 function setupButtons() {
   const checkAnswerBtn = document.getElementById("checkAnswer");
   const showAnswerBtn = document.getElementById("showAnswer");
   const wordListBtn = document.getElementById("wordListButton");
   const resetBtn = document.getElementById("resetButton");
+  const confirmYes = document.getElementById("confirmYes");
+  const confirmNo = document.getElementById("confirmNo");
+  const resetYes = document.getElementById("resetYes");
+  const resetNo = document.getElementById("resetNo");
+
   if (!checkAnswerBtn) console.error("Element with ID 'checkAnswer' not found!");
   if (!showAnswerBtn) console.error("Element with ID 'showAnswer' not found!");
   if (!wordListBtn) console.error("Element with ID 'wordListButton' not found!");
   if (!resetBtn) console.error("Element with ID 'resetButton' not found!");
+  if (!confirmYes) console.error("Element with ID 'confirmYes' not found!");
+  if (!confirmNo) console.error("Element with ID 'confirmNo' not found!");
+  if (!resetYes) console.error("Element with ID 'resetYes' not found!");
+  if (!resetNo) console.error("Element with ID 'resetNo' not found!");
+
   if (checkAnswerBtn) checkAnswerBtn.onclick = checkSpelling;
   if (showAnswerBtn) showAnswerBtn.onclick = showAnswer;
   if (wordListBtn) wordListBtn.onclick = showConfirmPopup;
   if (resetBtn) resetBtn.onclick = showResetConfirmPopup;
+  if (confirmYes) confirmYes.onclick = goToWordList;
+  if (confirmNo) confirmNo.onclick = hideConfirmPopup;
+  if (resetYes) resetYes.onclick = resetProgress;
+  if (resetNo) resetNo.onclick = hideResetConfirmPopup;
+}
+
+function setupKeyboardShortcuts() {
+  document.addEventListener("keydown", (event) => {
+    if (isSpeaking) return;
+    const key = event.key.toLowerCase();
+    if (key === "enter") {
+      checkSpelling();
+    } else if (key === "backspace") {
+      removeLetter();
+    } else if (key === "escape") {
+      clearWord();
+    } else if (/^[a-z]$/.test(key)) {
+      appendLetter(key);
+    }
+  });
 }
 
 export function getLevelWords() {
@@ -105,142 +132,132 @@ export function showWord() {
   enableButtons();
 }
 
-function setupKeyboardShortcuts() {
-  document.addEventListener('keydown', (event) => {
-    if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') {
-      if (isSpeaking) return;
-      const state = levelStates[currentLevel];
-      if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) {
-        alert("Cannot use shortcut: Game state not ready or level complete.");
-        return;
-      }
-      const levelWords = getLevelWords();
-      if (!levelWords || !levelWords[state.currentIndex]) {
-        alert("Cannot use shortcut: No word available.");
-        return;
-      }
-      state.currentWord = levelWords[state.currentIndex].word;
-      updateDisplay();
-      checkSpelling();
-    }
-  });
-}
-
-function nextWord() {
-  const state = levelStates[currentLevel];
-  state.indexPointer++;
-  if (state.indexPointer >= state.wordIndices.length) {
-    if (state.isReviewMode) endReviewMode();
-    else showReviewMode();
-    return;
-  }
-  state.failCount = 0;
-  state.currentWord = "";
-  showWord();
-  saveGameState();
-}
-
-function endReviewMode() {
-  levelStates[currentLevel].isReviewMode = false;
-  levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
-  saveGameState();
-  showLevelComplete();
-}
-
-function showReviewMode() {
-  const state = levelStates[currentLevel];
-  if (state.missedWords.length === 0) {
-    levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
-    saveGameState();
-    showLevelComplete();
-    return;
-  }
-  document.getElementById("mainContent").style.display = "none";
-  const reviewDiv = document.createElement("div");
-  reviewDiv.id = "review-mode";
-  const wordList = document.createElement("div");
-  state.missedWords.forEach(w => {
-    const btn = document.createElement("button");
-    btn.className = "word-button";
-    btn.innerText = w.word;
-    wordList.appendChild(btn);
-  });
-  reviewDiv.appendChild(wordList);
-  const redoBtn = document.createElement("button");
-  redoBtn.className = "redo-button";
-  redoBtn.innerText = "Redo Missed Words";
-  redoBtn.onclick = redoMissedWords;
-  reviewDiv.appendChild(redoBtn);
-  document.body.appendChild(reviewDiv);
-}
-
-function redoMissedWords() {
-  document.getElementById("review-mode").remove();
-  document.getElementById("mainContent").style.display = "block";
-  const state = levelStates[currentLevel];
-  state.isReviewMode = true;
-  state.wordsCompleted = 0;
-  state.failCount = 0;
-  state.currentWord = "";
-  initializeLevelState(currentLevel);
-  showWord();
-  enableButtons();
-  saveGameState();
-}
-
 function checkSpelling() {
   const state = levelStates[currentLevel];
-  if (isSpeaking) {
-    speechSynthesis.cancel();
-    isSpeaking = false;
-    enableButtons();
-  }
-  const userInput = state.currentWord.trim().toLowerCase();
-  const correctWord = getLevelWords()[state.currentIndex].word;
-  if (userInput === correctWord) {
+  const levelWords = getLevelWords();
+  const w = levelWords[state.currentIndex];
+  const userInput = document.getElementById("wordDisplay").innerText.trim().toLowerCase();
+  if (userInput === w.word.toLowerCase()) {
+    showFeedback("Correct!", "correct");
     state.wordsCompleted++;
-    showFeedback("", true);
-    showCelebration(nextWord);
-  } else {
-    state.failCount++;
-    if (state.failCount === 1 && !state.isReviewMode) state.missedWords.push(getLevelWords()[state.currentIndex]);
-    showFeedback("❌ Oops! Try Again! ❌", false);
-    if (state.failCount >= 3) {
-      document.getElementById("showAnswer").style.display = "block";
-      document.getElementById("showAnswer").disabled = false;
+    state.indexPointer++;
+    state.failCount = 0;
+    document.getElementById("mascot").className = "happy";
+    showCelebration();
+    if (state.indexPointer >= state.wordIndices.length) {
+      if (state.missedWords.length > 0) {
+        state.isReviewMode = true;
+        state.wordIndices = state.missedWords.map((_, i) => i);
+        state.indexPointer = 0;
+      } else {
+        showLevelComplete();
+        levelCompletions[currentLevel] = true;
+        currentLevel++;
+        if (currentLevel >= 19) {
+          currentLevel = 0; // Reset to first level if all levels completed
+        }
+        initializeLevelState(currentLevel);
+      }
     }
-    state.currentWord = "";
-    updateDisplay();
+    setTimeout(() => {
+      document.getElementById("wordDisplay").innerText = "";
+      showWord();
+    }, 1000);
+  } else {
+    showFeedback("Try Again!", "wrong");
+    state.failCount++;
+    if (!state.missedWords.some(mw => mw.word === w.word)) {
+      state.missedWords.push(w);
+    }
+    document.getElementById("mascot").className = "sad";
   }
   saveGameState();
+  updateProgress();
 }
 
 function showAnswer() {
-  if (isSpeaking) return;
   const state = levelStates[currentLevel];
-  const w = getLevelWords()[state.currentIndex];
-  showFeedback(`Answer: ${w.word}`, false);
+  const levelWords = getLevelWords();
+  const w = levelWords[state.currentIndex];
+  document.getElementById("wordDisplay").innerText = w.word;
+  state.failCount = 0;
+  state.indexPointer++;
+  if (state.indexPointer >= state.wordIndices.length) {
+    if (state.missedWords.length > 0) {
+      state.isReviewMode = true;
+      state.wordIndices = state.missedWords.map((_, i) => i);
+      state.indexPointer = 0;
+    } else {
+      showLevelComplete();
+      levelCompletions[currentLevel] = true;
+      currentLevel++;
+      if (currentLevel >= 19) {
+        currentLevel = 0;
+      }
+      initializeLevelState(currentLevel);
+    }
+  }
+  setTimeout(showWord, 1000);
+  saveGameState();
 }
 
 function showConfirmPopup() {
-  document.getElementById("confirmPopup").style.display = "block";
+  const popup = document.getElementById("confirmPopup");
+  if (popup) {
+    popup.style.display = "block";
+  }
 }
 
 function hideConfirmPopup() {
-  document.getElementById("confirmPopup").style.display = "none";
+  const popup = document.getElementById("confirmPopup");
+  if (popup) {
+    popup.style.display = "none";
+  }
 }
 
 function goToWordList() {
-  saveGameState();
-  window.location.href = 'wordlist.html';
+  console.log("Going to word list for level", currentLevel);
+  const state = levelStates[currentLevel];
+  if (state && state.missedWords && state.missedWords.length > 0) {
+    console.log("Missed words:", state.missedWords);
+    alert("Missed words: " + state.missedWords.map(w => w.word).join(", "));
+  } else {
+    alert("No missed words yet!");
+  }
+  hideConfirmPopup();
 }
 
 function showResetConfirmPopup() {
-  document.getElementById("resetConfirmPopup").style.display = "block";
+  const popup = document.getElementById("resetConfirmPopup");
+  if (popup) {
+    popup.style.display = "block";
+  }
 }
 
 function hideResetConfirmPopup() {
-  document.getElementById("resetConfirmPopup").style.display = "none";
+  const popup = document.getElementById("resetConfirmPopup");
+  if (popup) {
+    popup.style.display = "none";
+  }
 }
 
-export { nextWord }; // Removed getLevelWords from here
+function appendLetter(letter) {
+  const wordDisplay = document.getElementById("wordDisplay");
+  if (wordDisplay) {
+    wordDisplay.innerText += letter;
+  }
+}
+
+function removeLetter() {
+  const wordDisplay = document.getElementById("wordDisplay");
+  if (wordDisplay) {
+    wordDisplay.innerText = wordDisplay.innerText.slice(0, -1);
+  }
+}
+
+function clearWord() {
+  const wordDisplay = document.getElementById("wordDisplay");
+  if (wordDisplay) {
+    wordDisplay.innerText = "";
+  }
+}
