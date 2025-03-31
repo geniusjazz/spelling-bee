@@ -6,28 +6,44 @@
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
+  <div id="header">
+    <div id="pronounce-toggle">
+      <button id="fullPronounce">Full Pronunciation: On</button>
+    </div>
+    <button id="wordListButton">Word List</button>
+    <button id="resetButton">Reset</button>
+  </div>
+  <h1>Spelling Bee Adventure</h1>
   <div id="mainContent">
-    <div id="wordDisplay"></div>
+    <select id="levelSelect"></select>
+    <div id="progress"></div>
+    <div id="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="progress-text">Words Completed: 0/10 <div class="bee"></div></div>
     <div id="part"></div>
     <div id="definition"></div>
     <div id="wordIndex"></div>
     <button id="pronounce">Pronounce</button>
-    <button id="fullPronounce">Full Pronunciation</button>
-    <button id="checkAnswer">Check</button>
+    <div id="wordDisplay"></div>
+    <div id="keyboard"></div>
+    <button id="checkAnswer">Check Answer</button>
     <button id="showAnswer" style="display: none;">Show Answer</button>
-    <div id="progress-bar"></div>
-    <div id="progress-text"></div>
-    <div id="mascot"></div>
-    <div id="feedback"></div>
-    <div id="celebration"><span class="celebration-text"></span></div>
-    <div id="level-complete"><span class="level-complete-text"></span></div>
-    <div id="confirmPopup" style="display: none;"></div>
-    <div id="resetConfirmPopup" style="display: none;"></div>
-    <button id="wordListButton">Word List</button>
-    <button id="resetButton">Reset</button>
   </div>
-  <div id="keyboard"></div>
-  <select id="levelSelect"></select>
+  <div id="feedback" onclick="hideFeedback()"></div>
+  <div id="celebration"><span class="celebration-text">🎉 Great Job! 🎉</span></div>
+  <div id="level-complete"><span class="level-complete-text"><span>🎉 Level Complete! 🎉</span><span></span></span></div>
+  <div id="mascot"></div>
+  <div id="confirmPopup">
+    <p>Want to peek at the word list?</p>
+    <button id="confirmYes">Yes</button>
+    <button id="confirmNo">No</button>
+  </div>
+  <div id="resetConfirmPopup">
+    <p>Are you sure you want to reset all progress?</p>
+    <button id="resetYes">Yes</button>
+    <button id="resetNo">No</button>
+  </div>
   <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
   <script type="module" src="./js/storage.js"></script>
   <script type="module" src="./js/levelSelector.js"></script>
