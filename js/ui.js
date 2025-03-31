@@ -1,5 +1,5 @@
-import { currentLevel, initializeLevelState, changeLevel } from './levelSelector.js'; // Added changeLevel
-import { levelStates, levelCompletions } from './storage.js'; // Added levelCompletions
+import { currentLevel, initializeLevelState, changeLevel } from './levelSelector.js';
+import { levelStates, levelCompletions } from './storage.js';
 import { saveGameState } from './storage.js';
 import { showWord } from './main.js';
 
@@ -25,16 +25,21 @@ export function updateProgress() {
 export function showFeedback(message, isCorrect) {
   const feedback = document.getElementById("feedback");
   const mascot = document.getElementById("mascot");
-  feedback.innerText = message;
-  feedback.className = isCorrect ? "" : "wrong";
-  feedback.style.display = isCorrect ? "none" : "block";
-  mascot.className = isCorrect ? "happy" : "sad";
-  if (!isCorrect) {
-    setTimeout(() => {
-      feedback.style.display = "none";
-      mascot.className = "";
-    }, 1500);
+  if (!feedback) {
+    console.error("Feedback element not found!");
+    return;
   }
+  console.log("Showing feedback:", message, isCorrect); // Debug log
+  feedback.innerText = message;
+  feedback.className = isCorrect ? "correct" : "wrong"; // Ensure class is set for both cases
+  feedback.style.display = "block"; // Always show feedback
+  mascot.className = isCorrect ? "happy" : "sad";
+  setTimeout(() => {
+    feedback.style.display = "none";
+    if (!isCorrect) {
+      mascot.className = "";
+    }
+  }, 3000); // Increased to 3 seconds
 }
 
 export function showCelebration(nextWordCallback) {
@@ -77,7 +82,9 @@ function hideCelebration(nextWordCallback) {
   }
   celebration.style.display = "none";
   document.getElementById("mainContent").style.display = "block";
-  nextWordCallback();
+  if (typeof nextWordCallback === 'function') {
+    nextWordCallback(); // Only call if it’s a function
+  }
 }
 
 export function showLevelComplete() {
@@ -138,7 +145,7 @@ function hideLevelComplete() {
     currentWord: ""
   };
   const nextLevel = currentLevel < 18 ? currentLevel + 1 : 0;
-  changeLevel(nextLevel); // Use setter instead of direct assignment
+  changeLevel(nextLevel);
   document.getElementById("levelSelect").value = currentLevel;
   initializeLevelState(currentLevel);
   showWord();
@@ -149,8 +156,13 @@ export function enableButtons() {
   const state = levelStates[currentLevel];
   document.getElementById("pronounce").disabled = false;
   document.getElementById("checkAnswer").disabled = false;
-  document.getElementById("showAnswer").disabled = state.failCount < 3;
   document.getElementById("levelSelect").disabled = false;
+  // Remove disabled logic for showAnswer since we control visibility with style.display
+  const showAnswerBtn = document.getElementById("showAnswer");
+  if (showAnswerBtn) {
+    console.log("Enabling buttons, failCount =", state.failCount); // Debug log
+    showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
+  }
 }
 
 export function disableButtons() {
