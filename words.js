@@ -448,5 +448,5 @@ const words = [
     {"no": "447", "word": "noncommittal", "part": "adjective", "definition": "taking no clear position or giving no clear indication of attitude, feeling, or point of view"},
     {"no": "448", "word": "eulogy", "part": "noun", "definition": "a composition (as a set oration) in commendation of someone or something (as of the character and services of a deceased person)"},
     {"no": "449", "word": "regales", "part": "verb", "definition": "gives pleasure or amusement to : affects pleasurably"},
-    {"no": "450", "word": "psychometry", "part": "noun", "definition": "divination of facts concerning an object or its owner through contact with or proximity to the object"},
+    {"no": "450", "word": "psychometry", "part": "noun", "definition": "divination of facts concerning an object or its owner through contact with or proximity to the object"}
 ];
