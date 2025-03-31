@@ -28,8 +28,8 @@ export function pronounceWord() {
   const word = w.word.toLowerCase();
 
   const sequence = fullPronounceEnabled && state.currentIndex !== lastPronouncedIndex
-    ? [word, 1000, playHowjsayAudio(word), 1000, `Part of speech: ${w.part}`, `Definition: ${w.definition}`, 1000, "Please spell", 1000, word]
-    : [word, 1000, playHowjsayAudio(word)];
+    ? [word, 2000, playHowjsayAudio(word), 1000, `Part of speech: ${w.part}`, `Definition: ${w.definition}`, 1000, "Please spell", 1000, word]
+    : [word, 2000, playHowjsayAudio(word)];
 
   pronounceSequence(sequence).then(() => {
     if (fullPronounceEnabled) lastPronouncedIndex = state.currentIndex;
