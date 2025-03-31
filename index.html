@@ -45,7 +45,7 @@
     <button id="resetYes">Yes</button>
     <button id="resetNo">No</button>
   </div>
-  <script src="https://geniusjazz.github.io/spelling-bee/words.js"></script>
+  <script src="./js/words.js"></script>
   <script type="module" src="./js/storage.js"></script>
   <script type="module" src="./js/levelSelector.js"></script>
   <script type="module" src="./js/pronunciation.js"></script>
@@ -75,7 +75,7 @@
       } else {
         // If not loaded, wait for it
         console.log("Waiting for words.js...");
-        const wordsScript = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]');
+        const wordsScript = document.querySelector('script[src="./js/words.js"]');
         if (!wordsScript) {
           console.error("words.js script tag not found!");
           document.getElementById("mainContent").innerText = "Error: Could not load word list.";
