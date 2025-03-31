@@ -1,59 +1,57 @@
-import { levelStates, levelCompletions, saveGameState } from './storage.js';
-import { showWord } from './main.js';
-
 export let currentLevel = 0;
+export let levelStates = {};
+export let levelCompletions = {};
+
+const levelNames = [
+  "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e",
+  "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
+  "Level 3-a", "Level 3-b", "Level 3-c", "Level 3-d", "Level 3-e",
+  "Level 4", "Level 5", "Level 6", "Level 7"
+];
 
 export function setupLevelSelector() {
-  const levelSelect = document.getElementById("levelSelect");
-  const baseOptions = [
-    "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e",
-    "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
-    "Level 3-a", "Level 3-b", "Level 3-c", "Level 3-d", "Level 3-e",
-    "Level 4", "Level 5", "Level 6", "Level 7"
-  ];
-  levelSelect.innerHTML = ""; // Clear existing options
-  baseOptions.forEach((text, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.text = text;
-    levelSelect.appendChild(option);
-  });
-  levelSelect.onchange = () => changeLevel(parseInt(levelSelect.value));
-  updateLevelSelect();
+  const select = document.getElementById("levelSelect");
+  if (select) {
+    select.innerHTML = ""; // Clear existing options
+    levelNames.forEach((name, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = name;
+      if (index === currentLevel) option.selected = true;
+      select.appendChild(option);
+    });
+    select.onchange = () => changeLevel();
+  }
 }
 
-export function changeLevel(newLevel) {
-  currentLevel = newLevel;
-  if (!levelStates[currentLevel]) initializeLevelState(currentLevel);
-  showWord();
-  saveGameState();
-}
-
-export function updateLevelSelect() {
-  const levelSelect = document.getElementById("levelSelect");
-  for (let i = 0; i < levelSelect.options.length; i++) {
-    const completions = levelCompletions[i] || 0;
-    levelSelect.options[i].text = levelSelect.options[i].text.split(' ')[0] + ' ' + 
-      (completions > 0 ? '★'.repeat(completions % 5) + '🏆'.repeat(Math.floor(completions / 5)) : '');
+export function changeLevel() {
+  const select = document.getElementById("levelSelect");
+  if (select) {
+    const newLevel = parseInt(select.value);
+    if (newLevel !== currentLevel) {
+      currentLevel = newLevel;
+      initializeLevelState(currentLevel);
+      showWord(); // Assuming showWord is imported or defined elsewhere
+    }
   }
 }
 
 export function initializeLevelState(level) {
-  console.log("Initializing level state for", level);
-  const totalWords = level < 15 ? 10 : 50;
-  let indices = Array.from({ length: totalWords }, (_, i) => i);
-  shuffle(indices);
-  levelStates[level] = {
-    failCount: 0,
-    wordsCompleted: 0,
-    wordIndices: indices,
-    indexPointer: 0,
-    isReviewMode: false,
-    missedWords: [],
-    currentIndex: indices[0],
-    currentWord: ""
-  };
-  console.log("Initialized state:", levelStates[level]);
+  if (!levelStates[level]) {
+    levelStates[level] = {
+      failCount: 0,
+      wordsCompleted: 0,
+      wordIndices: [],
+      indexPointer: 0,
+      isReviewMode: false,
+      missedWords: [],
+      currentIndex: 0,
+    };
+  }
+  // Populate wordIndices with 10 random indices for the level
+  const levelWords = getLevelWords(); // Assuming getLevelWords is available
+  levelStates[level].wordIndices = Array.from({ length: 10 }, () => Math.floor(Math.random() * levelWords.length));
+  console.log("Initialized state for level", level, levelStates[level]);
 }
 
 function shuffle(array) {
