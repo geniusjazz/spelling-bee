@@ -9,8 +9,12 @@ export function startGame() {
   console.log("mainContent:", document.getElementById("mainContent"));
   console.log("pronounce:", document.getElementById("pronounce"));
   console.log("part:", document.getElementById("part"));
-  document.getElementById("mainContent").innerText = "Loading game...";
-  console.log("After mainContent update:", document.getElementById("mainContent"));
+  // Avoid overwriting children
+  const status = document.createElement("div");
+  status.id = "status";
+  status.innerText = "Loading game...";
+  document.getElementById("mainContent").appendChild(status);
+  console.log("After status append:", document.getElementById("mainContent"));
   console.log("Calling setupKeyboard...");
   setupKeyboard();
   console.log("After setupKeyboard:", document.getElementById("pronounce"), document.getElementById("part"));
@@ -32,8 +36,11 @@ export function startGame() {
   console.log("Calling showWord...");
   showWord();
   console.log("Game started.");
-  document.getElementById("mainContent").innerText = "Game Loaded!";
+  document.getElementById("status").innerText = "Game Loaded!";
+  document.getElementById("mainContent").removeChild(status);
 }
+
+// ... rest of main.js unchanged (setupButtons, getLevelWords, showWord, etc.) ...
 
 function setupButtons() {
   const checkAnswerBtn = document.getElementById("checkAnswer");
