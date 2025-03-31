@@ -1,4 +1,7 @@
 // js/levelSelector.js
+import { saveGameState } from './storage.js'; // Import saveGameState
+import { showWord } from './main.js'; // Import showWord directly
+
 export let currentLevel = 0;
 export let levelStates = {};
 export let levelCompletions = {};
@@ -39,7 +42,6 @@ export function updateLevelSelect() {
     console.error("Level selector element not found!");
     return;
   }
-  // Ensure the currentLevel is reflected in the dropdown
   const options = select.options;
   for (let i = 0; i < options.length; i++) {
     options[i].selected = (parseInt(options[i].value) === currentLevel);
@@ -55,13 +57,7 @@ export function changeLevel(newLevel) {
   if (newLevel !== currentLevel) {
     currentLevel = newLevel;
     initializeLevelState(currentLevel);
-    // Ensure the game updates to the new level
-    const mainModule = window.mainModule || {};
-    if (typeof mainModule.showWord === "function") {
-      mainModule.showWord();
-    } else {
-      console.error("showWord function not available in main module");
-    }
+    showWord(); // Call showWord directly
     saveGameState(); // Save the new level state
     updateLevelSelect(); // Sync the dropdown
     console.log("Changed to level:", levelNames[currentLevel]);
@@ -107,7 +103,12 @@ function getLevelWords(level) {
   else if (level < 15) start = 100 + (level - 10) * 10;
   else start = 150 + (level - 15) * 50;
   const count = level < 15 ? 10 : 50;
-  return window.words ? window.words.slice(start, start + count) : [];
+  const words = window.words || [];
+  if (!words.length) {
+    console.warn("Words not loaded yet for level:", level);
+    return [];
+  }
+  return words.slice(start, start + count);
 }
 
 // Expose getLevelWords for use in other modules
