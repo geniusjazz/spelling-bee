@@ -1,7 +1,7 @@
 import { currentLevel, setupLevelSelector, changeLevel, initializeLevelState } from './levelSelector.js';
 import { setupPronunciation, pronounceWord, isSpeaking } from './pronunciation.js';
 import { setupKeyboard, clearWord } from './keyboard.js';
-import { showFeedback, showCelebration, showLevelComplete, updateProgress, enableButtons, disableButtons, updateDisplay, showAnswerPopup } from './ui.js';
+import { showFeedback, showCelebration, showLevelComplete, updateProgress, enableButtons, disableButtons, updateDisplay, showAnswerPopup, hideAnswerPopup, playSound } from './ui.js';
 import { saveGameState, loadGameState, levelStates, levelCompletions, resetProgress } from './storage.js';
 
 export function startGame() {
@@ -75,7 +75,7 @@ function setupKeyboardShortcuts() {
 
     // Ctrl-Shift-Z hack to auto-answer
     if (event.ctrlKey && event.shiftKey && key === 'z') {
-      event.preventDefault(); // Prevent 'z' from being appended
+      event.preventDefault();
       const state = levelStates[currentLevel];
       const levelWords = getLevelWords();
       const w = levelWords[state.currentIndex];
@@ -117,7 +117,6 @@ export function showWord() {
     console.error("No words available for this level!");
     return;
   }
-  // If wordIndices is empty, re-initialize the state
   if (!state.wordIndices.length || state.indexPointer >= state.wordIndices.length) {
     console.log("Re-initializing level state for level", currentLevel);
     initializeLevelState(currentLevel);
@@ -153,16 +152,20 @@ export function showWord() {
 
 function checkSpelling() {
   const state = levelStates[currentLevel];
+  if (isSpeaking) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    enableButtons();
+  }
   const levelWords = getLevelWords();
-  const w = levelWords[state.currentIndex];
-  const userInput = document.getElementById("wordDisplay").innerText.trim().toLowerCase();
-  console.log("Checking spelling: userInput =", userInput, "correct answer =", w.word.toLowerCase());
-  if (userInput === w.word.toLowerCase()) {
+  const userInput = state.currentWord.trim().toLowerCase();
+  console.log("Checking spelling:", { userInput, correctWord: levelWords[state.currentIndex].word });
+  if (userInput === levelWords[state.currentIndex].word.toLowerCase()) {
+    playSound('correct');
     showFeedback("Correct!", true);
     state.wordsCompleted++;
     state.indexPointer++;
     state.failCount = 0;
-    document.getElementById("mascot").className = "happy";
     showCelebration();
     if (state.indexPointer >= state.wordIndices.length) {
       if (state.missedWords.length > 0) {
@@ -184,27 +187,31 @@ function checkSpelling() {
       showWord();
     }, 1000);
   } else {
-    showFeedback("Try Again!", false);
+    playSound('wrong');
+    showFeedback("❌ Oops! Try Again! ❌", false);
     state.failCount++;
     console.log("Incorrect answer, failCount =", state.failCount);
-    if (!state.missedWords.some(mw => mw.word === w.word)) {
-      state.missedWords.push(w);
+    if (state.failCount === 1 && !state.isReviewMode) {
+      if (!state.missedWords.some(mw => mw.word === levelWords[state.currentIndex].word)) {
+        state.missedWords.push(levelWords[state.currentIndex]);
+      }
     }
-    document.getElementById("mascot").className = "sad";
     const showAnswerBtn = document.getElementById("showAnswer");
     if (showAnswerBtn) {
       showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
     }
+    state.currentWord = "";
+    updateDisplay();
   }
   saveGameState();
   updateProgress();
 }
 
 function showAnswer() {
+  if (isSpeaking) return;
   const state = levelStates[currentLevel];
-  const levelWords = getLevelWords();
-  const w = levelWords[state.currentIndex];
-  showAnswerPopup(w.word); // Show the answer in a popup instead of filling it in
+  const w = getLevelWords()[state.currentIndex];
+  showAnswerPopup(w.word); // Use the custom answer popup
   state.failCount = 0;
   state.indexPointer++;
   if (state.indexPointer >= state.wordIndices.length) {
