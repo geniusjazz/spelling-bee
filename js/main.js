@@ -1,6 +1,6 @@
 import { currentLevel, setupLevelSelector, changeLevel, initializeLevelState } from './levelSelector.js';
 import { setupPronunciation, pronounceWord, isSpeaking } from './pronunciation.js';
-import { setupKeyboard, clearWord } from './keyboard.js'; // Import clearWord
+import { setupKeyboard, clearWord } from './keyboard.js';
 import { showFeedback, showCelebration, showLevelComplete, updateProgress, enableButtons, disableButtons, updateDisplay } from './ui.js';
 import { saveGameState, loadGameState, levelStates, levelCompletions, resetProgress } from './storage.js';
 
@@ -141,7 +141,10 @@ export function showWord() {
   if (indexEl) indexEl.innerText = "Word #" + w.no;
   if (wordDisplay) wordDisplay.innerText = ""; // Clear previous content
   updateDisplay();
-  if (showAnswerBtn) showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
+  if (showAnswerBtn) {
+    console.log("showWord: failCount =", state.failCount); // Debug log
+    showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
+  }
   document.getElementById("mainContent").style.display = "block";
   document.getElementById("mascot").className = "";
   updateProgress();
@@ -153,9 +156,9 @@ function checkSpelling() {
   const levelWords = getLevelWords();
   const w = levelWords[state.currentIndex];
   const userInput = document.getElementById("wordDisplay").innerText.trim().toLowerCase();
-  console.log("Checking spelling: userInput =", userInput, "correct answer =", w.word.toLowerCase()); // Debug log
+  console.log("Checking spelling: userInput =", userInput, "correct answer =", w.word.toLowerCase());
   if (userInput === w.word.toLowerCase()) {
-    showFeedback("Correct!", "correct");
+    showFeedback("Correct!", true);
     state.wordsCompleted++;
     state.indexPointer++;
     state.failCount = 0;
@@ -177,16 +180,21 @@ function checkSpelling() {
       }
     }
     setTimeout(() => {
-      clearWord(); // Clear state.currentWord and update display
+      clearWord();
       showWord();
     }, 1000);
   } else {
-    showFeedback("Try Again!", "wrong");
+    showFeedback("Try Again!", false);
     state.failCount++;
+    console.log("Incorrect answer, failCount =", state.failCount); // Debug log
     if (!state.missedWords.some(mw => mw.word === w.word)) {
       state.missedWords.push(w);
     }
     document.getElementById("mascot").className = "sad";
+    const showAnswerBtn = document.getElementById("showAnswer");
+    if (showAnswerBtn) {
+      showAnswerBtn.style.display = state.failCount >= 3 ? "block" : "none";
+    }
   }
   saveGameState();
   updateProgress();
