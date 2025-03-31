@@ -664,7 +664,7 @@
 
     function initializeWordIndices(level) {
       const state = levelStates[level];
-      const totalWords = level < 15 ? 10 : 50; // 10 words for levels 0-14, 50 for 15-18
+      const totalWords = state.isReviewMode ? state.missedWords.length : (level < 15 ? 10 : 50);
       state.wordIndices = Array.from({ length: totalWords }, (_, i) => i);
       shuffle(state.wordIndices);
       state.indexPointer = 0;
@@ -764,7 +764,7 @@
       state.currentIndex = state.wordIndices[state.indexPointer];
       const w = levelWords[state.currentIndex];
       if (!w) {
-        console.error("No word at currentIndex:", state.currentIndex, levelWords);
+        console.error("No word at currentIndex:", state.currentIndex, "levelWords length:", levelWords.length, "isReviewMode:", state.isReviewMode, "missedWords:", state.missedWords);
         return;
       }
       console.log("Displaying word:", w);
@@ -1058,9 +1058,15 @@
     }
 
     function redoMissedWords() {
+      console.log("redoMissedWords called!");
       document.getElementById("review-mode").remove();
       document.getElementById("mainContent").style.display = "block";
       const state = levelStates[currentLevel];
+      if (!state.missedWords.length) {
+        console.log("No missed words to redo, ending review mode.");
+        endReviewMode();
+        return;
+      }
       state.isReviewMode = true;
       state.wordsCompleted = 0;
       state.failCount = 0;
