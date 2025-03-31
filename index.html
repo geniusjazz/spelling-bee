@@ -62,26 +62,50 @@
         setTimeout(initGame, 100);
         return;
       }
+
       console.log("DOM ready, checking words.js...");
+      const levelSelect = document.getElementById("levelSelect");
+
+      // Check if words.js has already loaded
       if (typeof window.words !== 'undefined' && window.words.length > 0) {
-        console.log("words.js loaded, starting game...");
-        const levelSelect = document.getElementById("levelSelect");
-        if (levelSelect) levelSelect.disabled = false; // Enable level selector
+        console.log("words.js already loaded, starting game...");
+        if (levelSelect) levelSelect.disabled = false;
         startGame();
-      } else {
-        console.log("Waiting for words.js...");
-        const wordsScript = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]');
-        wordsScript.onload = () => {
-          console.log("words.js loaded, starting game...");
-          const levelSelect = document.getElementById("levelSelect");
-          if (levelSelect) levelSelect.disabled = false; // Enable level selector
-          startGame();
-        };
-        wordsScript.onerror = () => {
-          console.error("Failed to load words.js");
-          document.getElementById("mainContent").innerText = "Error: Could not load word list.";
-        };
+        return;
       }
+
+      // If not loaded, wait for it
+      console.log("Waiting for words.js...");
+      const wordsScript = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words.js"]');
+      if (!wordsScript) {
+        console.error("words.js script tag not found!");
+        document.getElementById("mainContent").innerText = "Error: Could not load word list.";
+        return;
+      }
+
+      // Add a timeout to detect if the script fails to load
+      const timeout = setTimeout(() => {
+        console.error("Timeout: words.js failed to load within 10 seconds");
+        document.getElementById("mainContent").innerText = "Error: Could not load word list.";
+      }, 10000);
+
+      wordsScript.onload = () => {
+        clearTimeout(timeout);
+        console.log("words.js loaded, starting game...");
+        if (typeof window.words === 'undefined' || !window.words.length) {
+          console.error("words.js loaded but window.words is not defined or empty!");
+          document.getElementById("mainContent").innerText = "Error: Word list is empty.";
+          return;
+        }
+        if (levelSelect) levelSelect.disabled = false;
+        startGame();
+      };
+
+      wordsScript.onerror = () => {
+        clearTimeout(timeout);
+        console.error("Failed to load words.js");
+        document.getElementById("mainContent").innerText = "Error: Could not load word list.";
+      };
     }
 
     document.addEventListener('DOMContentLoaded', () => {
