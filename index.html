@@ -376,6 +376,39 @@
       justify-content: center;
       gap: 15px;
     }
+    #passwordPopup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 235, 59, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      z-index: 1000;
+      text-align: center;
+      max-width: 80%;
+      animation: popIn 0.5s ease-out;
+    }
+    #passwordPopup p {
+      font-size: 28px;
+      color: #d81b60;
+      margin: 0 0 20px 0;
+    }
+    #passwordPopup button {
+      width: 120px;
+      padding: 10px;
+      font-size: 18px;
+      margin: 10px;
+      display: inline-block;
+    }
+    #passwordSubmit {
+      background: #4caf50;
+    }
+    #passwordCancel {
+      background: #f44336;
+    }
     .word-button {
       padding: 10px 20px;
       font-size: 28px;
@@ -535,6 +568,13 @@
     <p>Want to peek at the word list?</p>
     <button id="confirmYes" onclick="goToWordList()">Yes</button>
     <button id="confirmNo" onclick="hideConfirmPopup()">No</button>
+  </div>
+  <div id="passwordPopup">
+    <p>Enter Password to Reset:</p>
+    <input type="password" id="passwordInput" placeholder="Enter 0925" style="font-size: 18px; padding: 10px; border-radius: 10px; border: 2px solid #d81b60;">
+    <br>
+    <button id="passwordSubmit" onclick="checkPassword()">Submit</button>
+    <button id="passwordCancel" onclick="hidePasswordPopup()">Cancel</button>
   </div>
   <div id="resetConfirmPopup">
     <p>Reset Options:</p>
@@ -1180,7 +1220,23 @@
     }
 
     function showResetConfirmPopup() {
-      document.getElementById("resetConfirmPopup").style.display = "block";
+      document.getElementById("passwordPopup").style.display = "block";
+      document.getElementById("passwordInput").value = "";
+    }
+
+    function hidePasswordPopup() {
+      document.getElementById("passwordPopup").style.display = "none";
+    }
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === "0925") {
+        hidePasswordPopup();
+        document.getElementById("resetConfirmPopup").style.display = "block";
+      } else {
+        alert("Incorrect password! Please try again.");
+        hidePasswordPopup();
+      }
     }
 
     function hideResetConfirmPopup() {
