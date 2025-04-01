@@ -900,12 +900,12 @@
       document.getElementById("mascot").className = "";
     }
 
-    function showCelebration() {
+function showCelebration() {
       const celebration = document.getElementById("celebration");
       document.getElementById("mainContent").style.display = "none";
       celebration.style.display = "block";
       const type = Math.floor(Math.random() * 4);
-      const count = type === 2 ? 20 : type === 3 ? 30 : 10;
+      const count = type === 2 ? 10 : type === 3 ? 15 : 5; // Reduced count
       const effects = [];
       
       if (Math.random() > 0.5) effects.push(0);
@@ -944,9 +944,14 @@
 
     function hideCelebration() {
       const celebration = document.getElementById("celebration");
-      while (celebration.firstChild && celebration.firstChild !== celebration.querySelector(".celebration-text")) {
-        celebration.removeChild(celebration.firstChild);
-      }
+      const celebrationText = celebration.querySelector(".celebration-text");
+      const childrenBefore = celebration.children.length;
+      Array.from(celebration.children).forEach(child => {
+        if (child !== celebrationText) {
+          celebration.removeChild(child);
+        }
+      });
+      console.log(`hideCelebration: Removed ${childrenBefore - 1} elements, remaining: ${celebration.children.length}`);
       celebration.style.display = "none";
       document.getElementById("mainContent").style.display = "block";
       nextWord();
@@ -977,7 +982,7 @@
       levelCompleteText.innerHTML = `<span>🎉 Level Complete! 🎉</span><span>${message}</span>`;
       
       updateLevelSelect();
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 20; i++) { // Reduced from 50
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
         el.style.top = `${Math.random() * 100}%`;
@@ -1004,9 +1009,14 @@
 
     function hideLevelComplete() {
       const levelComplete = document.getElementById("level-complete");
-      while (levelComplete.firstChild && levelComplete.firstChild !== levelComplete.querySelector(".level-complete-text")) {
-        levelComplete.removeChild(levelComplete.firstChild);
-      }
+      const levelCompleteText = levelComplete.querySelector(".level-complete-text");
+      const childrenBefore = levelComplete.children.length;
+      Array.from(levelComplete.children).forEach(child => {
+        if (child !== levelCompleteText) {
+          levelComplete.removeChild(child);
+        }
+      });
+      console.log(`hideLevelComplete: Removed ${childrenBefore - 1} elements, remaining: ${levelComplete.children.length}`);
       levelComplete.style.display = "none";
       levelStates[currentLevel] = {
         failCount: 0,
