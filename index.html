@@ -376,6 +376,42 @@
       justify-content: center;
       gap: 15px;
     }
+    #keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 200px;
+      margin: 0 auto 20px auto;
+    }
+    .keypad-btn {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      background: linear-gradient(135deg, #2196f3, #42a5f5);
+      color: white;
+      border: 3px solid #1976d2;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: transform 0.1s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+    .keypad-btn:hover {
+      transform: scale(1.1);
+    }
+    .keypad-btn:active {
+      transform: scale(0.9);
+    }
+    #keypadClear {
+      background: linear-gradient(135deg, #f44336, #ef5350);
+      border-color: #d32f2f;
+      grid-column: 2 / 3; /* Center it in the last row */
+    }
+    #passwordDisplay {
+      font-size: 28px;
+      color: #d81b60;
+      margin: 10px 0;
+      min-height: 30px;
+    }
     #passwordPopup {
       display: none;
       position: fixed;
@@ -571,8 +607,20 @@
   </div>
   <div id="passwordPopup">
     <p>Enter Password to Reset:</p>
-    <input type="password" id="passwordInput" placeholder="Enter Password" style="font-size: 18px; padding: 10px; border-radius: 10px; border: 2px solid #d81b60;">
-    <br>
+    <div id="passwordDisplay" style="font-size: 28px; color: #d81b60; margin: 10px 0; min-height: 30px;"></div>
+    <div id="keypad">
+      <button class="keypad-btn" onclick="appendPasswordDigit('1')">1</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('2')">2</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('3')">3</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('4')">4</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('5')">5</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('6')">6</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('7')">7</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('8')">8</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('9')">9</button>
+      <button class="keypad-btn" onclick="appendPasswordDigit('0')">0</button>
+      <button id="keypadClear" onclick="clearPassword()">Clear</button>
+    </div>
     <button id="passwordSubmit" onclick="checkPassword()">Submit</button>
     <button id="passwordCancel" onclick="hidePasswordPopup()">Cancel</button>
   </div>
@@ -1221,21 +1269,41 @@
 
     function showResetConfirmPopup() {
       document.getElementById("passwordPopup").style.display = "block";
-      document.getElementById("passwordInput").value = "";
+      currentPassword = "";
+      updatePasswordDisplay();
     }
 
     function hidePasswordPopup() {
       document.getElementById("passwordPopup").style.display = "none";
+      currentPassword = "";
+      updatePasswordDisplay();
+    }
+
+    function appendPasswordDigit(digit) {
+      if (currentPassword.length < 4) {
+        currentPassword += digit;
+        updatePasswordDisplay();
+      }
+    }
+
+    function clearPassword() {
+      currentPassword = "";
+      updatePasswordDisplay();
+    }
+
+    function updatePasswordDisplay() {
+      const display = document.getElementById("passwordDisplay");
+      display.innerText = "•".repeat(currentPassword.length);
     }
 
     function checkPassword() {
-      const input = document.getElementById("passwordInput").value;
-      if (input === "0925") {
+      if (currentPassword === "0925") {
         hidePasswordPopup();
         document.getElementById("resetConfirmPopup").style.display = "block";
       } else {
         alert("Incorrect password! Please try again.");
-        hidePasswordPopup();
+        currentPassword = "";
+        updatePasswordDisplay();
       }
     }
 
