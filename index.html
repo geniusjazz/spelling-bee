@@ -72,7 +72,7 @@
     .bee {
       width: 40px;
       height: 40px;
-      background: url('https://img.icons8.com/ios-filled/50/ffeb3b/bee.png') no-repeat center;
+      background: url('https://img.icons8.com/ios-filled/50/ffeb ASSIST3b/bee.png') no-repeat center;
       background-size: contain;
       margin-left: 10px;
     }
@@ -341,17 +341,32 @@
       margin: 0 0 20px 0;
     }
     #confirmPopup button, #resetConfirmPopup button {
-      width: 120px;
-      padding: 15px;
-      font-size: 20px;
-      margin: 10px;
+      width: 140px;
+      padding: 10px;
+      font-size: 18px;
+      margin: 5px;
       display: inline-block;
     }
-    #confirmYes, #resetYes {
+    #confirmYes {
       background: #4caf50;
     }
-    #confirmNo, #resetNo {
+    #confirmNo {
       background: #f44336;
+    }
+    #resetAll {
+      background: #f44336;
+    }
+    #resetLevel {
+      background: #ff9800;
+    }
+    #addStar {
+      background: #4caf50;
+    }
+    #removeStar {
+      background: #2196f3;
+    }
+    #resetCancel {
+      background: #9e9e9e;
     }
     #review-mode {
       max-width: 700px;
@@ -522,9 +537,12 @@
     <button id="confirmNo" onclick="hideConfirmPopup()">No</button>
   </div>
   <div id="resetConfirmPopup">
-    <p>Are you sure you want to reset all progress?</p>
-    <button id="resetYes" onclick="resetProgress()">Yes</button>
-    <button id="resetNo" onclick="hideResetConfirmPopup()">No</button>
+    <p>Reset Options:</p>
+    <button id="resetAll" onclick="resetAllProgress()">Reset All Progress</button>
+    <button id="resetLevel" onclick="resetCurrentLevel()">Reset Current Level</button>
+    <button id="addStar" onclick="addStarToLevel()">Add Star</button>
+    <button id="removeStar" onclick="removeStarFromLevel()">Remove Star</button>
+    <button id="resetCancel" onclick="hideResetConfirmPopup()">Cancel</button>
   </div>
 
   <!-- Load the external words.js file -->
@@ -665,6 +683,10 @@
     function initializeWordIndices(level) {
       const state = levelStates[level];
       const totalWords = state.isReviewMode ? state.missedWords.length : (level < 15 ? 10 : 50);
+      if (totalWords <= 0) {
+        console.error(`Invalid totalWords (${totalWords}) for level ${level}, isReviewMode: ${state.isReviewMode}`);
+        return;
+      }
       state.wordIndices = Array.from({ length: totalWords }, (_, i) => i);
       shuffle(state.wordIndices);
       state.indexPointer = 0;
@@ -754,18 +776,20 @@
       console.log(`Showing word for level ${currentLevel}:`, state);
       const levelWords = getLevelWords();
       if (!words || levelWords.length === 0) {
-        console.error("No words available for this level! Words defined:", !!words);
-        return;
+        console.error("No words available! Resetting level state. Words defined:", !!words, "levelWords:", levelWords);
+        initializeLevelState(currentLevel);
+        return showWord(); // Retry after reset
       }
       if (!state.wordIndices.length || state.indexPointer >= state.wordIndices.length) {
-        console.log("Word indices empty or complete, initializing...");
+        console.log("Word indices empty or complete, reinitializing. Indices:", state.wordIndices, "Pointer:", state.indexPointer);
         initializeWordIndices(currentLevel);
       }
       state.currentIndex = state.wordIndices[state.indexPointer];
       const w = levelWords[state.currentIndex];
       if (!w) {
-        console.error("No word at currentIndex:", state.currentIndex, "levelWords length:", levelWords.length, "isReviewMode:", state.isReviewMode, "missedWords:", state.missedWords);
-        return;
+        console.error("No word at currentIndex:", state.currentIndex, "levelWords length:", levelWords.length, "wordIndices:", state.wordIndices, "isReviewMode:", state.isReviewMode);
+        initializeLevelState(currentLevel);
+        return showWord(); // Retry after reset
       }
       console.log("Displaying word:", w);
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
@@ -900,12 +924,12 @@
       document.getElementById("mascot").className = "";
     }
 
-function showCelebration() {
+    function showCelebration() {
       const celebration = document.getElementById("celebration");
       document.getElementById("mainContent").style.display = "none";
       celebration.style.display = "block";
       const type = Math.floor(Math.random() * 4);
-      const count = type === 2 ? 10 : type === 3 ? 15 : 5; // Reduced count
+      const count = type === 2 ? 10 : type === 3 ? 15 : 5;
       const effects = [];
       
       if (Math.random() > 0.5) effects.push(0);
@@ -982,7 +1006,7 @@ function showCelebration() {
       levelCompleteText.innerHTML = `<span>🎉 Level Complete! 🎉</span><span>${message}</span>`;
       
       updateLevelSelect();
-      for (let i = 0; i < 20; i++) { // Reduced from 50
+      for (let i = 0; i < 20; i++) {
         const el = document.createElement("div");
         el.style.left = `${Math.random() * 100}%`;
         el.style.top = `${Math.random() * 100}%`;
@@ -1163,7 +1187,7 @@ function showCelebration() {
       document.getElementById("resetConfirmPopup").style.display = "none";
     }
 
-    function resetProgress() {
+    function resetAllProgress() {
       currentLevel = 0;
       levelStates = {};
       levelCompletions = {};
@@ -1171,6 +1195,29 @@ function showCelebration() {
       initializeLevelState(0);
       updateLevelSelect();
       showWord();
+      saveGameState();
+      hideResetConfirmPopup();
+    }
+
+    function resetCurrentLevel() {
+      levelStates[currentLevel] = null;
+      initializeLevelState(currentLevel);
+      showWord();
+      saveGameState();
+      hideResetConfirmPopup();
+    }
+
+    function addStarToLevel() {
+      levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
+      updateLevelSelect();
+      saveGameState();
+      hideResetConfirmPopup();
+    }
+
+    function removeStarFromLevel() {
+      levelCompletions[currentLevel] = Math.max(0, (levelCompletions[currentLevel] || 0) - 1);
+      if (levelCompletions[currentLevel] === 0) delete levelCompletions[currentLevel];
+      updateLevelSelect();
       saveGameState();
       hideResetConfirmPopup();
     }
