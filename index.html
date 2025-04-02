@@ -417,9 +417,9 @@
       max-width: 150px;
       margin: 0 auto 8px auto;
     }
-    .keypad-btn {
-      width: 40px;
-      height: 40px;
+    #keypad .keypad-btn {
+      width: 40px !important; /* Force 40px width */
+      height: 40px !important; /* Force 40px height */
       font-size: 18px;
       background: linear-gradient(135deg, #2196f3, #42a5f5);
       color: white;
@@ -428,14 +428,18 @@
       cursor: pointer;
       transition: transform 0.1s;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      box-sizing: border-box; /* Ensure border/padding don't affect size */
+      padding: 0; /* Remove any padding that might distort shape */
+      line-height: 40px; /* Center text vertically */
+      text-align: center; /* Center text horizontally */
     }
-    .keypad-btn:hover {
+    #keypad .keypad-btn:hover {
       transform: scale(1.1);
     }
-    .keypad-btn:active {
+    #keypad .keypad-btn:active {
       transform: scale(0.9);
     }
-    #keypadClear {
+    #keypad #keypadClear {
       background: linear-gradient(135deg, #f44336, #ef5350);
       border-color: #d32f2f;
       grid-column: 2 / 3;
@@ -462,6 +466,8 @@
     .shake {
       animation: shake 0.5s ease-in-out;
     }
+    
+    /* Media query for smaller screens */
     @media (max-width: 768px) {
       #passwordPopup {
         max-width: 300px;
@@ -479,11 +485,12 @@
         max-width: 135px;
         gap: 4px;
       }
-      .keypad-btn {
-        width: 35px;
-        height: 35px;
+      #keypad .keypad-btn {
+        width: 35px !important; /* Force 35px width */
+        height: 35px !important; /* Force 35px height */
         font-size: 16px;
         border-radius: 8px;
+        line-height: 35px; /* Adjust for smaller size */
       }
       #passwordDisplay {
         font-size: 20px;
