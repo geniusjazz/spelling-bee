@@ -341,7 +341,7 @@ const words = [
     {"no": "340", "word": "cohort", "part": "noun", "definition": "company, band, group"},
     {"no": "341", "word": "kindling", "part": "noun", "definition": "easily combustible material of a convenient size for starting a fire"},
     {"no": "342", "word": "treachery", "part": "noun", "definition": "betrayal of trust"},
-    {"no": "343", "word": "mañana", "part": "adverb", "definition": "at an indefinite time in the future – used chiefly in the Southwest"},
+    {"no": "343", "word": "manana", "part": "adverb", "definition": "at an indefinite time in the future – used chiefly in the Southwest"},
     {"no": "344", "word": "squeal", "part": "verb", "definition": "to cry with a sharp shrill prolonged sound"},
     {"no": "345", "word": "tersely", "part": "adverb", "definition": "in a brief and concise manner"},
     {"no": "346", "word": "autism", "part": "noun", "definition": "a developmental disorder that typically appears by age three and that is variable in expression but is recognized and diagnosed by impairment of the ability to form social relationships, by impairment of the ability to communicate with others, and by stereotyped behavior patterns"},
