@@ -960,55 +960,141 @@
       const w = getLevelWords()[state.currentIndex];
       const word = w.word.toLowerCase();
 
-      const speakText = (text) => {
-        return new Promise((resolve) => {
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "en-US";
-          utterance.rate = 0.7;
-          utterance.pitch = 0.7;
-          utterance.onend = resolve;
-          speechSynthesis.speak(utterance);
-        });
-      };
-
-      const playHowjsayAudio = () => {
-        const audio = new Audio(`https://howjsay.com/mp3/${word}.mp3`);
-        audio.volume = 0.7;
-        return new Promise((resolve, reject) => {
-          audio.oncanplaythrough = () => audio.play().then(resolve).catch(reject);
-          audio.onerror = () => reject(new Error(`Howjsay audio failed for "${word}"`));
-          audio.onended = resolve;
-          setTimeout(() => reject(new Error("Audio load timeout")), 3000);
-        });
-      };
-
       const pronounceSequence = async () => {
+        const state = levelStates[currentLevel];
+        const w = getLevelWords()[state.currentIndex];
+        const word = w.word.toLowerCase();
+        // Determine if the full sequence should run (first time pronouncing this word with the setting on)
+        const runFullSequence = fullPronounceEnabled && state.currentIndex !== lastPronouncedIndex;
+
         try {
-          if (fullPronounceEnabled && state.currentIndex !== lastPronouncedIndex) {
-            await speakText(word);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await playHowjsayAudio().catch(() => speakText(word));
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await speakText(`Part of speech: ${w.part}`);
-            await speakText(`Definition: ${w.definition}`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await speakText("Please spell");
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await speakText(word);
-            lastPronouncedIndex = state.currentIndex;
-          } else {
-            await speakText(word);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await playHowjsayAudio().catch(() => speakText(word));
-          }
-          isSpeaking = false;
-          enableButtons();
+            console.log("Attempting Howjsay audio first...");
+            // Try playing Howjsay audio
+            await playHowjsayAudio().catch(async (err) => {
+                // If Howjsay fails (e.g., network error, blocked playback, timeout)
+                console.warn("Howjsay failed, using TTS for primary word sound:", err);
+                // Use TTS as the fallback for the main pronunciation
+                await speakText(word);
+            });
+
+            // Pause after the word has been pronounced (either via Howjsay or TTS fallback)
+            await new Promise(resolve => setTimeout(resolve, 800)); // Pause duration might need adjustment
+
+            // If full pronunciation is enabled and it's the first time for this word
+            if (runFullSequence) {
+                console.log("Running full pronunciation sequence (details)...");
+                await speakText(`Part of speech: ${w.part}`);
+                await speakText(`Definition: ${w.definition}`);
+                // Optional: Add a small pause before the final repetition prompt
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await speakText("Please spell"); // Prompt before final repetition
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await speakText(word); // Final word repetition using TTS
+
+                // Update the index only after the full sequence completes successfully
+                lastPronouncedIndex = state.currentIndex;
+                console.log("Full pronunciation sequence complete.");
+            }
+            // If not running the full sequence, the word has already been pronounced once by this point.
+
         } catch (error) {
-          console.error("Pronunciation failed:", error);
-          isSpeaking = false;
-          enableButtons();
+            // Catch any unexpected errors during the sequence
+            console.error("Pronunciation sequence encountered an error:", error);
+            // Attempt a final TTS fallback just in case everything else failed
+            try {
+                if (!runFullSequence) { // Only if the word wasn't potentially said in the main try block
+                    console.log("Attempting final TTS fallback.");
+                    await speakText(word);
+                }
+            } catch (e) {
+                console.error("Final TTS fallback also failed", e);
+            }
+        } finally {
+            // This block always runs, ensuring the state is reset correctly
+            isSpeaking = false;
+            enableButtons();
+            console.log("Pronunciation sequence finished (finally block).");
         }
-      };
+    };
+
+    // Helper function assumed to exist (ensure it handles its own errors)
+    const speakText = (text) => {
+        return new Promise((resolve, reject) => {
+            if (!text) return resolve(); // Resolve if text is empty
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-US";
+            utterance.rate = 0.7;
+            utterance.pitch = 0.7;
+            utterance.onend = resolve;
+            utterance.onerror = (event) => {
+                console.error("SpeechSynthesis Error:", event.error);
+                reject(event.error);
+            };
+            try {
+                 // Optional: Cancel any previous speech
+                 // speechSynthesis.cancel();
+                 speechSynthesis.speak(utterance);
+            } catch (e) {
+                 console.error("Error calling speechSynthesis.speak:", e);
+                 reject(e);
+            }
+        });
+    };
+
+    // Helper function assumed to exist (ensure it handles its own errors/timeouts)
+    const playHowjsayAudio = () => {
+        // Get current word dynamically inside this function if 'word' isn't global
+        const state = levelStates[currentLevel];
+        const w = getLevelWords()[state.currentIndex];
+        const wordForAudio = w.word.toLowerCase();
+        const audio = new Audio(`https://howjsay.com/mp3/${wordForAudio}.mp3`);
+        audio.volume = 0.7;
+        console.log(`[Audio Debug] Creating Howjsay Audio for: ${wordForAudio}`);
+        return new Promise((resolve, reject) => {
+            let timeoutId = setTimeout(() => {
+                console.error('[Audio Debug] Howjsay audio load timeout');
+                // Ensure audio src is cleared to stop potential background loading
+                audio.src = "";
+                reject(new Error("Audio load timeout"));
+            }, 3000); // 3 second timeout
+
+            const cleanup = () => { // Function to remove listeners
+                 clearTimeout(timeoutId);
+                 audio.oncanplaythrough = null;
+                 audio.onerror = null;
+                 audio.onended = null;
+                 // Remove other listeners if added for debugging
+                 audio.removeEventListener('loadstart', console.log); // Example
+            };
+
+            audio.oncanplaythrough = () => {
+                console.log('[Audio Debug] Howjsay audio oncanplaythrough');
+                audio.play()
+                    .then(() => {
+                        console.log('[Audio Debug] Howjsay audio play() initiated');
+                        // Don't resolve here, wait for 'onended'
+                    })
+                    .catch(err => {
+                        console.error('[Audio Debug] Howjsay audio play() caught error:', err);
+                        cleanup();
+                        reject(err);
+                    });
+            };
+            audio.onerror = (e) => {
+                console.error('[Audio Debug] Howjsay audio onerror:', audio.error, e);
+                cleanup();
+                reject(new Error(`Howjsay audio onerror for "${wordForAudio}"`));
+            };
+            audio.onended = () => {
+                console.log('[Audio Debug] Howjsay audio onended');
+                cleanup();
+                resolve(); // Resolve when playback successfully finishes
+            };
+
+            // Explicitly load the audio
+            audio.load();
+        });
+    };
 
       pronounceSequence();
     }
