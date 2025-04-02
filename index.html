@@ -156,10 +156,18 @@
       cursor: pointer;
     }
     button:disabled, select:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-      box-shadow: none;
+      /* Only style the pronounce button when disabled */
+      /* background-color: #cccccc; */
+      /* cursor: not-allowed; */
+      /* box-shadow: none; */
     }
+    /* Specific style for pronounce button when disabled */
+     #pronounce:disabled {
+         background-color: #cccccc !important; /* Use !important if needed */
+         cursor: not-allowed;
+         box-shadow: none;
+         opacity: 0.6;
+     }
     #pronounce {
       width: 90%;
       max-width: 350px;
@@ -174,8 +182,14 @@
       width: 90%;
       max-width: 350px;
       background: #2196f3;
-      display: none;
+      display: none; /* Controlled by JS */
     }
+     #showAnswer:disabled { /* Style for disabled show answer button */
+         background-color: #cccccc !important;
+         cursor: not-allowed;
+         box-shadow: none;
+         opacity: 0.6;
+     }
     #keyboard {
       display: flex;
       flex-wrap: wrap;
@@ -203,10 +217,12 @@
     .key:active:not(:disabled) {
       transform: scale(0.9);
     }
-    .key:disabled {
+    .key:disabled { /* Style keyboard keys if ever disabled */
       background: #cccccc;
       border-color: #aaaaaa;
       box-shadow: none;
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     #backspace {
       width: 90px;
@@ -404,7 +420,7 @@
       color: #d81b60;
       margin: 0 0 6px 0;
     }
-    #passwordPopup button {
+    #passwordPopup button { /* Submit/Cancel buttons */
       width: 80px;
       padding: 6px;
       font-size: 14px;
@@ -417,30 +433,36 @@
     #passwordCancel {
       background: #f44336;
     }
+
+    /* --- Updated Keypad Styles --- */
     #keypad {
       display: grid;
-      grid-template-columns: repeat(3, 35px);
-      gap: 4px;
-      max-width: 120px;
-      margin: 0 auto 6px auto;
+      /* Adjusted for larger buttons */
+      grid-template-columns: repeat(3, 50px); /* Make columns wider */
+      gap: 5px; /* Slightly larger gap */
+      max-width: 170px; /* 3 * 50px buttons + 2 * 5px gaps */
+      margin: 10px auto 10px auto; /* More margin */
       justify-content: center;
     }
     #keypad .keypad-btn {
-      width: 35px !important;
-      height: 35px !important;
-      font-size: 16px;
+      /* Increased base size */
+      width: 50px !important;  /* Larger width */
+      height: 50px !important; /* Larger height */
+      font-size: 22px; /* Larger font */
       background: linear-gradient(135deg, #2196f3, #42a5f5);
       color: white;
       border: 2px solid #1976d2;
-      border-radius: 8px;
+      border-radius: 10px; /* Slightly larger radius */
       cursor: pointer;
       transition: transform 0.1s;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       box-sizing: border-box;
       padding: 0;
       margin: 0;
-      line-height: 35px;
+      /* Vertically center text */
+      line-height: 50px;
       text-align: center;
+      touch-action: manipulation; /* Added for better touch */
     }
     #keypad .keypad-btn:hover {
       transform: scale(1.1);
@@ -451,8 +473,10 @@
     #keypad #keypadClear {
       background: linear-gradient(135deg, #f44336, #ef5350);
       border-color: #d32f2f;
-      grid-column: 2 / 3;
+      grid-column: 2 / 3; /* Keep in center bottom */
     }
+    /* --- End of Updated Keypad Styles --- */
+
     #passwordDisplay {
       font-size: 20px;
       color: #d81b60;
@@ -476,40 +500,80 @@
       animation: shake 0.5s ease-in-out;
     }
     @media (max-width: 768px) {
-      #passwordPopup {
-        max-width: 320px;
-        padding: 10px;
-      }
-      #passwordPopup p {
-        font-size: 18px;
-      }
-      #passwordPopup button {
-        width: 70px;
+        /* --- Updated Mobile Keypad Styles --- */
+        #keypad {
+          /* Adjusted for larger mobile buttons */
+          grid-template-columns: repeat(3, 45px); /* Wider columns for mobile */
+          gap: 4px;
+          max-width: 145px; /* 3 * 45px + 2 * 4px */
+        }
+        #keypad .keypad-btn {
+          /* Increased mobile size */
+          width: 45px !important;
+          height: 45px !important;
+          font-size: 20px; /* Larger font for mobile */
+          border-radius: 8px;
+          line-height: 45px;
+        }
+        /* --- End of Updated Mobile Keypad Styles --- */
+
+      /* Other mobile styles below... */
+      h1 { font-size: 36px; margin-top: 20px; }
+      #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
+      #wordDisplay { font-size: 24px; padding: 15px; }
+      button, select { font-size: 22px; padding: 15px 25px; } /* Base button/select size */
+       /* Ensure password submit/cancel are smaller on mobile if needed */
+       #passwordPopup button { /* submit/cancel */
+         width: 70px;
+         font-size: 12px;
+         padding: 5px;
+       }
+      .key { width: 50px; height: 50px; font-size: 20px; margin: 5px; } /* Main keyboard keys */
+      #backspace, #clear { width: 70px; }
+      #feedback { font-size: 28px; padding: 30px; }
+      .celebration-text { font-size: 36px; }
+      .level-complete-text span:first-child { font-size: 48px; }
+      .level-complete-text span:last-child { font-size: 24px; }
+      .star { width: 30px; height: 30px; }
+      .balloon { width: 20px; height: 30px; }
+      .firework, .confetti { width: 8px; height: 8px; }
+      #mascot { width: 60px; height: 60px; bottom: 10px; right: 10px; }
+      .bee { width: 30px; height: 30px; }
+      #progress-text { font-size: 18px; }
+      #header { padding: 10px; }
+      #pronounce-toggle button {
+        width: 90px;
+        padding: 6px 10px;
         font-size: 12px;
-        padding: 5px;
       }
-      #keypad {
-        grid-template-columns: repeat(3, 30px);
-        max-width: 105px;
-        gap: 3px;
+      #wordListButton, #resetButton {
+        width: 80px;
+        padding: 6px 10px;
+        font-size: 12px;
       }
-      #keypad .keypad-btn {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 14px;
-        border-radius: 6px;
-        line-height: 30px;
-      }
-      #passwordDisplay {
-        font-size: 18px;
-        margin: 4px 0;
-      }
-      #passwordFeedback {
-        font-size: 10px;
-        margin: 4px 0;
-      }
+      #confirmPopup p, #resetConfirmPopup p { font-size: 24px; }
+      #confirmPopup button, #resetConfirmPopup button { width: 100px; font-size: 18px; padding: 12px; }
+      .word-button { font-size: 22px; padding: 8px 15px; }
+      .redo-button { font-size: 20px; padding: 12px 25px; }
+       #passwordPopup { /* Password popup itself */
+         max-width: 320px;
+         padding: 10px;
+       }
+       #passwordPopup p { /* Text inside password popup */
+         font-size: 18px;
+       }
+       #passwordDisplay { /* Password dots display */
+         font-size: 18px;
+         margin: 4px 0;
+       }
+       #passwordFeedback { /* Password feedback text */
+         font-size: 10px;
+         margin: 4px 0;
+       }
     }
-    .word-button {
+    /* --- End of media query --- */
+
+    .word-button { /* Review mode buttons */
       padding: 10px 20px;
       font-size: 28px;
       font-weight: bold;
@@ -528,7 +592,7 @@
     .word-button:active {
       transform: scale(0.95);
     }
-    .redo-button {
+    .redo-button { /* Review mode button */
       padding: 15px 30px;
       font-size: 26px;
       background: linear-gradient(135deg, #4caf50, #66bb6a);
@@ -579,39 +643,6 @@
       0% { transform: scale(1); }
       50% { transform: scale(1.1); }
       100% { transform: scale(1); }
-    }
-    @media (max-width: 768px) {
-      h1 { font-size: 36px; margin-top: 20px; }
-      #part, #definition, #wordIndex { font-size: 20px; padding: 8px; }
-      #wordDisplay { font-size: 24px; padding: 15px; }
-      button, select { font-size: 22px; padding: 15px 25px; }
-      .key { width: 50px; height: 50px; font-size: 20px; margin: 5px; }
-      #backspace, #clear { width: 70px; }
-      #feedback { font-size: 28px; padding: 30px; }
-      .celebration-text { font-size: 36px; }
-      .level-complete-text span:first-child { font-size: 48px; }
-      .level-complete-text span:last-child { font-size: 24px; }
-      .star { width: 30px; height: 30px; }
-      .balloon { width: 20px; height: 30px; }
-      .firework, .confetti { width: 8px; height: 8px; }
-      #mascot { width: 60px; height: 60px; bottom: 10px; right: 10px; }
-      .bee { width: 30px; height: 30px; }
-      #progress-text { font-size: 18px; }
-      #header { padding: 10px; }
-      #pronounce-toggle button {
-        width: 90px;
-        padding: 6px 10px;
-        font-size: 12px;
-      }
-      #wordListButton, #resetButton {
-        width: 80px;
-        padding: 6px 10px;
-        font-size: 12px;
-      }
-      #confirmPopup p, #resetConfirmPopup p { font-size: 24px; }
-      #confirmPopup button, #resetConfirmPopup button { width: 100px; font-size: 18px; padding: 12px; }
-      .word-button { font-size: 22px; padding: 8px 15px; }
-      .redo-button { font-size: 20px; padding: 12px 25px; }
     }
   </style>
 </head>
@@ -686,7 +717,8 @@
       <button class="keypad-btn" onclick="appendPasswordDigit('8')">8</button>
       <button class="keypad-btn" onclick="appendPasswordDigit('9')">9</button>
       <button class="keypad-btn" onclick="appendPasswordDigit('0')">0</button>
-      <button id="keypadClear" class="keypad-btn" onclick="clearPassword()">Clear</button> </div>
+      <button id="keypadClear" class="keypad-btn" onclick="clearPassword()">Clear</button>
+    </div>
     <button id="passwordSubmit" onclick="checkPassword()">Submit</button>
     <button id="passwordCancel" onclick="hidePasswordPopup()">Cancel</button>
   </div>
@@ -731,18 +763,16 @@
       else if (type === 'wrong') audio.src = 'https://www.soundjay.com/buttons/sounds/beep-03.mp3';
       else if (type === 'levelComplete') audio.src = 'https://www.soundjay.com/human/sounds/cheering-01.mp3';
       audio.volume = 0.7;
-      audio.play().catch((err) => console.warn(`Sound ${type} failed to play:`, err)); // Added warning on failure
+      audio.play().catch((err) => console.warn(`Sound ${type} failed to play:`, err));
     }
 
     // --- STATE MANAGEMENT ---
 
     function saveGameState() {
-       // Prevent saving if levelStates doesn't have the current level initialized
       if (!levelStates[currentLevel]) {
          console.warn("Attempted to save game state for uninitialized level:", currentLevel);
          return;
       }
-      // Only save necessary parts of the state
       const currentStateToSave = {
         failCount: levelStates[currentLevel].failCount,
         wordsCompleted: levelStates[currentLevel].wordsCompleted,
@@ -750,17 +780,15 @@
         indexPointer: levelStates[currentLevel].indexPointer,
         isReviewMode: levelStates[currentLevel].isReviewMode,
         missedWords: levelStates[currentLevel].missedWords,
-        // No need to save currentIndex and currentWord in localStorage typically
       };
       try {
          localStorage.setItem('currentLevel', currentLevel);
-         localStorage.setItem(`levelState_${currentLevel}`, JSON.stringify(currentStateToSave)); // Save individual level
+         localStorage.setItem(`levelState_${currentLevel}`, JSON.stringify(currentStateToSave));
          localStorage.setItem('levelCompletions', JSON.stringify(levelCompletions));
          localStorage.setItem('fullPronounceEnabled', fullPronounceEnabled);
-         console.log("Game state saved for level:", currentLevel, currentStateToSave);
+         // console.log("Game state saved for level:", currentLevel); // Reduce noise
       } catch (e) {
          console.error("Error saving game state to localStorage:", e);
-         // Consider notifying the user that progress might not be saved
       }
     }
 
@@ -771,99 +799,87 @@
         levelCompletions = JSON.parse(localStorage.getItem('levelCompletions')) || {};
         fullPronounceEnabled = localStorage.getItem('fullPronounceEnabled') !== 'false';
 
-        // Load states for *all* levels found in storage
-        levelStates = {}; // Reset local cache first
-        for (let i = 0; i < 21; i++) { // Assuming max level index 20 (Level 9)
+        levelStates = {};
+        for (let i = 0; i < 21; i++) {
             const storedState = localStorage.getItem(`levelState_${i}`);
             if (storedState) {
-                levelStates[i] = JSON.parse(storedState);
-                 // Add back transient properties needed at runtime
-                 levelStates[i].currentIndex = levelStates[i].wordIndices ? levelStates[i].wordIndices[levelStates[i].indexPointer] : 0;
-                 levelStates[i].currentWord = ""; // Input word resets on load
-                console.log("Loaded state for level", i);
+                try {
+                    levelStates[i] = JSON.parse(storedState);
+                    // Add back transient properties needed at runtime
+                    levelStates[i].currentIndex = levelStates[i].wordIndices ? levelStates[i].wordIndices[levelStates[i].indexPointer] : 0;
+                    levelStates[i].currentWord = "";
+                    // console.log("Loaded state for level", i);
+                } catch (parseError) {
+                    console.error(`Failed to parse stored state for level ${i}:`, parseError);
+                    localStorage.removeItem(`levelState_${i}`); // Remove corrupted data
+                }
             }
         }
 
-        document.getElementById("levelSelect").value = currentLevel; // Set dropdown
-        updatePronounceButton(); // Update UI button
-        updateLevelSelect(); // Update dropdown text with stars/trophies
+        document.getElementById("levelSelect").value = currentLevel;
+        updatePronounceButton();
+        updateLevelSelect();
 
-        // Ensure current level state exists, initialize if not
         if (!levelStates[currentLevel]) {
-            console.log(`State for current level ${currentLevel} not found in localStorage, initializing.`);
+            console.log(`State for current level ${currentLevel} not found or invalid, initializing.`);
             initializeLevelState(currentLevel);
         } else {
-            console.log("Loaded state for current level:", currentLevel, levelStates[currentLevel]);
+            console.log("Loaded state for current level:", currentLevel);
         }
 
       } catch (e) {
           console.error("Error loading game state from localStorage:", e);
-          // Fallback to default state if loading fails
-          currentLevel = 0;
-          levelStates = {};
-          levelCompletions = {};
-          fullPronounceEnabled = true;
-          initializeLevelState(currentLevel); // Initialize default level 0
-          updateLevelSelect(); // Update visuals
+          currentLevel = 0; levelStates = {}; levelCompletions = {}; fullPronounceEnabled = true;
+          initializeLevelState(currentLevel);
+          updateLevelSelect();
       }
     }
 
     function initializeLevelState(level) {
       console.log(`Initializing level ${level} state...`);
-      const isReview = levelStates[level]?.isReviewMode || false; // Preserve review mode if re-initializing mid-review?
-      const missed = levelStates[level]?.missedWords || []; // Preserve missed words
+      const isReview = levelStates[level]?.isReviewMode || false;
+      const missed = levelStates[level]?.missedWords || [];
 
       levelStates[level] = {
-        failCount: 0,
-        wordsCompleted: 0,
-        wordIndices: [],
-        indexPointer: 0,
-        isReviewMode: isReview, // Keep review mode status if it was set
-        missedWords: isReview ? missed : [], // Keep missed words only if in review mode
-        currentIndex: 0, // Will be set by initializeWordIndices/showWord
-        currentWord: "" // User input always starts empty
+        failCount: 0, wordsCompleted: 0, wordIndices: [], indexPointer: 0,
+        isReviewMode: isReview, missedWords: isReview ? missed : [],
+        currentIndex: 0, currentWord: ""
       };
-      initializeWordIndices(level); // Populate wordIndices and set indexPointer
-      // Note: saveGameState() is called within initializeWordIndices if needed
+      initializeWordIndices(level);
     }
 
      function initializeWordIndices(level) {
-        if (!levelStates[level]) {
-            console.error("Cannot initialize indices for non-existent level state:", level);
-            return;
-        }
+        if (!levelStates[level]) { console.error("Cannot initialize indices for non-existent level state:", level); return; }
         const state = levelStates[level];
-        const levelWordData = getLevelWords(); // Get the actual word objects for the level
-
-        // Determine the source of indices: missed words or full level list
+        const levelWordData = getLevelWords();
         let sourceArray;
+
         if (state.isReviewMode) {
             sourceArray = state.missedWords;
             if (!sourceArray || sourceArray.length === 0) {
                  console.warn(`Attempting review mode for level ${level} with no missed words. Completing level.`);
-                 endReviewMode(true); // Pass flag to indicate completion without review
-                 return; // Stop initialization
+                 // Ensure review mode is off before completing
+                 state.isReviewMode = false;
+                 saveGameState(); // Save state change
+                 endReviewMode(true);
+                 return;
             }
-            state.wordIndices = shuffle(Array.from({ length: sourceArray.length }, (_, i) => i)); // Indices refer to missedWords array
-            console.log(`Initialized indices for level ${level} (review mode):`, state.wordIndices);
+            state.wordIndices = shuffle(Array.from({ length: sourceArray.length }, (_, i) => i));
+            console.log(`Initialized indices for level ${level} (review mode - ${state.wordIndices.length} words):`, state.wordIndices);
         } else {
             sourceArray = levelWordData;
             if (!sourceArray || sourceArray.length === 0) {
                  console.error(`No words found for level ${level} in normal mode.`);
-                 // Handle this error - maybe show a message? For now, return.
                  return;
             }
-            state.wordIndices = shuffle(Array.from({ length: sourceArray.length }, (_, i) => i)); // Indices refer to the main words slice
-             console.log(`Initialized indices for level ${level} (normal mode):`, state.wordIndices);
+            state.wordIndices = shuffle(Array.from({ length: sourceArray.length }, (_, i) => i));
+            console.log(`Initialized indices for level ${level} (normal mode - ${state.wordIndices.length} words):`, state.wordIndices);
         }
 
-        state.indexPointer = 0; // Start from the beginning of the shuffled list
-        state.currentWord = ""; // Clear any typed input
-        state.failCount = 0; // Reset fails for the new/reset level
-        lastPronouncedIndex = -1; // Reset pronunciation tracking
-
-        updateProgress(); // Update UI display
-        saveGameState(); // Save the newly initialized state
+        state.indexPointer = 0; state.currentWord = ""; state.failCount = 0;
+        lastPronouncedIndex = -1;
+        updateProgress();
+        saveGameState();
     }
 
     // --- UI UPDATES ---
@@ -876,22 +892,16 @@
 
      function updateLevelSelect() {
         const select = document.getElementById("levelSelect");
-        // Use fixed base names, assuming the number of options matches
-        const baseOptions = Array.from(select.options).map(opt => {
-            // Attempt to get the base name before stars/trophies were added
-            // This assumes the base name doesn't contain these emojis
-            return opt.text.split(' ')[0] + (opt.text.includes('-') ? '-' + opt.text.split(' ')[0].split('-')[1] : '');
-        });
-
-        if(baseOptions.length < 21) { // Simple check
-            console.warn("Mismatch between expected levels and dropdown options.");
-            // Fallback or fixed names if needed
-        }
+        const baseOptionsMap = {}; // Store base names if needed, or assume fixed order
+         const baseOptions = [ // Assume fixed order matching HTML
+             "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e", "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e",
+             "Level 3-a", "Level 3-b", "Level 3-c", "Level 3-d", "Level 3-e", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9"
+         ];
 
         for (let i = 0; i < select.options.length; i++) {
+            if (i >= baseOptions.length) break; // Avoid errors if HTML has fewer options
             const level = parseInt(select.options[i].value);
-            // Ensure base name exists before appending, prevent duplication
-            let currentText = select.options[i].text.replace(/ [🏆⭐]+/g, ''); // Remove existing emojis first
+            let baseText = baseOptions[i]; // Use the known base name
 
             const completions = levelCompletions[level] || 0;
             const stars = completions % 5;
@@ -899,45 +909,25 @@
             let suffix = '';
             if (trophies > 0) suffix += ' 🏆'.repeat(trophies);
             if (stars > 0) suffix += ' ⭐'.repeat(stars);
-
-            select.options[i].text = currentText + suffix;
+            select.options[i].text = baseText + suffix;
         }
     }
 
     function updateDisplay() {
       const wordDisplay = document.getElementById("wordDisplay");
-      if (!levelStates[currentLevel]) return; // Prevent errors if state is missing
-
-      wordDisplay.classList.add("fade");
-      setTimeout(() => {
-        wordDisplay.innerText = levelStates[currentLevel]?.currentWord || ""; // Handle potential undefined state
-        wordDisplay.classList.remove("fade");
-        // console.log("Display updated to:", levelStates[currentLevel]?.currentWord); // Reduce console noise
-      }, 150);
+      if (!levelStates[currentLevel]) return;
+      wordDisplay.innerText = levelStates[currentLevel]?.currentWord || "";
     }
 
     function updateProgress() {
-       if (!levelStates[currentLevel]) return; // Guard against missing state
-
+       if (!levelStates[currentLevel]) return;
       const state = levelStates[currentLevel];
       const progressBar = document.getElementById("progress-bar");
       const progressText = document.getElementById("progress-text");
-
-      // Determine total words based on mode and level
       let totalWords = 0;
-      if(state.isReviewMode) {
-          totalWords = state.missedWords?.length || 0;
-      } else {
-          totalWords = (currentLevel < 15 ? 10 : 50);
-      }
-
-      if (totalWords > 0) {
-        const percentComplete = (state.wordsCompleted / totalWords) * 100;
-        progressBar.style.width = `${percentComplete}%`;
-      } else {
-        progressBar.style.width = '0%'; // No progress if no words
-      }
-
+      if(state.isReviewMode) { totalWords = state.missedWords?.length || 0; }
+      else { totalWords = (currentLevel < 15 ? 10 : 50); }
+      progressBar.style.width = totalWords > 0 ? `${(state.wordsCompleted / totalWords) * 100}%` : '0%';
       progressText.innerHTML = `Words Completed: ${state.wordsCompleted}/${totalWords} <div class="bee"></div>`;
     }
 
@@ -945,204 +935,137 @@
       const feedback = document.getElementById("feedback");
       const mascot = document.getElementById("mascot");
       feedback.innerText = message;
-      feedback.className = isCorrect ? "" : "wrong"; // Use class for styling wrong feedback
-      feedback.style.display = message ? "block" : "none"; // Show only if there's a message
+      feedback.className = isCorrect ? "" : "wrong";
+      feedback.style.display = message ? "block" : "none";
       mascot.className = isCorrect ? "happy" : "sad";
-
-      // Hide incorrect feedback automatically
       if (!isCorrect && message) {
-        setTimeout(() => {
-          if (feedback.innerText === message) { // Only hide if the message hasn't changed
-             feedback.style.display = "none";
-             mascot.className = ""; // Reset mascot only when feedback hides
-          }
-        }, 1500);
-      } else if (isCorrect) {
-          // Instantly reset mascot for correct answers (or after celebration)
-          mascot.className = "happy"; // Ensure it's happy
-          // Resetting after celebration might be better UX
-      }
+        setTimeout(() => { if (feedback.innerText === message) { feedback.style.display = "none"; mascot.className = ""; } }, 1500);
+      } else if (isCorrect) { mascot.className = "happy"; }
     }
 
     function hideFeedback() {
       document.getElementById("feedback").style.display = "none";
-      document.getElementById("mascot").className = ""; // Reset mascot
+      document.getElementById("mascot").className = "";
     }
 
     // --- GAME LOGIC ---
 
     function getLevelWords() {
         const state = levelStates[currentLevel];
-        if (!state) {
-            console.error("getLevelWords called with no state for level:", currentLevel);
-            return []; // Return empty array if state is missing
-        }
-
-        if (state.isReviewMode) {
-            // Return the actual word objects stored in missedWords
-            return state.missedWords || [];
-        }
-
-        // Calculate start index for normal mode
+        if (!state) { console.error("getLevelWords called with no state for level:", currentLevel); return []; }
+        if (state.isReviewMode) { return state.missedWords || []; }
         let start;
-        if (currentLevel < 5) start = currentLevel * 10;         // Levels 0-4 (1a-1e)
-        else if (currentLevel < 10) start = 50 + (currentLevel - 5) * 10;  // Levels 5-9 (2a-2e)
-        else if (currentLevel < 15) start = 100 + (currentLevel - 10) * 10; // Levels 10-14 (3a-3e)
-        else start = 150 + (currentLevel - 15) * 50; // Levels 15+ (4-9)
-
+        if (currentLevel < 5) start = currentLevel * 10; else if (currentLevel < 10) start = 50 + (currentLevel - 5) * 10; else if (currentLevel < 15) start = 100 + (currentLevel - 10) * 10; else start = 150 + (currentLevel - 15) * 50;
         const count = currentLevel < 15 ? 10 : 50;
-
-        // Ensure 'words' array is available and has enough words
-        if (typeof words === 'undefined' || !Array.isArray(words)) {
-            console.error("'words' array is not available!");
-            // Maybe trigger reload or show error message
-            return [];
-        }
-        if (start + count > words.length) {
-            console.warn(`Level ${currentLevel} requires words up to index ${start + count -1}, but words array only has ${words.length} elements.`);
-            // Return only available words, might lead to shorter levels
-            return words.slice(start);
-        }
-
-        const levelWords = words.slice(start, start + count);
-        // console.log(`Level ${currentLevel} words (start: ${start}, count: ${count}):`, levelWords.length);
+        if (typeof words === 'undefined' || !Array.isArray(words)) { console.error("'words' array is not available!"); return []; }
+        if (start >= words.length) { console.warn(`Level ${currentLevel} start index ${start} is out of bounds.`); return []; }
+        const levelWords = words.slice(start, Math.min(start + count, words.length));
         return levelWords;
     }
 
     function showWord() {
       console.log("---- showWord ----");
-      // Ensure state exists for the current level
       if (!levelStates[currentLevel]) {
           console.error(`State missing for level ${currentLevel} in showWord. Initializing.`);
           initializeLevelState(currentLevel);
-          // If initialization failed (e.g., no words), we might need to stop here or show an error
-          if (!levelStates[currentLevel]) {
-               alert("Failed to initialize level state. Please refresh.");
-               return;
-          }
+          if (!levelStates[currentLevel]) { alert("Failed to initialize level state. Please refresh."); return; }
       }
       const state = levelStates[currentLevel];
+      const levelWordData = getLevelWords();
 
-      // Get the words for the current level/mode
-      const levelWordData = getLevelWords(); // Changed name for clarity
-
-      // Check if words are available for the level
       if (!levelWordData || levelWordData.length === 0) {
           console.error("No words available for current level/mode:", currentLevel, state.isReviewMode);
-          // Potentially show an error message to the user, or auto-advance/complete level
-          if (state.isReviewMode) {
-                console.log("No review words left, ending review mode.");
-                endReviewMode(true); // Complete level if review list is empty
-          } else {
-                alert(`Error: No words found for Level ${document.getElementById('levelSelect').selectedOptions[0].text}. Please check the word list or select another level.`);
-          }
-          return; // Stop execution for this word
+          if (state.isReviewMode) { console.log("No review words left, ending review mode."); endReviewMode(true); }
+          else { alert(`Error: No words found for Level ${document.getElementById('levelSelect').selectedOptions[0].text}. Please check the word list or select another level.`); }
+          return;
       }
 
-      // Check if wordIndices array needs initialization or is finished
       if (!state.wordIndices || state.wordIndices.length === 0 || state.indexPointer >= state.wordIndices.length) {
-           // This case should ideally be handled by nextWord() advancing to review/completion
-           // But as a fallback, reinitialize indices if they are missing/empty
           console.warn("Word indices issue in showWord. Reinitializing indices for level:", currentLevel);
-          initializeWordIndices(currentLevel); // This will reset pointer and shuffle
-           // Check again if indices were successfully initialized
-          if (!state.wordIndices || state.wordIndices.length === 0) {
-               console.error("Failed to initialize word indices. Cannot show word.");
-               return;
-          }
+          initializeWordIndices(currentLevel);
+          if (!state.wordIndices || state.wordIndices.length === 0) { console.error("Failed to initialize word indices. Cannot show word."); return; }
       }
 
-      // Get the specific index for the current word from the shuffled list
       const wordIndexInSourceArray = state.wordIndices[state.indexPointer];
-      // Get the actual word object using that index from the correct source (levelWordData)
       const w = levelWordData[wordIndexInSourceArray];
 
-      // Validate the word object
       if (!w || !w.word || !w.part || !w.definition || typeof w.no === 'undefined') {
            console.error("Invalid word data retrieved:", { wordIndexInSourceArray, retrievedWord: w, levelWordDataLength: levelWordData.length });
-           // Maybe try advancing to the next word or reinitializing
            alert("Error retrieving word data. Please try advancing the word or changing levels.");
-           // Attempt to recover by advancing index? Risky.
-           // state.indexPointer++; // Be careful with infinite loops
-           // showWord(); return;
            return;
       }
 
-      // Update the stored currentIndex (mainly for pronunciation reference)
-      state.currentIndex = wordIndexInSourceArray; // This index refers to position within levelWordData
+      state.currentIndex = wordIndexInSourceArray;
+      console.log(`Displaying word: Pointer=${state.indexPointer}, Index=${state.currentIndex}, Word=${w.word}`);
 
-      console.log(`Displaying word: IndexPointer=${state.indexPointer}, WordIndexInSource=${wordIndexInSourceArray}, Word=${w.word}`);
-
-      // Update UI elements
       document.getElementById("part").innerText = "Part of Speech: " + w.part;
       document.getElementById("definition").innerText = "Definition: " + w.definition;
-      document.getElementById("wordIndex").innerText = "Word #" + w.no; // Use the original number
-      state.currentWord = ""; // Clear previous input
-      updateDisplay(); // Update the spelling input area (should be empty now)
+      document.getElementById("wordIndex").innerText = "Word #" + w.no;
+      state.currentWord = "";
+      updateDisplay();
 
-      // Reset fail count for the new word display
-      // state.failCount = 0; // Moved failCount reset to nextWord/initialize
-
-      // Show/hide 'Show Answer' button based on fail count
       document.getElementById("showAnswer").style.display = state.failCount >= 3 ? "block" : "none";
-      document.getElementById("showAnswer").disabled = state.failCount < 3;
+      document.getElementById("showAnswer").disabled = state.failCount < 3; // Ensure disabled state matches visibility
 
-      // Ensure main content is visible and mascot is reset
       document.getElementById("mainContent").style.display = "block";
       const reviewDiv = document.getElementById("review-mode");
-      if (reviewDiv) reviewDiv.style.display = "none"; // Hide review mode if active
+      if (reviewDiv) reviewDiv.style.display = "none";
       document.getElementById("mascot").className = "";
 
-      updateProgress(); // Update progress bar/text
-      enableButtons(); // Make sure buttons are clickable
+      updateProgress();
+       // Explicitly enable buttons needed for interaction (pronounce state handled separately)
+       document.getElementById("checkAnswer").disabled = false;
+       document.getElementById("levelSelect").disabled = false;
+       document.querySelectorAll('.key').forEach(key => key.disabled = false);
+       // Ensure pronounce button state is correct (might be disabled from previous action)
+       document.getElementById("pronounce").disabled = isSpeaking;
     }
 
+    // --- UPDATED changeLevel Function ---
     function changeLevel() {
+      // If speaking, cancel speech before changing level
+      if (isSpeaking) {
+          console.log("Level changed while speaking - cancelling speech.");
+          speechSynthesis.cancel();
+          isSpeaking = false;
+          // enableButtons(); // Pronounce button will be enabled by showWord if needed
+      }
+
       const newLevel = parseInt(document.getElementById("levelSelect").value);
       console.log("Changing level to:", newLevel);
-      // No need to save state here, as loading/initialization handles the switch
-      currentLevel = newLevel;
-      localStorage.setItem('currentLevel', currentLevel); // Save selection immediately
 
-      // Ensure state is loaded or initialized for the new level
+      currentLevel = newLevel;
+      localStorage.setItem('currentLevel', currentLevel);
+
       if (!levelStates[currentLevel]) {
         initializeLevelState(currentLevel);
       } else {
-         // Reset transient parts of existing state when switching levels
          levelStates[currentLevel].currentWord = "";
-         // Maybe reset indexPointer if user should start level over? Optional.
-         // levelStates[currentLevel].indexPointer = 0;
-         // levelStates[currentLevel].currentIndex = levelStates[currentLevel].wordIndices[0];
+         // Maybe reset index pointer? Optional. Let's keep progress for now.
          console.log("Loaded existing state for level", newLevel);
       }
 
-      isSpeaking = false; // Reset speaking flag
-      speechSynthesis.cancel(); // Cancel any ongoing speech
-
-      showWord(); // Display the first word of the new level
-      // saveGameState(); // Save the state *after* initializing/loading and showing word
+      showWord(); // Display the first (or current) word of the new level
     }
 
+
+    // --- UPDATED checkSpelling Function ---
     function checkSpelling() {
+      // If speaking, cancel speech before checking
       if (isSpeaking) {
+        console.log("Check Answer clicked while speaking - cancelling speech.");
         speechSynthesis.cancel();
         isSpeaking = false;
-        // Optionally re-enable buttons immediately if check is pressed during speech
-        enableButtons();
+        // Let pronounceSequence finally block handle re-enabling pronounce btn
       }
 
-      if (!levelStates[currentLevel]) {
-         console.error("Cannot check spelling, level state is missing.");
-         return;
-      }
+      if (!levelStates[currentLevel]) { console.error("Cannot check spelling, level state is missing."); return; }
       const state = levelStates[currentLevel];
-      const levelWordData = getLevelWords(); // Get words for current context
+      const levelWordData = getLevelWords();
 
-      // Ensure currentIndex is valid for the current levelWordData
-      if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) {
-          console.error("Invalid currentIndex in checkSpelling:", state.currentIndex);
-          showWord(); // Try to recover by showing the word again
-          return;
+      if (state.currentIndex < 0 || !levelWordData || state.currentIndex >= levelWordData.length) { // Added check for levelWordData
+          console.error("Invalid currentIndex or word data in checkSpelling:", state.currentIndex);
+          showWord(); return;
       }
 
       const correctWord = levelWordData[state.currentIndex].word;
@@ -1153,190 +1076,195 @@
       if (userInput === correctWord) {
         state.wordsCompleted++;
         playSound('correct');
-        showFeedback("", true); // No message needed for correct, just mascot
-        showCelebration(); // This function handles hiding content and calling nextWord via hideCelebration
-        // No need to call nextWord directly here
-        saveGameState(); // Save progress after correct answer
+        showFeedback("", true);
+        showCelebration(); // Calls nextWord after animation
+        saveGameState();
       } else {
         state.failCount++;
-        // Add to missed words only on the *first* fail in *normal* mode
         if (state.failCount === 1 && !state.isReviewMode) {
-           // Ensure missedWords array exists
           if (!state.missedWords) state.missedWords = [];
-          // Add the full word object
-          state.missedWords.push(levelWordData[state.currentIndex]);
-           console.log("Added to missed words:", levelWordData[state.currentIndex].word);
+          // Avoid adding duplicates?
+          if (!state.missedWords.some(mw => mw.no === levelWordData[state.currentIndex].no)) {
+             state.missedWords.push(levelWordData[state.currentIndex]);
+             console.log("Added to missed words:", levelWordData[state.currentIndex].word);
+          }
         }
-
         playSound('wrong');
         showFeedback("❌ Oops! Try Again! ❌", false);
-
         if (state.failCount >= 3) {
           document.getElementById("showAnswer").style.display = "block";
           document.getElementById("showAnswer").disabled = false;
+        } else {
+           // Ensure button is hidden and disabled if fails < 3
+           document.getElementById("showAnswer").style.display = "none";
+           document.getElementById("showAnswer").disabled = true;
         }
-        state.currentWord = ""; // Clear input field on wrong answer
+        state.currentWord = "";
         updateDisplay();
-        saveGameState(); // Save state after incorrect attempt (fail count, missed words)
+        saveGameState();
       }
     }
 
+    // --- UPDATED showAnswer Function ---
     function showAnswer() {
-      if (isSpeaking) { // Don't interrupt speech to show answer
-           console.log("Cannot show answer while speaking.");
-           return;
+      // If speaking, cancel speech before showing answer
+      if (isSpeaking) {
+        console.log("Show Answer clicked while speaking - cancelling speech.");
+        speechSynthesis.cancel();
+        isSpeaking = false;
+        // enableButtons(); // Let pronounceSequence finally block handle re-enabling pronounce btn
       }
-      if (!levelStates[currentLevel]) return;
 
+      if (!levelStates[currentLevel]) return;
       const state = levelStates[currentLevel];
       const levelWordData = getLevelWords();
-      if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) {
-          console.error("Invalid currentIndex in showAnswer:", state.currentIndex);
+      if (state.currentIndex < 0 || !levelWordData || state.currentIndex >= levelWordData.length) {
+          console.error("Invalid currentIndex or word data in showAnswer:", state.currentIndex);
           return;
       }
       const correctWord = levelWordData[state.currentIndex].word;
-      showFeedback(`Answer: ${correctWord}`, false); // Show answer using the feedback mechanism
+      showFeedback(`Answer: ${correctWord}`, false);
     }
 
     function nextWord() {
       console.log("---- nextWord ----");
-       if (!levelStates[currentLevel]) {
-           console.error("Cannot go to next word, level state is missing.");
-           return;
-       }
+       if (!levelStates[currentLevel]) { console.error("Cannot go to next word, level state is missing."); return; }
       const state = levelStates[currentLevel];
-      state.indexPointer++; // Advance the pointer to the next shuffled index
+      state.indexPointer++;
 
-      // Check if we've finished all words in the current list (normal or review)
-      if (state.indexPointer >= state.wordIndices.length) {
+      // Check completion status
+      const wordListLength = state.wordIndices?.length || 0;
+      if (state.indexPointer >= wordListLength) {
         console.log("Finished words in current list.");
         if (state.isReviewMode) {
           console.log("Ending review mode.");
-          endReviewMode(); // Finished review, complete the level
+          endReviewMode();
         } else if (state.missedWords && state.missedWords.length > 0) {
           console.log("Starting review mode.");
-          showReviewMode(); // Finished normal mode, start review if needed
+          showReviewMode();
         } else {
            console.log("No missed words, completing level directly.");
-           endReviewMode(true); // Finished normal mode, no missed words, complete level
+           endReviewMode(true);
         }
-        return; // Stop further execution as we transition mode or level
+        return;
       }
 
-      // If more words remain in the current list:
-      state.failCount = 0; // Reset fail count for the new word
-      isSpeaking = false; // Reset speaking flag
-      speechSynthesis.cancel(); // Cancel any leftover speech
-      state.currentWord = ""; // Clear input
-      lastPronouncedIndex = -1; // Reset for pronunciation logic
-
-      showWord(); // Display the next word
-      saveGameState(); // Save state after successfully moving to the next word
+      // Prepare for next word
+      state.failCount = 0;
+      isSpeaking = false;
+      speechSynthesis.cancel();
+      state.currentWord = "";
+      lastPronouncedIndex = -1;
+      showWord();
+      // saveGameState(); // Let showWord save state if needed? Or save here. Let's save here.
+      saveGameState();
     }
 
     // --- PRONUNCIATION ---
 
+    // --- UPDATED pronounceWord Function ---
     function pronounceWord() {
+      // If already speaking, cancel the current speech and start over
       if (isSpeaking) {
-          console.log("Already speaking, pronounce request ignored.");
-          // Optional: Allow interrupting current speech?
-          // speechSynthesis.cancel();
-          // isSpeaking = false; // Then continue below? Might be complex.
+          console.log("Pronounce clicked while speaking - cancelling previous speech.");
+          speechSynthesis.cancel(); // Stop current speech
+          isSpeaking = false; // Reset flag immediately
+          // The finally block of the cancelled sequence should re-enable the button.
+          // We proceed to start the new sequence.
+      }
+
+      if (!levelStates[currentLevel]) { console.error("Cannot pronounce, level state missing."); return; }
+      const state = levelStates[currentLevel];
+      const levelWordData = getLevelWords();
+      // Check word data validity before proceeding
+      if (!levelWordData || state.currentIndex < 0 || state.currentIndex >= levelWordData.length || !levelWordData[state.currentIndex] || !levelWordData[state.currentIndex].word) {
+          console.error("Word data not ready for pronunciation.");
+          showFeedback("Word not ready, please wait.", false);
           return;
       }
-      if (!levelStates[currentLevel]) {
-          console.error("Cannot pronounce, level state missing.");
-          return;
-      }
-       // Check if word data is ready
-       const state = levelStates[currentLevel];
-       const levelWordData = getLevelWords();
-       if (!levelWordData || state.currentIndex < 0 || state.currentIndex >= levelWordData.length) {
-           console.error("Word data not ready for pronunciation.");
-           // Maybe briefly show feedback?
-           showFeedback("Word not ready, please wait.", false);
-           return;
-       }
 
-
-      console.log("Pronounce button clicked.");
-      isSpeaking = true; // Set flag immediately
-      disableButtons(); // Disable buttons while speaking
+      console.log("Pronounce button clicked - starting sequence.");
+      isSpeaking = true; // Set flag
+      disableButtons(); // Disable pronounce button ONLY
       pronounceSequence(); // Call the async sequence handler
     }
 
     // --- ASYNC PRONUNCIATION SEQUENCE HANDLER ---
     const pronounceSequence = async () => {
         const state = levelStates[currentLevel];
-        // Ensure w and word are defined before use (robust check)
-        if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) {
-             console.error("Invalid state or index pointer in pronounceSequence.");
-             isSpeaking = false; enableButtons(); return;
-        }
-        const levelWordData = getLevelWords(); // Use consistent naming
-        // state.currentIndex should be set correctly by showWord or initialized state
-         if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) {
-             console.error("Invalid current index in pronounceSequence:", state.currentIndex);
-             isSpeaking = false; enableButtons(); return;
-         }
+        if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) { console.error("Invalid state in pronounceSequence."); isSpeaking = false; enableButtons(); return; }
+        const levelWordData = getLevelWords();
+        if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) { console.error("Invalid index in pronounceSequence."); isSpeaking = false; enableButtons(); return; }
         const w = levelWordData[state.currentIndex];
-         if (!w || !w.word) { // Check if word object and word itself exist
-            console.error("Could not get valid word data in pronounceSequence.");
-            isSpeaking = false; enableButtons(); return;
-        }
+        if (!w || !w.word) { console.error("Invalid word data in pronounceSequence."); isSpeaking = false; enableButtons(); return; }
+
         const word = w.word.toLowerCase();
         const runFullSequence = fullPronounceEnabled && state.currentIndex !== lastPronouncedIndex;
 
         try {
-            // --- Pronunciation Attempt 1: Howjsay or TTS Fallback ---
+            // Attempt 1: Howjsay or TTS Fallback
             console.log("Attempting Howjsay audio (Attempt 1)...");
             try {
-                await playHowjsayAudio(); // Try playing Howjsay
+                await playHowjsayAudio();
                 console.log("Howjsay audio played successfully.");
             } catch (err) {
-                // If Howjsay fails, play TTS as the first sound instead
                 console.warn("Howjsay failed, using TTS for Attempt 1:", err);
                 await speakText(word);
             }
+            // Check immediately if cancelled after first attempt
+            if (!isSpeaking) { console.log("Speech cancelled after attempt 1."); return; }
 
-            // Optional short pause to ensure first sound finishes or context switches
-            await new Promise(resolve => setTimeout(resolve, 250)); // Adjust timing (e.g., 200-500ms)
+            await new Promise(resolve => setTimeout(resolve, 250));
+            if (!isSpeaking) { console.log("Speech cancelled during pause 1."); return; }
 
-            // --- Pronunciation Attempt 2: Always TTS ---
+            // Attempt 2: Always TTS
             console.log("Playing TTS audio (Attempt 2)...");
-            await speakText(word); // Always play TTS for the second sound
+            await speakText(word);
+            if (!isSpeaking) { console.log("Speech cancelled after attempt 2."); return; }
 
-            // --- Optional Full Sequence Details ---
+            // Optional Full Sequence Details
             if (runFullSequence) {
-                // Pause before starting the detailed pronunciation
-                await new Promise(resolve => setTimeout(resolve, 800)); // Longer pause before details
+                await new Promise(resolve => setTimeout(resolve, 800));
+                if (!isSpeaking) { console.log("Speech cancelled during pause 2."); return; }
 
                 console.log("Running full pronunciation sequence (details)...");
-                // Ensure part and definition exist before speaking
                 if(w.part) await speakText(`Part of speech: ${w.part}`);
+                if (!isSpeaking) { console.log("Speech cancelled after part."); return; }
                 if(w.definition) await speakText(`Definition: ${w.definition}`);
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await speakText("Please spell");
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await speakText(word); // Final word repetition using TTS
+                if (!isSpeaking) { console.log("Speech cancelled after definition."); return; }
 
-                lastPronouncedIndex = state.currentIndex; // Update only after full sequence completes
+                await new Promise(resolve => setTimeout(resolve, 500));
+                if (!isSpeaking) { console.log("Speech cancelled during pause 3."); return; }
+                await speakText("Please spell");
+                if (!isSpeaking) { console.log("Speech cancelled after prompt."); return; }
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+                if (!isSpeaking) { console.log("Speech cancelled during pause 4."); return; }
+                await speakText(word); // Final repetition
+                if (!isSpeaking) { console.log("Speech cancelled after final word."); return; }
+
+                lastPronouncedIndex = state.currentIndex;
                 console.log("Full pronunciation sequence complete.");
             }
 
         } catch (error) {
             console.error("Pronunciation sequence encountered an error:", error);
-            // Attempt one last TTS fallback just in case
-            try {
-                console.log("Attempting final TTS fallback due to sequence error.");
-                await speakText(word);
-            } catch (e) {
-                console.error("Final TTS fallback also failed", e);
+            // Don't try fallback here if speech was cancelled explicitly
+            if (isSpeaking) { // Only attempt fallback if sequence failed on its own
+                 try { console.log("Attempting final TTS fallback due to sequence error."); await speakText(word); }
+                 catch (e) { console.error("Final TTS fallback also failed", e); }
             }
         } finally {
-            isSpeaking = false;
-            enableButtons();
-            console.log("Pronunciation sequence finished (finally block).");
+            // This runs even if the function returns early due to cancellation checks
+            if (isSpeaking) { // Only log/enable if it wasn't cancelled already
+                console.log("Pronunciation sequence finished normally (finally block).");
+                isSpeaking = false;
+                enableButtons(); // Re-enable pronounce button
+            } else {
+                console.log("Pronunciation sequence ended due to cancellation (finally block).");
+                // Ensure pronounce button is enabled if cancellation happened
+                 enableButtons();
+            }
         }
     };
     // --- End of pronounceSequence ---
@@ -1344,670 +1272,217 @@
     // --- Helper: Speak Text using SpeechSynthesis ---
     const speakText = (text) => {
          return new Promise((resolve, reject) => {
-            if (!text || typeof text !== 'string' || text.trim() === "") {
-                 console.warn("speakText called with invalid text.");
-                 return resolve(); // Resolve successfully if nothing to speak
-             }
-             console.log(`TTS: Speaking "${text}"`);
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = "en-US";
-            utterance.rate = 0.7; // Adjust rate if needed
-            utterance.pitch = 0.7; // Adjust pitch if needed
+            if (!text || typeof text !== 'string' || text.trim() === "") { console.warn("speakText called with invalid text."); return resolve(); }
+            // Check if speech was cancelled *before* starting new utterance
+             if (!isSpeaking) { console.log("speakText cancelled before starting."); return resolve(); }
 
-             // Workaround for potential issues where onend doesn't fire reliably
-             let ended = false;
-             const handleEnd = () => {
-                 if (ended) return;
-                 ended = true;
-                 console.log(`TTS: Finished "${text}"`);
+            // console.log(`TTS: Speaking "${text}"`); // Reduce noise
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-US"; utterance.rate = 0.7; utterance.pitch = 0.7;
+             let ended = false; let endedTimer = null;
+            const handleEnd = (event = {}) => {
+                 clearTimeout(endedTimer);
+                 if (ended) return; ended = true;
+                 // console.log(`TTS: Finished "${text}"`, event.type); // Reduce noise
                  resolve();
              };
+             // Use both onend and a timeout
              utterance.onend = handleEnd;
-             // Add a timeout as a fallback for onend not firing
-             setTimeout(() => {
-                 if (!ended) {
-                     console.warn(`TTS: Timeout waiting for onend for "${text}". Resolving anyway.`);
-                     resolve();
-                 }
-             }, text.length * 150 + 1000); // Estimate time based on text length + buffer
+             endedTimer = setTimeout(() => {
+                 if (!ended) { console.warn(`TTS: Timeout waiting for onend: "${text}"`); handleEnd({type: 'timeout'}); }
+             }, text.length * 150 + 1500); // Slightly longer timeout
 
-            utterance.onerror = (event) => {
-                console.error(`TTS Error: "${text}"`, event.error);
-                reject(event.error);
-            };
-
-            try {
-                 // Optional: Cancel previous speech? Might be needed depending on desired behavior.
-                 // speechSynthesis.cancel();
-                 speechSynthesis.speak(utterance);
-             } catch (e) {
-                 console.error("Error calling speechSynthesis.speak:", e);
-                 reject(e);
-            }
+            utterance.onerror = (event) => { clearTimeout(endedTimer); console.error(`TTS Error: "${text}"`, event.error); reject(event.error); };
+            try { speechSynthesis.speak(utterance); } catch (e) { clearTimeout(endedTimer); console.error("Error calling speechSynthesis.speak:", e); reject(e); }
         });
     };
 
     // --- Helper: Play Howjsay Audio ---
     const playHowjsayAudio = () => {
-        // Get current word dynamically inside this function
-         if (!levelStates[currentLevel] || !levelStates[currentLevel].wordIndices) {
-              return Promise.reject(new Error("Cannot play Howjsay: Level state not ready."));
-         }
-        const state = levelStates[currentLevel];
-         const levelWordData = getLevelWords();
-         if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) {
-             return Promise.reject(new Error("Cannot play Howjsay: Invalid current index."));
-         }
-        const w = levelWordData[state.currentIndex];
-         if (!w || !w.word) {
-              return Promise.reject(new Error("Cannot play Howjsay: Invalid word data."));
-         }
-        const wordForAudio = w.word.toLowerCase().replace(/[^a-z]/g, ''); // Basic sanitization for URL
-         if (!wordForAudio) {
-             return Promise.reject(new Error("Cannot play Howjsay: Invalid word after sanitization."));
-         }
+        if (!levelStates[currentLevel] || !levelStates[currentLevel].wordIndices) { return Promise.reject(new Error("HJS: Level state not ready.")); }
+        const state = levelStates[currentLevel]; const levelWordData = getLevelWords();
+        if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) { return Promise.reject(new Error("HJS: Invalid current index.")); }
+        const w = levelWordData[state.currentIndex]; if (!w || !w.word) { return Promise.reject(new Error("HJS: Invalid word data.")); }
+        const wordForAudio = w.word.toLowerCase().replace(/[^a-z\-']/g, ''); // Allow hyphens/apostrophes? Maybe just letters.
+         if (!wordForAudio) { return Promise.reject(new Error("HJS: Invalid word after sanitization.")); }
 
-        console.log(`Howjsay: Attempting "${wordForAudio}"`);
+        // console.log(`Howjsay: Attempting "${wordForAudio}"`); // Reduce noise
         const audio = new Audio(`https://howjsay.com/mp3/${wordForAudio}.mp3`);
-        audio.volume = 0.7;
-        let timeoutId = null; // Declare timeoutId here
+        audio.volume = 0.7; let timeoutId = null; let resolved = false; let rejected = false;
 
-        // Cleanup function to remove listeners and clear timeout
-        const cleanup = () => {
-            if (timeoutId) clearTimeout(timeoutId);
-            audio.oncanplaythrough = null;
-            audio.onerror = null;
-            audio.onended = null;
-            audio.src = ""; // Release resource
-            audio.load(); // Abort loading?
-        };
+        const cleanup = () => { if (timeoutId) clearTimeout(timeoutId); audio.oncanplaythrough = null; audio.onerror = null; audio.onended = null; audio.src = ""; try{ audio.load(); } catch(e){} };
 
         return new Promise((resolve, reject) => {
-            timeoutId = setTimeout(() => { // Assign timeoutId
-                 console.error(`Howjsay Timeout: "${wordForAudio}"`);
-                 cleanup(); // Use cleanup function
-                 reject(new Error("Audio load timeout"));
-             }, 3500); // Slightly longer timeout? 3.5s
+             // Check if speech was cancelled *before* starting audio load
+             if (!isSpeaking) { console.log("Howjsay cancelled before starting."); return reject(new Error("Cancelled")); }
 
-            audio.oncanplaythrough = () => {
-                console.log(`Howjsay CanPlay: "${wordForAudio}"`);
-                audio.play()
-                    .then(() => {
-                         console.log(`Howjsay Play Initiated: "${wordForAudio}"`);
-                         // Resolution happens in onended
-                     })
-                    .catch(err => {
-                        console.error(`Howjsay Play Error: "${wordForAudio}"`, err);
-                        cleanup(); // Use cleanup function
-                        reject(err); // Reject the promise if play() fails
-                    });
-            };
-            audio.onerror = (e) => {
-                console.error(`Howjsay OnError: "${wordForAudio}"`, audio.error);
-                cleanup(); // Use cleanup function
-                reject(new Error(`Howjsay audio onerror`));
-            };
-            audio.onended = () => {
-                console.log(`Howjsay Finished: "${wordForAudio}"`);
-                cleanup(); // Use cleanup function
-                resolve(); // Resolve the promise when audio finishes playing
-            };
-
-            // Explicitly load the audio
+            timeoutId = setTimeout(() => { if (resolved || rejected) return; console.error(`Howjsay Timeout: "${wordForAudio}"`); rejected = true; cleanup(); reject(new Error("Audio load timeout")); }, 3500);
+            audio.oncanplaythrough = () => { if (resolved || rejected) return; console.log(`Howjsay CanPlay: "${wordForAudio}"`); audio.play().catch(err => { if (resolved || rejected) return; console.error(`Howjsay Play Error: "${wordForAudio}"`, err); rejected = true; cleanup(); reject(err); }); };
+            audio.onerror = (e) => { if (resolved || rejected) return; console.error(`Howjsay OnError: "${wordForAudio}"`, audio.error); rejected = true; cleanup(); reject(new Error(`Howjsay audio onerror`)); };
+            audio.onended = () => { if (resolved || rejected) return; /*console.log(`Howjsay Finished: "${wordForAudio}"`);*/ resolved = true; cleanup(); resolve(); }; // Reduce noise
             audio.load();
         });
     };
     // --- End of pronunciation helpers ---
 
-
+    // --- UPDATED disableButtons Function ---
     function disableButtons() {
+      // Only disable the pronounce button when speaking starts
       document.getElementById("pronounce").disabled = true;
-      document.getElementById("checkAnswer").disabled = true;
-      document.getElementById("showAnswer").disabled = true; // Always disable show answer when speaking
-      document.getElementById("levelSelect").disabled = true;
-       // Disable keyboard keys
-      document.querySelectorAll('.key').forEach(key => key.disabled = true);
+      // console.log("Pronounce button disabled."); // Reduce noise
     }
 
+    // --- UPDATED enableButtons Function ---
     function enableButtons() {
-       if (!levelStates[currentLevel]) return; // Safety check
-      const state = levelStates[currentLevel];
+      // Only enable the pronounce button when speaking ends/is cancelled
       document.getElementById("pronounce").disabled = false;
-      document.getElementById("checkAnswer").disabled = false;
-      // Only enable showAnswer if failCount condition met
-      document.getElementById("showAnswer").disabled = state.failCount < 3;
-      document.getElementById("levelSelect").disabled = false;
-       // Enable keyboard keys
-      document.querySelectorAll('.key').forEach(key => key.disabled = false);
+      // console.log("Pronounce button enabled."); // Reduce noise
     }
 
     // --- LEVEL/REVIEW MODE MANAGEMENT ---
 
-    function endReviewMode(forceComplete = false) { // Add flag
+    function endReviewMode(forceComplete = false) {
         if (!levelStates[currentLevel]) return;
-
         console.log("Ending review mode / Completing level.");
-        levelStates[currentLevel].isReviewMode = false; // Ensure review mode is off
-
-        // Only increment completion if not forced (i.e., review was actually done or skipped because empty)
+        levelStates[currentLevel].isReviewMode = false;
         if (!forceComplete || (levelStates[currentLevel].missedWords && levelStates[currentLevel].missedWords.length === 0)) {
              levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
         }
-
-        saveGameState(); // Save completion count and state change
-        updateLevelSelect(); // Update stars/trophies display
-        showLevelComplete(); // Show completion animation/message
+        saveGameState(); updateLevelSelect(); showLevelComplete();
     }
 
     function showReviewMode() {
-      if (!levelStates[currentLevel] || !levelStates[currentLevel].missedWords || levelStates[currentLevel].missedWords.length === 0) {
-         console.log("No missed words to review or state missing, completing level.");
-         endReviewMode(true); // Complete level directly
-         return;
-      }
-
-      const state = levelStates[currentLevel];
-      console.log("Showing review mode screen.");
-      document.getElementById("mainContent").style.display = "none"; // Hide main game
-
-      const reviewDiv = document.getElementById("review-mode");
-       if (!reviewDiv) {
-           console.error("Review mode container div not found!");
-           return;
-       }
-       reviewDiv.innerHTML = ''; // Clear previous content
-       reviewDiv.style.display = 'flex'; // Make it visible
-
-       const wordListContainer = document.createElement("div"); // Container for buttons
-      state.missedWords.forEach(w => {
-        const btn = document.createElement("button");
-        btn.className = "word-button";
-        btn.innerText = w.word;
-        // Optional: Add click handler to pronounce word?
-        // btn.onclick = () => speakText(w.word);
-        wordListContainer.appendChild(btn);
-      });
-      reviewDiv.appendChild(wordListContainer); // Add word buttons
-
-      const redoBtn = document.createElement("button");
-      redoBtn.className = "redo-button";
-      redoBtn.innerText = `Redo ${state.missedWords.length} Missed Word(s)`;
-      redoBtn.onclick = redoMissedWords;
-      reviewDiv.appendChild(redoBtn); // Add redo button
+      if (!levelStates[currentLevel] || !levelStates[currentLevel].missedWords || levelStates[currentLevel].missedWords.length === 0) { console.log("No missed words to review, completing level."); endReviewMode(true); return; }
+      const state = levelStates[currentLevel]; console.log("Showing review mode screen.");
+      document.getElementById("mainContent").style.display = "none";
+      const reviewDiv = document.getElementById("review-mode"); if (!reviewDiv) { console.error("Review mode container div not found!"); return; }
+      reviewDiv.innerHTML = ''; reviewDiv.style.display = 'flex';
+      const wordListContainer = document.createElement("div");
+      state.missedWords.forEach(w => { const btn = document.createElement("button"); btn.className = "word-button"; btn.innerText = w.word; wordListContainer.appendChild(btn); });
+      reviewDiv.appendChild(wordListContainer);
+      const redoBtn = document.createElement("button"); redoBtn.className = "redo-button"; redoBtn.innerText = `Redo ${state.missedWords.length} Missed Word(s)`; redoBtn.onclick = redoMissedWords; reviewDiv.appendChild(redoBtn);
     }
 
     function redoMissedWords() {
       console.log("Redo Missed Words button clicked!");
-      const reviewDiv = document.getElementById("review-mode");
-      if (reviewDiv) reviewDiv.style.display = 'none'; // Hide review screen
-      document.getElementById("mainContent").style.display = "block"; // Show main game
-
-      if (!levelStates[currentLevel] || !levelStates[currentLevel].missedWords || levelStates[currentLevel].missedWords.length === 0) {
-          console.warn("Redo called but no missed words found. Should not happen.");
-           // Go back to normal mode or complete level?
-           if (levelStates[currentLevel]) levelStates[currentLevel].isReviewMode = false;
-           showWord(); // Try showing the first word of the level again
-          return;
-      }
-
-      const state = levelStates[currentLevel];
-      state.isReviewMode = true; // Set flag
-      state.wordsCompleted = 0; // Reset progress for review
-      state.failCount = 0;
-      isSpeaking = false;
-      speechSynthesis.cancel();
-      state.currentWord = "";
-      // Re-initialize indices based on missedWords
+      const reviewDiv = document.getElementById("review-mode"); if (reviewDiv) reviewDiv.style.display = 'none';
+      document.getElementById("mainContent").style.display = "block";
+      if (!levelStates[currentLevel] || !levelStates[currentLevel].missedWords || levelStates[currentLevel].missedWords.length === 0) { console.warn("Redo called but no missed words found."); if (levelStates[currentLevel]) levelStates[currentLevel].isReviewMode = false; showWord(); return; }
+      const state = levelStates[currentLevel]; state.isReviewMode = true; state.wordsCompleted = 0; state.failCount = 0; isSpeaking = false; speechSynthesis.cancel(); state.currentWord = "";
       initializeWordIndices(currentLevel);
-
-      // Check if indices were created - initializeWordIndices handles empty missedWords now
-      if (state.wordIndices && state.wordIndices.length > 0) {
-           showWord(); // Show the first review word
-           enableButtons();
-           saveGameState(); // Save the state entering review mode
-      } else {
-          console.log("Review initialization resulted in no indices (likely no missed words). Completing level.");
-          endReviewMode(true); // Complete if review setup failed
-      }
+      if (state.wordIndices && state.wordIndices.length > 0) { showWord(); saveGameState(); } else { console.log("Review initialization resulted in no indices. Completing level."); endReviewMode(true); }
     }
 
 
     // --- CELEBRATION & COMPLETION ANIMATIONS ---
 
     function showCelebration() {
-      const celebration = document.getElementById("celebration");
-      document.getElementById("mainContent").style.display = "none"; // Hide game temporarily
-      celebration.style.display = "block";
-      celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>'; // Reset content
-
-      const effectTypes = [0, 1, 2, 3]; // star, balloon, firework, confetti
-      const effectsToUse = [];
-      // Ensure at least one effect type is chosen
-      while(effectsToUse.length === 0){
-          if (Math.random() > 0.6) effectsToUse.push(0);
-          if (Math.random() > 0.6) effectsToUse.push(1);
-          if (Math.random() > 0.6) effectsToUse.push(2);
-          if (Math.random() > 0.6) effectsToUse.push(3);
-      }
-
-      effectsToUse.forEach(effectType => {
-          const count = effectType === 0 ? 10 : effectType === 1 ? 8 : effectType === 2 ? 15 : 20; // Adjust counts
-        for (let i = 0; i < count; i++) {
-          const el = document.createElement("div");
-          el.style.left = `${Math.random() * 100}%`;
-          el.style.top = `${Math.random() * 100}%`;
-          el.style.animationDelay = `${Math.random() * 0.5}s`;
-          const color = `hsl(${Math.random() * 360}, 90%, 70%)`; // Brighter random colors
-
-          if (effectType === 0) el.className = "star";
-          else if (effectType === 1) el.className = "balloon";
-          else if (effectType === 2) el.className = "firework";
-          else el.className = "confetti";
-
-          // Apply color differently based on type
-          if (effectType === 0 || effectType === 2) el.style.background = color; // Stars, Fireworks
-          else if (effectType === 1) el.style.background = color; // Balloons
-          else el.style.background = color; // Confetti
-
-          celebration.appendChild(el);
-        }
-      });
-
-      setTimeout(hideCelebration, 2000); // Celebration duration
+      const celebration = document.getElementById("celebration"); document.getElementById("mainContent").style.display = "none"; celebration.style.display = "block"; celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>';
+      const effectTypes = [0, 1, 2, 3]; const effectsToUse = [];
+      while(effectsToUse.length === 0){ if (Math.random() > 0.6) effectsToUse.push(0); if (Math.random() > 0.6) effectsToUse.push(1); if (Math.random() > 0.6) effectsToUse.push(2); if (Math.random() > 0.6) effectsToUse.push(3); }
+      effectsToUse.forEach(effectType => { const count = effectType === 0 ? 10 : effectType === 1 ? 8 : effectType === 2 ? 15 : 20; for (let i = 0; i < count; i++) { const el = document.createElement("div"); el.style.left = `${Math.random() * 100}%`; el.style.top = `${Math.random() * 100}%`; el.style.animationDelay = `${Math.random() * 0.5}s`; const color = `hsl(${Math.random() * 360}, 90%, 70%)`; if (effectType === 0) el.className = "star"; else if (effectType === 1) el.className = "balloon"; else if (effectType === 2) el.className = "firework"; else el.className = "confetti"; if (effectType === 0 || effectType === 2 || effectType === 1 || effectType === 3) el.style.background = color; celebration.appendChild(el); } });
+      setTimeout(hideCelebration, 2000);
     }
 
     function hideCelebration() {
-      const celebration = document.getElementById("celebration");
-      celebration.style.display = "none";
-      document.getElementById("mainContent").style.display = "block"; // Show game again
-      // Clear effects for next time
-      celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>';
-      nextWord(); // Move to the next word *after* celebration hides
+      const celebration = document.getElementById("celebration"); celebration.style.display = "none"; document.getElementById("mainContent").style.display = "block"; celebration.innerHTML = '<div class="celebration-text">🎉 Great Job! 🎉</div>'; nextWord();
     }
 
     function showLevelComplete() {
-      const levelComplete = document.getElementById("level-complete");
-      document.getElementById("mainContent").style.display = "none"; // Hide game
-      levelComplete.style.display = "block";
-       levelComplete.innerHTML = '<div class="level-complete-text"><span>🎉 Level Complete! 🎉</span><span></span></div>'; // Reset
-
-      playSound('levelComplete');
-
-       const levelCompleteTextContainer = levelComplete.querySelector(".level-complete-text"); // Re-select after innerHTML reset
-       const levelCompleteTextSpan = levelCompleteTextContainer.children[1]; // Get the second span
-
-
-       // Fixed base options array matching dropdown values 0-20
-       const baseOptions = [
-         "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e", // 0-4
-         "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e", // 5-9
-         "Level 3-a", "Level 3-b", "Level 3-c", "Level 3-d", "Level 3-e", // 10-14
-         "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9"  // 15-20
-       ];
-
-      const completions = levelCompletions[currentLevel] || 0;
-      const stars = completions % 5;
-      const trophies = Math.floor(completions / 5);
-      const nextLevelIndex = (currentLevel + 1) % baseOptions.length; // Loop back to level 0 after last level
-      const nextLevelName = baseOptions[nextLevelIndex];
-
-      let message = `You now have `;
-       if (trophies > 0) message += `${trophies} 🏆 `;
-       if (stars > 0) message += `${stars} ⭐`;
-       if (trophies === 0 && stars === 0 && completions === 1) { // Special message for first star only if no trophies yet
-           message = "You earned your first ⭐!";
-       } else if (trophies === 0 && stars === 0) { // Case where completion was forced but no stars/trophies
-           message = "Level finished!";
-       }
-      message += `<br>Next up: ${nextLevelName}`;
-
-      levelCompleteTextSpan.innerHTML = message; // Set the message
-
-      updateLevelSelect(); // Update dropdown immediately
-
-      // Add confetti/stars effect
-      for (let i = 0; i < 30; i++) { // More effects for level complete
-        const el = document.createElement("div");
-        el.style.left = `${Math.random() * 100}%`;
-        el.style.top = `${Math.random() * 100}%`;
-        el.style.animationDelay = `${Math.random() * 1.5}s`;
-        const type = Math.floor(Math.random() * 4);
-        const color = `hsl(${Math.random() * 360}, 90%, 70%)`;
-
-        if (type === 0) el.className = "star"; else el.className = "confetti"; // Stars and confetti mostly
-        el.style.background = color;
-        levelComplete.appendChild(el);
-      }
-      setTimeout(hideLevelComplete, 4000); // Duration of level complete screen
+      const levelComplete = document.getElementById("level-complete"); document.getElementById("mainContent").style.display = "none"; levelComplete.style.display = "block"; levelComplete.innerHTML = '<div class="level-complete-text"><span>🎉 Level Complete! 🎉</span><span></span></div>'; playSound('levelComplete');
+      const levelCompleteTextContainer = levelComplete.querySelector(".level-complete-text"); const levelCompleteTextSpan = levelCompleteTextContainer.children[1];
+      const baseOptions = [ "Level 1-a", "Level 1-b", "Level 1-c", "Level 1-d", "Level 1-e", "Level 2-a", "Level 2-b", "Level 2-c", "Level 2-d", "Level 2-e", "Level 3-a", "Level 3-b", "Level 3-c", "Level 3-d", "Level 3-e", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9" ];
+      const completions = levelCompletions[currentLevel] || 0; const stars = completions % 5; const trophies = Math.floor(completions / 5); const nextLevelIndex = (currentLevel + 1) % baseOptions.length; const nextLevelName = baseOptions[nextLevelIndex];
+      let message = `You now have `; if (trophies > 0) message += `${trophies} 🏆 `; if (stars > 0) message += `${stars} ⭐`; if (trophies === 0 && stars === 0 && completions === 1) { message = "You earned your first ⭐!"; } else if (trophies === 0 && stars === 0) { message = "Level finished!"; } message += `<br>Next up: ${nextLevelName}`; levelCompleteTextSpan.innerHTML = message; updateLevelSelect();
+      for (let i = 0; i < 30; i++) { const el = document.createElement("div"); el.style.left = `${Math.random() * 100}%`; el.style.top = `${Math.random() * 100}%`; el.style.animationDelay = `${Math.random() * 1.5}s`; const type = Math.floor(Math.random() * 4); const color = `hsl(${Math.random() * 360}, 90%, 70%)`; if (type === 0) el.className = "star"; else el.className = "confetti"; el.style.background = color; levelComplete.appendChild(el); } setTimeout(hideLevelComplete, 4000);
     }
 
     function hideLevelComplete() {
-      const levelComplete = document.getElementById("level-complete");
-      levelComplete.style.display = "none";
-       levelComplete.innerHTML = '<div class="level-complete-text"><span>🎉 Level Complete! 🎉</span><span></span></div>'; // Clear effects
-
-        // --- Transition to Next Level ---
-        // Delete state for the completed level to force re-initialization
-        // Or just reset parts of it? Resetting ensures fresh shuffle.
-       delete levelStates[currentLevel]; // Remove completed level state
-       localStorage.removeItem(`levelState_${currentLevel}`); // Remove from storage too
-
-       // Determine next level index, looping back to 0
-       const numLevels = document.getElementById("levelSelect").options.length;
-       currentLevel = (currentLevel + 1) % numLevels;
-
-       localStorage.setItem('currentLevel', currentLevel); // Save new current level
-       document.getElementById("levelSelect").value = currentLevel; // Update dropdown selection
-
-       // Initialize state for the *new* current level
-       initializeLevelState(currentLevel);
-
-       // Show the first word of the new level
-       showWord();
-       // saveGameState(); // Save state is handled within initializeLevelState/showWord now
+      const levelComplete = document.getElementById("level-complete"); levelComplete.style.display = "none"; levelComplete.innerHTML = '<div class="level-complete-text"><span>🎉 Level Complete! 🎉</span><span></span></div>';
+      delete levelStates[currentLevel]; localStorage.removeItem(`levelState_${currentLevel}`);
+      const numLevels = document.getElementById("levelSelect").options.length; currentLevel = (currentLevel + 1) % numLevels; localStorage.setItem('currentLevel', currentLevel); document.getElementById("levelSelect").value = currentLevel;
+      initializeLevelState(currentLevel); showWord();
     }
 
     // --- KEYBOARD INPUT ---
 
-    function appendLetter(letter) {
-      if (!levelStates[currentLevel]) return;
-      levelStates[currentLevel].currentWord += letter;
-      updateDisplay();
-      // No need to save state on every letter press
-    }
-
-    function removeLetter() {
-      if (!levelStates[currentLevel]) return;
-      levelStates[currentLevel].currentWord = levelStates[currentLevel].currentWord.slice(0, -1);
-      updateDisplay();
-    }
-
-    function clearWord() {
-      if (!levelStates[currentLevel]) return;
-      levelStates[currentLevel].currentWord = "";
-      updateDisplay();
-    }
+    function appendLetter(letter) { if (!levelStates[currentLevel]) return; levelStates[currentLevel].currentWord += letter; updateDisplay(); }
+    function removeLetter() { if (!levelStates[currentLevel]) return; levelStates[currentLevel].currentWord = levelStates[currentLevel].currentWord.slice(0, -1); updateDisplay(); }
+    function clearWord() { if (!levelStates[currentLevel]) return; levelStates[currentLevel].currentWord = ""; updateDisplay(); }
 
     function setupKeyboard() {
-      console.log("Setting up keyboard...");
-      const keyboard = document.getElementById("keyboard");
-      keyboard.innerHTML = ''; // Clear existing keys if any
-      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-      letters.forEach(letter => {
-        const btn = document.createElement("button");
-        btn.className = "key";
-        btn.innerText = letter;
-        btn.onclick = () => appendLetter(letter.toLowerCase());
-        keyboard.appendChild(btn);
-      });
-      const backspace = document.createElement("button");
-      backspace.id = "backspace";
-      backspace.className = "key";
-      backspace.innerText = "Back";
-      backspace.onclick = removeLetter;
-      keyboard.appendChild(backspace);
-      const clear = document.createElement("button");
-      clear.id = "clear";
-      clear.className = "key";
-      clear.innerText = "Clear";
-      clear.onclick = clearWord;
-      keyboard.appendChild(clear);
+      console.log("Setting up keyboard..."); const keyboard = document.getElementById("keyboard"); keyboard.innerHTML = ''; const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+      letters.forEach(letter => { const btn = document.createElement("button"); btn.className = "key"; btn.innerText = letter; btn.onclick = () => appendLetter(letter.toLowerCase()); keyboard.appendChild(btn); });
+      const backspace = document.createElement("button"); backspace.id = "backspace"; backspace.className = "key"; backspace.innerText = "Back"; backspace.onclick = removeLetter; keyboard.appendChild(backspace);
+      const clear = document.createElement("button"); clear.id = "clear"; clear.className = "key"; clear.innerText = "Clear"; clear.onclick = clearWord; keyboard.appendChild(clear);
       console.log("Keyboard setup complete.");
     }
 
     // --- POPUP & RESET LOGIC ---
 
-    function showConfirmPopup() {
-      document.getElementById("confirmPopup").style.display = "block";
-    }
-
-    function hideConfirmPopup() {
-      document.getElementById("confirmPopup").style.display = "none";
-    }
-
-    function goToWordList() {
-      saveGameState(); // Save before leaving
-      window.location.href = 'wordlist.html'; // Ensure this file exists
-    }
-
-    function showResetConfirmPopup() {
-        // Show password prompt first
-      document.getElementById("passwordPopup").style.display = "block";
-      currentPassword = ""; // Clear password state
-      updatePasswordDisplay();
-      document.getElementById("passwordFeedback").innerText = ""; // Clear feedback
-    }
-
-     function hidePasswordPopup() {
-      document.getElementById("passwordPopup").style.display = "none";
-      currentPassword = ""; // Clear password state
-      updatePasswordDisplay();
-      document.getElementById("passwordFeedback").innerText = ""; // Clear feedback
-    }
-
-     function appendPasswordDigit(digit) {
-      if (currentPassword.length < 4) {
-        currentPassword += digit;
-        updatePasswordDisplay();
-        document.getElementById("passwordFeedback").innerText = ""; // Clear feedback on new input
-      }
-    }
-
-    function clearPassword() {
-      currentPassword = "";
-      updatePasswordDisplay();
-      document.getElementById("passwordFeedback").innerText = "";
-    }
-
-    function updatePasswordDisplay() {
-      const display = document.getElementById("passwordDisplay");
-      display.innerText = "•".repeat(currentPassword.length);
-    }
-
-    function checkPassword() {
-      if (currentPassword === "0925") { // Hardcoded password
-        hidePasswordPopup();
-        document.getElementById("resetConfirmPopup").style.display = "block"; // Show actual reset options
-      } else {
-        const popup = document.getElementById("passwordPopup");
-        const feedback = document.getElementById("passwordFeedback");
-        feedback.innerText = "Wrong Password!";
-        popup.classList.add("shake");
-        // Clear password automatically after failed attempt
-        currentPassword = "";
-        updatePasswordDisplay();
-        setTimeout(() => {
-          popup.classList.remove("shake");
-          // feedback.innerText = ""; // Keep feedback until next digit press
-        }, 500); // Shorter shake duration
-      }
-    }
-
-    function hideResetConfirmPopup() {
-      document.getElementById("resetConfirmPopup").style.display = "none";
-    }
-
-    function resetAllProgress() {
-      if (!confirm("Are you absolutely sure you want to reset ALL progress for ALL levels?")) {
-         return;
-      }
-      console.log("Resetting all progress...");
-      currentLevel = 0;
-      levelStates = {};
-      levelCompletions = {};
-      localStorage.clear(); // Clears everything related to this domain! Be careful.
-      // Or selectively remove items:
-      // localStorage.removeItem('currentLevel');
-      // localStorage.removeItem('levelCompletions');
-      // localStorage.removeItem('fullPronounceEnabled');
-      // for (let i = 0; i < 21; i++) { localStorage.removeItem(`levelState_${i}`); }
-
-      document.getElementById("levelSelect").value = 0;
-      initializeLevelState(0); // Initialize level 0 again
-      updateLevelSelect(); // Update display
-      showWord(); // Show first word
-      // saveGameState(); // initializeLevelState saves
-      hideResetConfirmPopup();
-      alert("All progress has been reset.");
-    }
-
-    function resetCurrentLevel() {
-       if (!confirm(`Are you sure you want to reset progress for the current level (${document.getElementById('levelSelect').selectedOptions[0].text.split(' ')[0]})?`)) {
-           return;
-       }
-       console.log("Resetting current level:", currentLevel);
-       if (levelStates[currentLevel]) {
-            // Reset state but keep potentially missed words if user wants to restart review immediately?
-            // For simplicity, just fully re-initialize
-            initializeLevelState(currentLevel);
-       } else {
-           initializeLevelState(currentLevel); // Initialize if state was missing
-       }
-       // Reset completions for this level too? Usually yes.
-       delete levelCompletions[currentLevel];
-       saveGameState(); // Save removed completions
-       updateLevelSelect(); // Update visuals
-
-       showWord(); // Show first word of the reset level
-       hideResetConfirmPopup();
-       alert("Current level progress has been reset.");
-    }
-
-     function addStarToLevel() {
-        if (!levelStates[currentLevel]) initializeLevelState(currentLevel); // Ensure state exists
-        levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1;
-        updateLevelSelect();
-        saveGameState();
-        hideResetConfirmPopup();
-         console.log("Manually added star to level", currentLevel);
-    }
-
-     function removeStarFromLevel() {
-        if (!levelStates[currentLevel] || !levelCompletions[currentLevel] || levelCompletions[currentLevel] === 0) {
-            alert("No stars to remove from this level.");
-            hideResetConfirmPopup();
-            return;
-        }
-        levelCompletions[currentLevel] = Math.max(0, (levelCompletions[currentLevel] || 0) - 1);
-        if (levelCompletions[currentLevel] === 0) {
-             delete levelCompletions[currentLevel]; // Clean up if zero
-        }
-        updateLevelSelect();
-        saveGameState();
-        hideResetConfirmPopup();
-         console.log("Manually removed star from level", currentLevel);
-    }
+    function showConfirmPopup() { document.getElementById("confirmPopup").style.display = "block"; }
+    function hideConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
+    function goToWordList() { saveGameState(); window.location.href = 'wordlist.html'; }
+    function showResetConfirmPopup() { document.getElementById("passwordPopup").style.display = "block"; currentPassword = ""; updatePasswordDisplay(); document.getElementById("passwordFeedback").innerText = ""; }
+    function hidePasswordPopup() { document.getElementById("passwordPopup").style.display = "none"; currentPassword = ""; updatePasswordDisplay(); document.getElementById("passwordFeedback").innerText = ""; }
+    function appendPasswordDigit(digit) { if (currentPassword.length < 4) { currentPassword += digit; updatePasswordDisplay(); document.getElementById("passwordFeedback").innerText = ""; } }
+    function clearPassword() { currentPassword = ""; updatePasswordDisplay(); document.getElementById("passwordFeedback").innerText = ""; }
+    function updatePasswordDisplay() { document.getElementById("passwordDisplay").innerText = "•".repeat(currentPassword.length); }
+    function checkPassword() { if (currentPassword === "0925") { hidePasswordPopup(); document.getElementById("resetConfirmPopup").style.display = "block"; } else { const popup = document.getElementById("passwordPopup"); const feedback = document.getElementById("passwordFeedback"); feedback.innerText = "Wrong Password!"; popup.classList.add("shake"); currentPassword = ""; updatePasswordDisplay(); setTimeout(() => { popup.classList.remove("shake"); }, 500); } }
+    function hideResetConfirmPopup() { document.getElementById("resetConfirmPopup").style.display = "none"; }
+    function resetAllProgress() { if (!confirm("Are you absolutely sure you want to reset ALL progress?")) return; console.log("Resetting all progress..."); currentLevel = 0; levelStates = {}; levelCompletions = {}; localStorage.clear(); document.getElementById("levelSelect").value = 0; initializeLevelState(0); updateLevelSelect(); showWord(); hideResetConfirmPopup(); alert("All progress has been reset."); }
+    function resetCurrentLevel() { if (!confirm(`Reset progress for level ${currentLevel + 1}?`)) return; console.log("Resetting current level:", currentLevel); initializeLevelState(currentLevel); delete levelCompletions[currentLevel]; saveGameState(); updateLevelSelect(); showWord(); hideResetConfirmPopup(); alert("Current level progress has been reset."); }
+    function addStarToLevel() { if (!levelStates[currentLevel]) initializeLevelState(currentLevel); levelCompletions[currentLevel] = (levelCompletions[currentLevel] || 0) + 1; updateLevelSelect(); saveGameState(); hideResetConfirmPopup(); console.log("Manually added star to level", currentLevel); }
+    function removeStarFromLevel() { if (!levelStates[currentLevel] || !levelCompletions[currentLevel] || levelCompletions[currentLevel] === 0) { alert("No stars to remove."); hideResetConfirmPopup(); return; } levelCompletions[currentLevel] = Math.max(0, levelCompletions[currentLevel] - 1); if (levelCompletions[currentLevel] === 0) delete levelCompletions[currentLevel]; updateLevelSelect(); saveGameState(); hideResetConfirmPopup(); console.log("Manually removed star from level", currentLevel); }
 
     // --- EVENT LISTENERS & SHORTCUTS ---
 
-    function togglePronounce() {
-      fullPronounceEnabled = !fullPronounceEnabled;
-      updatePronounceButton();
-      saveGameState(); // Save the setting change
-    }
+    function togglePronounce() { fullPronounceEnabled = !fullPronounceEnabled; updatePronounceButton(); saveGameState(); }
 
-    // Ctrl+Shift+Z hack
     function setupKeyboardShortcuts() {
       console.log("Setting up keyboard shortcuts...");
       document.addEventListener('keydown', (event) => {
-        // Allow shortcut only if focus is not on input elements (like password field if added)
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT' || document.activeElement.tagName === 'TEXTAREA') {
-            return;
-        }
-
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT' || document.activeElement.tagName === 'TEXTAREA') return;
         if (event.ctrlKey && event.shiftKey && (event.key === 'Z' || event.key === 'z')) {
-          event.preventDefault(); // Prevent any default browser action
-          console.log("Ctrl+Shift+Z pressed, isSpeaking:", isSpeaking, "currentLevel:", currentLevel);
-          if (isSpeaking) {
-            console.log("Shortcut blocked by isSpeaking");
-            return;
-          }
-          if (!levelStates[currentLevel]) {
-             console.log("Shortcut blocked: No level state"); return;
-          }
-
-          const state = levelStates[currentLevel];
-          const levelWordData = getLevelWords();
-
-          if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) {
-            console.log("Invalid state or level complete for shortcut:", state);
-            // alert("Cannot use shortcut: Game state not ready or level complete.");
-            return;
-          }
-           if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) {
-                console.log("Invalid current index for shortcut:", state.currentIndex); return;
-           }
-          const correctWord = levelWordData[state.currentIndex]?.word;
-
-          if (!correctWord) {
-            console.log("No word available for shortcut at currentIndex:", state.currentIndex);
-            // alert("Cannot use shortcut: No word available.");
-            return;
-          }
-
-          console.log("Shortcut activated: Setting word and checking.");
-          state.currentWord = correctWord;
-          updateDisplay();
-          // Add a slight delay before checking to allow UI update?
-          setTimeout(checkSpelling, 50);
+          event.preventDefault(); if (isSpeaking) { console.log("Shortcut blocked by isSpeaking"); return; }
+          if (!levelStates[currentLevel]) { console.log("Shortcut blocked: No level state"); return; }
+          const state = levelStates[currentLevel]; const levelWordData = getLevelWords();
+          if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) { console.log("Invalid state/level complete for shortcut"); return; }
+          if (state.currentIndex < 0 || !levelWordData || state.currentIndex >= levelWordData.length) { console.log("Invalid index/word data for shortcut"); return; }
+          const correctWord = levelWordData[state.currentIndex]?.word; if (!correctWord) { console.log("No word available for shortcut"); return; }
+          console.log("Shortcut activated: Setting word and checking."); state.currentWord = correctWord; updateDisplay(); setTimeout(checkSpelling, 50);
         }
       });
       console.log("Keyboard shortcuts setup complete.");
     }
 
-    // Mascot tap shortcut
     function setupMascotTap() {
         const mascot = document.getElementById("mascot");
-        mascot.addEventListener('touchstart', (event) => {
-             // Prevent triggering click if touch is used
-            event.preventDefault();
-            handleMascotInteraction();
-        });
-        // Also add click for desktop testing
+        mascot.addEventListener('touchstart', (event) => { event.preventDefault(); handleMascotInteraction(); });
         mascot.addEventListener('click', handleMascotInteraction);
     }
 
     function handleMascotInteraction() {
-        tapCount++;
-        clearTimeout(tapTimeout);
-        tapTimeout = setTimeout(() => { tapCount = 0; }, 500); // Reset count after 500ms
-
+        tapCount++; clearTimeout(tapTimeout); tapTimeout = setTimeout(() => { tapCount = 0; }, 500);
         if (tapCount === 3) {
-             console.log("Mascot triple tap detected.");
-             if (isSpeaking) {
-                 console.log("Mascot tap blocked by isSpeaking.");
-                 tapCount = 0; // Reset count
-                 return;
-             }
-             if (!levelStates[currentLevel]) { console.log("Mascot tap blocked: No level state"); tapCount = 0; return; }
-
-             const state = levelStates[currentLevel];
-             const levelWordData = getLevelWords();
-             if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) { console.log("Mascot tap blocked: Invalid state/level complete"); tapCount = 0; return; }
-             if (state.currentIndex < 0 || state.currentIndex >= levelWordData.length) { console.log("Mascot tap blocked: Invalid index"); tapCount = 0; return; }
-
-             const correctWord = levelWordData[state.currentIndex]?.word;
-             if (!correctWord) { console.log("Mascot tap blocked: No word data"); tapCount = 0; return; }
-
-             console.log("Mascot shortcut: Setting word and checking.");
-             state.currentWord = correctWord;
-             updateDisplay();
-             setTimeout(checkSpelling, 50); // Check after brief delay
-             tapCount = 0; // Reset count immediately after activation
+             console.log("Mascot triple tap detected."); tapCount = 0; // Reset immediately
+             if (isSpeaking) { console.log("Mascot tap blocked by isSpeaking."); return; }
+             if (!levelStates[currentLevel]) { console.log("Mascot tap blocked: No level state"); return; }
+             const state = levelStates[currentLevel]; const levelWordData = getLevelWords();
+             if (!state || !state.wordIndices || state.indexPointer >= state.wordIndices.length) { console.log("Mascot tap blocked: Invalid state/level complete"); return; }
+             if (state.currentIndex < 0 || !levelWordData || state.currentIndex >= levelWordData.length) { console.log("Mascot tap blocked: Invalid index/word data"); return; }
+             const correctWord = levelWordData[state.currentIndex]?.word; if (!correctWord) { console.log("Mascot tap blocked: No word available"); return; }
+             console.log("Mascot shortcut: Setting word and checking."); state.currentWord = correctWord; updateDisplay(); setTimeout(checkSpelling, 50);
         }
     }
 
-     // Button event listeners setup
-     function setupButtons() {
-       console.log("Setting up buttons...");
-       document.getElementById("pronounce").onclick = pronounceWord;
-       document.getElementById("checkAnswer").onclick = checkSpelling;
-       document.getElementById("showAnswer").onclick = showAnswer;
-       // These are already set via inline onclick in HTML, but could be set here too
-       // document.getElementById("fullPronounce").onclick = togglePronounce;
-       // document.getElementById("wordListButton").onclick = showConfirmPopup;
-       // document.getElementById("levelSelect").onchange = changeLevel;
-       console.log("Buttons setup complete.");
+     function setupButtons() { // Now only assigns if not using inline onclick
+       console.log("Setting up main button listeners...");
+       // Check if onclick exists before assigning, to avoid potential double calls if inline is kept
+       if (!document.getElementById("pronounce").onclick) document.getElementById("pronounce").onclick = pronounceWord;
+       if (!document.getElementById("checkAnswer").onclick) document.getElementById("checkAnswer").onclick = checkSpelling;
+       if (!document.getElementById("showAnswer").onclick) document.getElementById("showAnswer").onclick = showAnswer;
+       console.log("Main button listeners setup complete.");
      }
 
 
@@ -2015,54 +1490,35 @@
 
     function startGame() {
       console.log("---- Starting Game ----");
-      // Ensure setup functions run only once if startGame is called multiple times
-      if (document.getElementById('keyboard').children.length === 0) {
-         setupKeyboard();
-         setupButtons(); // Setup main game buttons
-         setupKeyboardShortcuts();
-         setupMascotTap();
-      } else {
-          console.log("Game appears already set up, skipping setup functions.");
-      }
-
-      loadGameState(); // Load progress, sets currentLevel
-
-      // Ensure state for the loaded currentLevel is valid before showing word
-      if (!levelStates[currentLevel]) {
-         console.warn(`No state found for loaded level ${currentLevel}. Initializing.`);
-         initializeLevelState(currentLevel);
-      }
-
-      // Final check before showing word
-      if (levelStates[currentLevel] && levelStates[currentLevel].wordIndices && levelStates[currentLevel].wordIndices.length > 0) {
-          showWord(); // Display the first word
-      } else {
-          console.error("Game start failed: Could not prepare word list for level", currentLevel);
-          // Maybe show an error message to the user here?
-          alert("Error starting the game. Could not load words for the current level. Please try refreshing or selecting a different level.");
-          document.getElementById("mainContent").style.display = "none"; // Hide broken game area
-      }
+      if (document.getElementById('keyboard').children.length === 0) { // Basic check to prevent double setup
+         setupKeyboard(); setupButtons(); setupKeyboardShortcuts(); setupMascotTap();
+      } else { console.log("Skipping setup functions - already initialized?"); }
+      loadGameState();
+      if (!levelStates[currentLevel]) { console.warn(`No state found for loaded level ${currentLevel}. Initializing.`); initializeLevelState(currentLevel); }
+      if (levelStates[currentLevel] && levelStates[currentLevel].wordIndices && levelStates[currentLevel].wordIndices.length > 0) { showWord(); }
+      else { console.error("Game start failed: Could not prepare word list for level", currentLevel); alert("Error starting the game. Could not load words for the current level."); document.getElementById("mainContent").style.display = "none"; }
       console.log("---- Game Started ----");
     }
 
     // --- DOMContentLoaded Listener (Entry Point) ---
     document.addEventListener('DOMContentLoaded', () => {
       console.log("DOM content loaded.");
-      // Use the correct script name VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
       const wordsScript = document.querySelector('script[src="https://geniusjazz.github.io/spelling-bee/words_full.js"]');
-      // ^^^ Make sure this selector matches your actual script tag's src
 
-      // Check if the global 'words' array is already defined (script might have loaded synchronously)
       if (typeof words !== 'undefined' && Array.isArray(words) && words.length > 0) {
         console.log("Global 'words' array found immediately:", words.length);
         startGame();
-      } else if (wordsScript) { // Check if the script tag itself was found
+      } else if (wordsScript) {
         console.log("Waiting for words_full.js to load via script tag...");
         wordsScript.onload = () => {
-          // Double-check 'words' is now available after onload event
           if (typeof words !== 'undefined' && Array.isArray(words) && words.length > 0) {
             console.log("words_full.js loaded successfully via onload:", words.length);
-            startGame();
+            // Ensure startGame hasn't already run via the fallback timeout
+            if (!document.getElementById('keyboard') || document.getElementById('keyboard').children.length === 0) {
+                 startGame();
+            } else {
+                 console.log("Onload fired, but game seems already started.");
+            }
           } else {
             console.error("words_full.js onload fired, but 'words' array is still missing or invalid!");
             alert("Error: Word list loaded incorrectly. Please refresh.");
@@ -2071,28 +1527,23 @@
         wordsScript.onerror = () => {
           console.error("Failed to load words_full.js!");
           alert("Error: Could not load word list. Please check your internet connection and refresh the page.");
-          // Optionally disable game controls here
-           document.getElementById("mainContent").innerHTML = "<p style='color:red; font-weight:bold;'>Failed to load word list. Game cannot start.</p>";
+          document.getElementById("mainContent").innerHTML = "<p style='color:red; font-weight:bold;'>Failed to load word list. Game cannot start.</p>";
         };
 
-        // Fallback check in case onload doesn't fire or script loaded before listener attached
-        setTimeout(() => {
+        setTimeout(() => { // Fallback check
             if (typeof words === 'undefined' || !Array.isArray(words) || words.length === 0) {
                 console.warn("Still no 'words' array after 1 second. Script might have failed silently.");
-                // Check if the game has somehow started anyway (unlikely)
-                if (!document.getElementById('keyboard') || document.getElementById('keyboard').children.length === 0) {
-                   // If game hasn't started, show error
-                    // alert("Word list failed to load within timeout. Please refresh.");
-                }
+                 if (!document.getElementById('keyboard') || document.getElementById('keyboard').children.length === 0) {
+                     // Display error only if game hasn't started via other means
+                     // alert("Word list failed to load within timeout. Please refresh.");
+                 }
             } else if (!document.getElementById('keyboard') || document.getElementById('keyboard').children.length === 0) {
-                 // Words loaded, but game didn't start? Try starting it.
                  console.log("Words found after delay, manually starting game.");
                  startGame();
              }
-        }, 1000); // Check after 1 second
+        }, 1000);
 
       } else {
-        // This should not happen if the script tag is in the HTML
         console.error("Critical Error: Could not find the words_full.js script tag in the HTML!");
         alert("Critical Error: Word list script tag not found. Please check the HTML source.");
          document.getElementById("mainContent").innerHTML = "<p style='color:red; font-weight:bold;'>Word list script missing. Game cannot start.</p>";
