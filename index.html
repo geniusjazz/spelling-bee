@@ -376,7 +376,7 @@
       justify-content: center;
       gap: 15px;
     }
-#passwordPopup {
+    #passwordPopup {
       display: none;
       position: fixed;
       top: 50%;
@@ -388,17 +388,17 @@
       box-shadow: 0 6px 12px rgba(0,0,0,0.4);
       z-index: 1000;
       text-align: center;
-      max-width: 300px;
+      max-width: 320px;
       width: 90%;
       animation: popIn 0.5s ease-out;
     }
     #passwordPopup p {
-      font-size: 28px;
+      font-size: 24px;
       color: #d81b60;
       margin: 0 0 10px 0;
     }
     #passwordPopup button {
-      width: 100px;
+      width: 90px;
       padding: 8px;
       font-size: 16px;
       margin: 5px;
@@ -413,21 +413,21 @@
     #keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      max-width: 180px;
-      margin: 0 auto 15px auto;
+      gap: 6px;
+      max-width: 160px;
+      margin: 0 auto 10px auto;
     }
     .keypad-btn {
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
+      width: 45px;
+      height: 45px;
+      font-size: 20px;
       background: linear-gradient(135deg, #2196f3, #42a5f5);
       color: white;
-      border: 3px solid #1976d2;
-      border-radius: 15px;
+      border: 2px solid #1976d2;
+      border-radius: 12px;
       cursor: pointer;
       transition: transform 0.1s;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .keypad-btn:hover {
       transform: scale(1.1);
@@ -441,16 +441,16 @@
       grid-column: 2 / 3;
     }
     #passwordDisplay {
-      font-size: 28px;
+      font-size: 24px;
       color: #d81b60;
-      margin: 10px 0;
-      min-height: 30px;
+      margin: 8px 0;
+      min-height: 24px;
     }
     #passwordFeedback {
-      font-size: 18px;
+      font-size: 16px;
       color: #f44336;
-      margin: 10px 0;
-      min-height: 20px;
+      margin: 8px 0;
+      min-height: 18px;
     }
     @keyframes shake {
       0% { transform: translate(-50%, -50%) translateX(0); }
@@ -461,6 +461,38 @@
     }
     .shake {
       animation: shake 0.5s ease-in-out;
+    }
+    @media (max-width: 768px) {
+      #passwordPopup {
+        max-width: 280px;
+        padding: 15px;
+      }
+      #passwordPopup p {
+        font-size: 20px;
+      }
+      #passwordPopup button {
+        width: 80px;
+        font-size: 14px;
+      }
+      #keypad {
+        max-width: 140px;
+        gap: 5px;
+      }
+      .keypad-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        border: 2px solid #1976d2;
+        border-radius: 10px;
+      }
+      #passwordDisplay {
+        font-size: 20px;
+        margin: 6px 0;
+      }
+      #passwordFeedback {
+        font-size: 14px;
+        margin: 6px 0;
+      }
     }
     .word-button {
       padding: 10px 20px;
