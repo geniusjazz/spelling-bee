@@ -412,10 +412,11 @@
     }
     #keypad {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, 35px);
       gap: 4px;
       max-width: 120px;
       margin: 0 auto 6px auto;
+      justify-content: center;
     }
     #keypad .keypad-btn {
       width: 35px !important;
@@ -430,6 +431,7 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       box-sizing: border-box;
       padding: 0;
+      margin: 0;
       line-height: 35px;
       text-align: center;
     }
@@ -480,6 +482,7 @@
         padding: 5px;
       }
       #keypad {
+        grid-template-columns: repeat(3, 30px);
         max-width: 105px;
         gap: 3px;
       }
