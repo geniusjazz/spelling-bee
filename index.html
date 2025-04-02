@@ -376,12 +376,46 @@
       justify-content: center;
       gap: 15px;
     }
+#passwordPopup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 235, 59, 0.9);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      z-index: 1000;
+      text-align: center;
+      max-width: 300px;
+      width: 90%;
+      animation: popIn 0.5s ease-out;
+    }
+    #passwordPopup p {
+      font-size: 28px;
+      color: #d81b60;
+      margin: 0 0 10px 0;
+    }
+    #passwordPopup button {
+      width: 100px;
+      padding: 8px;
+      font-size: 16px;
+      margin: 5px;
+      display: inline-block;
+    }
+    #passwordSubmit {
+      background: #4caf50;
+    }
+    #passwordCancel {
+      background: #f44336;
+    }
     #keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      max-width: 200px;
-      margin: 0 auto 20px auto;
+      gap: 8px;
+      max-width: 180px;
+      margin: 0 auto 15px auto;
     }
     .keypad-btn {
       width: 50px;
@@ -404,7 +438,7 @@
     #keypadClear {
       background: linear-gradient(135deg, #f44336, #ef5350);
       border-color: #d32f2f;
-      grid-column: 2 / 3; /* Center it in the last row */
+      grid-column: 2 / 3;
     }
     #passwordDisplay {
       font-size: 28px;
@@ -412,38 +446,21 @@
       margin: 10px 0;
       min-height: 30px;
     }
-    #passwordPopup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 235, 59, 0.9);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-      z-index: 1000;
-      text-align: center;
-      max-width: 80%;
-      animation: popIn 0.5s ease-out;
-    }
-    #passwordPopup p {
-      font-size: 28px;
-      color: #d81b60;
-      margin: 0 0 20px 0;
-    }
-    #passwordPopup button {
-      width: 120px;
-      padding: 10px;
+    #passwordFeedback {
       font-size: 18px;
-      margin: 10px;
-      display: inline-block;
+      color: #f44336;
+      margin: 10px 0;
+      min-height: 20px;
     }
-    #passwordSubmit {
-      background: #4caf50;
+    @keyframes shake {
+      0% { transform: translate(-50%, -50%) translateX(0); }
+      25% { transform: translate(-50%, -50%) translateX(-5px); }
+      50% { transform: translate(-50%, -50%) translateX(5px); }
+      75% { transform: translate(-50%, -50%) translateX(-5px); }
+      100% { transform: translate(-50%, -50%) translateX(0); }
     }
-    #passwordCancel {
-      background: #f44336;
+    .shake {
+      animation: shake 0.5s ease-in-out;
     }
     .word-button {
       padding: 10px 20px;
@@ -607,7 +624,8 @@
   </div>
   <div id="passwordPopup">
     <p>Enter Password to Reset:</p>
-    <div id="passwordDisplay" style="font-size: 28px; color: #d81b60; margin: 10px 0; min-height: 30px;"></div>
+    <div id="passwordDisplay"></div>
+    <div id="passwordFeedback"></div>
     <div id="keypad">
       <button class="keypad-btn" onclick="appendPasswordDigit('1')">1</button>
       <button class="keypad-btn" onclick="appendPasswordDigit('2')">2</button>
@@ -645,6 +663,7 @@
     let tapCount = 0;
     let tapTimeout;
     let fullPronounceEnabled = true;
+    let currentPassword = "";
 
     // Build keyboard
     function setupKeyboard() {
@@ -1267,28 +1286,32 @@
       window.location.href = 'wordlist.html';
     }
 
-    function showResetConfirmPopup() {
+function showResetConfirmPopup() {
       document.getElementById("passwordPopup").style.display = "block";
       currentPassword = "";
       updatePasswordDisplay();
+      document.getElementById("passwordFeedback").innerText = "";
     }
 
     function hidePasswordPopup() {
       document.getElementById("passwordPopup").style.display = "none";
       currentPassword = "";
       updatePasswordDisplay();
+      document.getElementById("passwordFeedback").innerText = "";
     }
 
     function appendPasswordDigit(digit) {
       if (currentPassword.length < 4) {
         currentPassword += digit;
         updatePasswordDisplay();
+        document.getElementById("passwordFeedback").innerText = "";
       }
     }
 
     function clearPassword() {
       currentPassword = "";
       updatePasswordDisplay();
+      document.getElementById("passwordFeedback").innerText = "";
     }
 
     function updatePasswordDisplay() {
@@ -1301,9 +1324,16 @@
         hidePasswordPopup();
         document.getElementById("resetConfirmPopup").style.display = "block";
       } else {
-        alert("Incorrect password! Please try again.");
-        currentPassword = "";
-        updatePasswordDisplay();
+        const popup = document.getElementById("passwordPopup");
+        const feedback = document.getElementById("passwordFeedback");
+        feedback.innerText = "Wrong Password!";
+        popup.classList.add("shake");
+        setTimeout(() => {
+          popup.classList.remove("shake");
+          currentPassword = "";
+          updatePasswordDisplay();
+          feedback.innerText = "";
+        }, 1000);
       }
     }
 
