@@ -45,8 +45,9 @@
       margin: 20px auto;
       display: flex;
       flex-wrap: wrap;
-      justify-content: center; 
+      justify-content: center;
       gap: 15px;
+      /* flex-grow: 1; */ /* REMOVED - This caused buttons to stretch vertically */
     }
 
     .word-button {
@@ -150,6 +151,20 @@
       box-shadow: 0 6px 12px rgba(0,0,0,0.4);
     }
 
+    /* --- Watermark Style --- */
+    .watermark {
+      position: fixed; /* Position relative to the viewport */
+      bottom: 5px;     /* Small distance from the bottom */
+      right: 10px;    /* Small distance from the right */
+      font-size: 10px; /* Make it small */
+      color: #bbb;    /* Light gray color */
+      opacity: 0.4;    /* Make it quite transparent */
+      z-index: 5;      /* Keep it above most elements but below popups */
+      pointer-events: none; /* Prevent it from interfering with clicks */
+    }
+    /* --- End Watermark Style --- */
+
+
     @media (max-width: 768px) {
       h1 {
         font-size: 36px;
@@ -179,6 +194,7 @@
         padding: 15px 25px;
         max-width: 250px;
       }
+      .watermark { right: 5px; bottom: 2px; } /* Adjust watermark for mobile */
     }
      @media (max-width: 400px) {
         #wordDetails button {
@@ -244,7 +260,6 @@
       // Ensure 'words' array is loaded before proceeding
       if (typeof words === 'undefined' || !Array.isArray(words)) {
          console.error("Word list ('words' array) not loaded when updateWordList was called.");
-         // Display message if container exists
          const wordListContainer = document.getElementById("wordList");
          if(wordListContainer) wordListContainer.innerHTML = "<p>Error loading words. Try refreshing.</p>";
          return;
@@ -254,42 +269,32 @@
       const level = parseInt(levelSelect.value);
       let start;
 
-      // Determine word index range based on selected level
-      if (level < 5) {
-        start = level * 10; // Levels 1-a to 1-e (0-4) -> Indices 0-49
-      } else if (level < 10) {
-        start = 50 + (level - 5) * 10; // Levels 2-a to 2-e (5-9) -> Indices 50-99
-      } else if (level < 15) {
-        start = 100 + (level - 10) * 10; // Levels 3-a to 3-e (10-14) -> Indices 100-149
-      } else {
-        start = 150 + (level - 15) * 50; // Levels 4-9 (15-20) -> Indices 150+
-      }
+      if (level < 5) start = level * 10;
+      else if (level < 10) start = 50 + (level - 5) * 10;
+      else if (level < 15) start = 100 + (level - 10) * 10;
+      else start = 150 + (level - 15) * 50;
 
-      const wordCount = level < 15 ? 10 : 50; // 10 words for levels 1-3, 50 for levels 4+
-      // Ensure slice doesn't go out of bounds if words array is shorter than expected
+      const wordCount = level < 15 ? 10 : 50;
       const levelWords = words.slice(start, Math.min(start + wordCount, words.length));
 
       const wordListContainer = document.getElementById("wordList");
-      wordListContainer.innerHTML = ""; // Clear previous list or loading message
+      wordListContainer.innerHTML = ""; // Clear previous list
 
-      // Check if any words were actually found for the calculated range
       if (levelWords.length === 0) {
-         console.warn(`No words found for level ${level} (start index: ${start}). Check word list data or level logic.`);
+         console.warn(`No words found for level ${level} (start index: ${start}).`);
          wordListContainer.innerHTML = "<p>No words available for this level.</p>";
          return;
       }
 
-      // Create and append buttons for each word in the selected level
       levelWords.forEach((wordData) => {
-        // Basic check for valid word data object and word property
         if (!wordData || typeof wordData.word !== 'string' || wordData.word.trim() === '') {
            console.warn("Skipping invalid word data object:", wordData);
-           return; // Skip this iteration if data is malformed
+           return;
         }
         const btn = document.createElement("button");
         btn.className = "word-button";
         btn.innerText = wordData.word;
-        btn.onclick = () => showDetails(wordData); // Pass the whole word object to showDetails
+        btn.onclick = () => showDetails(wordData);
         wordListContainer.appendChild(btn);
       });
     }
@@ -299,18 +304,15 @@
      * @param {object} wordData - The object containing word, part, and definition.
      */
     function showDetails(wordData) {
-      // Stop any ongoing speech synthesis before showing new details
       if (isSpeaking) {
          speechSynthesis.cancel();
          isSpeaking = false;
-         // Re-enable pronounce button if it exists and was disabled
          const pronounceBtn = document.getElementById("pronounceWord");
          if (pronounceBtn) pronounceBtn.disabled = false;
       }
 
-      currentWord = wordData; // Store the current word object globally for pronunciation
+      currentWord = wordData;
 
-      // Update the text content of the details elements
       const detailWordEl = document.getElementById("detailWord");
       const detailPartEl = document.getElementById("detailPart");
       const detailDefinitionEl = document.getElementById("detailDefinition");
@@ -319,7 +321,6 @@
       if (detailPartEl) detailPartEl.innerText = `Part of Speech: ${wordData.part || 'N/A'}`;
       if (detailDefinitionEl) detailDefinitionEl.innerText = `Definition: ${wordData.definition || 'N/A'}`;
 
-      // Display the details popup
       const wordDetailsPopup = document.getElementById("wordDetails");
       if (wordDetailsPopup) wordDetailsPopup.style.display = "block";
     }
@@ -328,18 +329,13 @@
      * Hides the word details popup.
      */
     function hideDetails() {
-      // Stop any speech synthesis if the details popup is closed
       if (isSpeaking) {
          speechSynthesis.cancel();
          isSpeaking = false;
       }
-
       const wordDetailsPopup = document.getElementById("wordDetails");
       if (wordDetailsPopup) wordDetailsPopup.style.display = "none";
-
-      currentWord = null; // Clear the currently selected word
-
-      // Ensure the pronounce button is re-enabled if it exists
+      currentWord = null;
       const pronounceBtn = document.getElementById("pronounceWord");
       if (pronounceBtn) pronounceBtn.disabled = false;
     }
@@ -348,263 +344,126 @@
      * Pronounces the word currently displayed in the details popup.
      */
     function pronounceCurrentWord() {
-      // Check preconditions: not already speaking, a word is selected, and it's valid
       if (isSpeaking || !currentWord || typeof currentWord.word !== 'string' || currentWord.word.trim() === '') {
-         console.warn("Pronunciation blocked: Speaking, no word selected, or invalid word data.");
+         console.warn("Pronunciation blocked: Speaking, no word selected, or invalid word.");
          return;
       }
 
-      // Cancel any previous speech attempts just in case
       speechSynthesis.cancel();
-      isSpeaking = true; // Set the flag
+      isSpeaking = true;
       const pronounceBtn = document.getElementById("pronounceWord");
-      if (pronounceBtn) pronounceBtn.disabled = true; // Disable button during speech
+      if (pronounceBtn) pronounceBtn.disabled = true;
 
       const wordToSpeak = currentWord.word.toLowerCase();
-      // Sanitize word for Howjsay URL (allow letters, hyphens, apostrophes)
       const wordForHowjsay = wordToSpeak.replace(/[^a-z\-']/g, '');
 
       // --- Helper: Speak Text using Web Speech API ---
       const speakText = (text) => {
-        return new Promise((resolve, reject) => {
-          // Check for cancellation at the start of the promise
-          if (!isSpeaking) return reject(new Error("Cancelled before speaking"));
-
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "en-US"; // Set language for better pronunciation
-          utterance.rate = 0.7; // Adjust speed (optional)
-          utterance.pitch = 0.7; // Adjust pitch (optional)
-          let ended = false; // Flag to prevent multiple resolves/rejects
-          let timer = null; // Timeout handler
-
-          // Resolve promise when speech ends successfully
-          utterance.onend = () => {
-            clearTimeout(timer); // Clear timeout on successful end
-            if (!ended) {
-               ended = true;
-               resolve();
-            }
-          };
-
-          // Handle errors during speech synthesis
-          utterance.onerror = (event) => {
-            clearTimeout(timer); // Clear timeout on error
-            if (!ended) {
-               ended = true;
-               console.error("SpeechSynthesis Error:", event.error);
-               // Resolve anyway to allow the sequence to potentially try Howjsay
-               resolve();
-            }
-          };
-
-          // Add a safety timeout in case onend/onerror events don't fire
-          timer = setTimeout(() => {
-            if (!ended) {
-               ended = true;
-               console.warn(`SpeechSynthesis Timeout for "${text}"`);
-               // Resolve even on timeout to keep the sequence moving
-               resolve();
-            }
-          }, text.length * 150 + 3000); // Timeout based on text length + buffer
-
-          // Final cancellation check right before calling speak()
-          if (!isSpeaking) {
-            clearTimeout(timer);
-            return reject(new Error("Cancelled just before speaking"));
-          }
-          speechSynthesis.speak(utterance); // Initiate speech
+         // ... (same speakText function as before) ...
+         return new Promise((resolve, reject) => {
+            if (!isSpeaking) return reject(new Error("Cancelled before speaking"));
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-US"; utterance.rate = 0.7; utterance.pitch = 0.7;
+            let ended = false; let timer = null;
+            const cleanup = (error = null) => { clearTimeout(timer); if (ended) return; ended = true; if (error) reject(error); else resolve(); };
+            utterance.onend = () => cleanup();
+            utterance.onerror = (event) => { cleanup(new Error(event.error === 'interrupted' || event.error === 'canceled' ? "Cancelled" : `TTS Error: ${event.error}`)); };
+            timer = setTimeout(() => { cleanup(new Error("TTS Timeout")); }, text.length * 150 + 4000);
+            if (!isSpeaking) return cleanup(new Error("Cancelled"));
+            try { speechSynthesis.speak(utterance); } catch (e) { cleanup(e); }
         });
       };
 
       // --- Helper: Play Audio from Howjsay ---
       const playHowjsayAudio = () => {
-         // Check if the sanitized word is valid for a URL
-         if (!wordForHowjsay) {
-            return Promise.reject(new Error("Invalid word format for Howjsay URL"));
-         }
-         // Check for cancellation
-         if (!isSpeaking) return Promise.reject(new Error("Cancelled before Howjsay"));
-
-         const audio = new Audio(`https://howjsay.com/mp3/${wordForHowjsay}.mp3`);
-         audio.volume = 0.7; // Set desired volume
-         let resolved = false; // Flags to prevent multiple promise settlements
-         let rejected = false;
-         let timer = null; // Timeout handler
-
-         // Cleanup function to remove listeners and release audio resources
-         const cleanup = () => {
-            clearTimeout(timer);
-            audio.oncanplaythrough = null;
-            audio.onerror = null;
-            audio.onended = null;
-            audio.src = ""; // Release resource by clearing src
-            try { audio.load(); } catch(e) { /* Ignore potential errors during cleanup load */ }
-         }
-
-         return new Promise((resolve, reject) => {
-            // Set a timeout for the entire Howjsay process (load + play)
-            timer = setTimeout(() => {
-               if (!resolved && !rejected) {
-                  rejected = true; // Mark as rejected
-                  console.warn(`Howjsay Timeout for "${wordForHowjsay}"`);
-                  cleanup(); // Perform cleanup
-                  reject(new Error("Howjsay audio load/play timeout")); // Reject the promise
-               }
-            }, 4000); // 4-second timeout
-
-            // Attempt to play when enough data is loaded
-            audio.oncanplaythrough = () => {
-               if (resolved || rejected) return; // Ignore if already settled
-               // Check for cancellation before attempting to play
-               if (!isSpeaking) {
-                  rejected = true;
-                  cleanup();
-                  return reject(new Error("Cancelled before Howjsay play"));
-               }
-               // Play the audio, handle potential play errors (e.g., user interaction required)
-               audio.play()
-                  .catch(err => {
-                     if (!resolved && !rejected) {
-                        rejected = true;
-                        console.error(`Howjsay Play Error for "${wordForHowjsay}":`, err);
-                        cleanup();
-                        reject(err); // Reject promise on play error
-                     }
-                  });
-            };
-
-            // Handle network or loading errors
-            audio.onerror = (e) => {
-               if (!resolved && !rejected) {
-                  rejected = true;
-                  console.warn(`Howjsay Load/Network Error for "${wordForHowjsay}"`);
-                  cleanup();
-                  reject(new Error(`Howjsay audio failed to load`)); // Reject promise on load error
-               }
-            };
-
-            // Resolve the promise when audio playback finishes successfully
-            audio.onended = () => {
-               if (!resolved && !rejected) {
-                  resolved = true;
-                  cleanup();
-                  resolve(); // Resolve promise on successful completion
-               }
-            };
-
-            // Final cancellation check before initiating load
-            if (!isSpeaking) {
-               rejected = true;
-               cleanup();
-               return reject(new Error("Cancelled just before Howjsay load"));
-            }
-            audio.load(); // Start loading the audio file
-         });
+        // ... (same playHowjsayAudio function as before) ...
+        if (!wordForHowjsay) { return Promise.reject(new Error("Invalid word format for Howjsay URL")); }
+        if (!isSpeaking) return Promise.reject(new Error("Cancelled"));
+        const audio = new Audio(`https://howjsay.com/mp3/${wordForHowjsay}.mp3`);
+        audio.volume = 0.7; let resolved = false; let rejected = false; let timer = null;
+        const cleanup = () => { clearTimeout(timer); audio.oncanplaythrough = audio.onerror = audio.onended = null; audio.src = ""; try { audio.load(); } catch (e) {} };
+        return new Promise((resolve, reject) => {
+            timer = setTimeout(() => { if (!resolved && !rejected) { rejected = true; console.warn(`Howjsay Timeout: "${wordForHowjsay}"`); cleanup(); reject(new Error("Howjsay audio load/play timeout")); } }, 4000);
+            audio.oncanplaythrough = () => { if (resolved || rejected) return; if (!isSpeaking) { rejected = true; cleanup(); return reject(new Error("Cancelled")); } audio.play().catch(err => { if (!resolved && !rejected) { rejected = true; console.error(`Howjsay Play Error: "${wordForHowjsay}"`, err); cleanup(); reject(err); } }); };
+            audio.onerror = (e) => { if (!resolved && !rejected) { rejected = true; console.warn(`Howjsay Load/Network Error: "${wordForHowjsay}"`); cleanup(); reject(new Error(`Howjsay audio failed to load`)); } };
+            audio.onended = () => { if (!resolved && !rejected) { resolved = true; cleanup(); resolve(); } };
+            if (!isSpeaking) { rejected = true; cleanup(); return reject(new Error("Cancelled")); }
+            try { audio.load(); } catch (loadError) { if (!resolved && !rejected) { rejected = true; console.error(`Howjsay Initial Load Error: "${wordForHowjsay}"`, loadError); cleanup(); reject(loadError); } }
+        });
       };
 
       // --- Asynchronous Pronunciation Sequence ---
       const pronounceSequence = async () => {
         console.log(`Pronouncing: ${wordToSpeak}`);
         try {
-          // Attempt 1: Web Speech API (TTS)
-          if (isSpeaking) {
-             console.log("Attempting TTS...");
-             await speakText(wordToSpeak);
-          }
-
-          // Short pause between attempts
-          if (isSpeaking) {
-             await new Promise(resolve => setTimeout(resolve, 250)); // 250ms pause
-          }
-
-          // Attempt 2: Howjsay Audio (with fallback to TTS on failure)
+          if (isSpeaking) { console.log("Attempting TTS..."); await speakText(wordToSpeak); }
+          if (isSpeaking) await new Promise(resolve => setTimeout(resolve, 250));
           if (isSpeaking) {
             console.log("Attempting Howjsay...");
-            try {
-              await playHowjsayAudio();
-              console.log("Howjsay succeeded.");
-            } catch (howjsayError) {
-              // Log the failure and attempt TTS fallback
+            try { await playHowjsayAudio(); console.log("Howjsay succeeded."); }
+            catch (howjsayError) {
               console.warn("Howjsay failed, falling back to TTS:", howjsayError?.message || howjsayError);
-              if (isSpeaking) { // Check cancellation again before fallback
-                 console.log("Attempting TTS fallback...");
-                 await speakText(wordToSpeak);
-              }
+              if (isSpeaking) { console.log("Attempting TTS fallback..."); await speakText(wordToSpeak); }
             }
           }
         } catch (error) {
-           // Catch errors from speakText/playHowjsay or cancellation errors
-           if (error?.message?.includes("Cancelled")) {
-              console.log("Pronunciation sequence intentionally cancelled.");
-           } else {
-              // Log unexpected errors during the sequence
-              console.error("Error during pronunciation sequence:", error);
-           }
+           if (error?.message?.includes("Cancelled")) { console.log("Pronunciation sequence intentionally cancelled."); }
+           else { console.error("Error during pronunciation sequence:", error); }
         } finally {
-          // This block always executes, regardless of success, error, or cancellation
           console.log("Pronunciation sequence finished or cancelled.");
-          isSpeaking = false; // Reset the speaking flag
-          // Re-enable the pronounce button if it still exists
+          isSpeaking = false;
           const finalPronounceBtn = document.getElementById("pronounceWord");
           if (finalPronounceBtn) finalPronounceBtn.disabled = false;
         }
       };
 
-      pronounceSequence(); // Start the asynchronous pronunciation sequence
+      pronounceSequence(); // Start the sequence
     }
 
     // --- Initial Page Setup ---
     document.addEventListener('DOMContentLoaded', () => {
        console.log("Word List DOM loaded.");
-       const wordListContainer = document.getElementById("wordList"); // Get container once
+       console.log("Spelling Bee Word List by CC (Chih-Chun Chia)"); // <<< CONSOLE LOG ADDED
+       const wordListContainer = document.getElementById("wordList");
 
-       // Interval to check if the external 'words' array has loaded
        const checkWordsLoaded = setInterval(() => {
-          // Check if 'words' is defined, is an array, and not empty
           if (typeof words !== 'undefined' && Array.isArray(words) && words.length > 0) {
-             clearInterval(checkWordsLoaded); // Stop checking
+             clearInterval(checkWordsLoaded);
              console.log(`'words' array confirmed loaded (${words.length} words).`);
 
-             // --- Pre-select Level Logic ---
-             const savedLevel = localStorage.getItem('currentLevel'); // Read level saved by index.html
-             if (savedLevel !== null) { // Check if a level was saved
+             const savedLevel = localStorage.getItem('currentLevel');
+             if (savedLevel !== null) {
                  const levelSelect = document.getElementById('levelSelect');
                  if (levelSelect) {
-                    // Verify the saved level exists as an option value
                     const optionExists = Array.from(levelSelect.options).some(opt => opt.value === savedLevel);
                     if (optionExists) {
-                       levelSelect.value = savedLevel; // Set dropdown to the saved level
+                       levelSelect.value = savedLevel;
                        console.log(`Pre-selected level ${savedLevel} from localStorage.`);
                     } else {
-                       // Warn if the saved level isn't in the current dropdown options
                        console.warn(`Saved level ${savedLevel} not found in dropdown options. Using default.`);
                     }
                  }
              }
-             // --- End Pre-select ---
-
-             updateWordList(); // Populate the word list based on the (possibly pre-selected) level
-
+             updateWordList(); // Initial population of word list
           } else {
-             // Keep console logging while waiting, but don't update UI repeatedly
              console.log("Waiting for 'words' array...");
           }
-       }, 100); // Check every 100ms
+       }, 100);
 
-       // Safety timeout for the word loading check
        setTimeout(() => {
-           clearInterval(checkWordsLoaded); // Stop checking after timeout
-           // Final check if words loaded
+           clearInterval(checkWordsLoaded);
            if (typeof words === 'undefined' || !Array.isArray(words) || words.length === 0) {
                console.error("Failed to load 'words' array after 5 seconds.");
-               // Display error message if the container exists
-               if(wordListContainer && wordListContainer.innerHTML.includes("Loading words...")) { // Avoid overwriting if already loaded
+               if(wordListContainer && wordListContainer.innerHTML.includes("Loading words...")) {
                   wordListContainer.innerHTML = "<p style='color: red;'>Error: Could not load word data. Please check connection and refresh.</p>";
                }
            }
-       }, 5000); // 5-second timeout
-    });
+       }, 5000);
+    }); // End DOMContentLoaded
 
   </script>
+
+  <div class="watermark">Created by CC</div>
+
 </body>
 </html>
